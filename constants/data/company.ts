@@ -1,0 +1,38 @@
+export const companies = [
+  {
+    id: 1,
+    name: 'Company Name',
+    role: 'Owner',
+    members: 7,
+    projects: 3,
+    owner: 'Duy Nguyen',
+    image: 'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=500',
+  },
+  {
+    id: 2,
+    name: 'Company Name',
+    role: 'Leader',
+    members: 4,
+    projects: 2,
+    owner: 'Duy Nguyen',
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=500',
+  },
+  {
+    id: 3,
+    name: 'Company Name',
+    role: 'Member',
+    members: 6,
+    projects: 1,
+    owner: 'Duy Nguyen',
+    image: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=500',
+  },
+  {
+    id: 4,
+    name: 'Company Name',
+    role: 'Leader',
+    members: 3,
+    projects: 2,
+    owner: 'Duy Nguyen',
+    image: 'https://images.unsplash.com/photo-1511389026070-a14ae610a1be?w=500',
+  },
+];

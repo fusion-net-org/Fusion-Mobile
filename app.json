@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FUSION",
-    "slug": "FUSION",
+    "name": "FusionMobile",
+    "slug": "fusion-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,14 +19,19 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./android/google-services.json",
+      "useNextNotificationsApi": true,
+      "package": "com.fusion.mobile"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",
+      "expo-notifications",
       [
         "expo-splash-screen",
         {
@@ -43,6 +48,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "FUSION_API_BASE_URL": "http://10.0.2.2:5191/api",
+      "FUSION_API_BASE_URL_REAL_DEVICE": "http://192.168.0.105:5191/api",
+      "eas": {
+        "projectId": "87d06425-2ddd-42e4-91d3-4b8173353533"
+      }
     }
   }
 }
