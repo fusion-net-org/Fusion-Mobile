@@ -23,7 +23,7 @@ export default ({ config }) => ({
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
-    googleServicesFile: './android/google-services.json',
+    googleServicesFile: './google-services.json',
     package: 'com.fusion.mobile',
   },
   web: {
