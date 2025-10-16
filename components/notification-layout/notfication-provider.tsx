@@ -1,3 +1,5 @@
+import { queryClient } from '@/src/redux/queryClient';
+import { MarkAsReadNotification } from '@/src/services/notificationService';
 import messaging from '@react-native-firebase/messaging';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -55,6 +57,8 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       const { data, title, body } = notification.request.content;
       const type = data?.type;
 
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+
       if (type === 'SYSTEM') {
         // SYSTEM → show toast
         Toast.show({
@@ -67,14 +71,28 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
           topOffset: 50,
         });
       }
-      // BUSINESS → không xử lý ở foreground (schedule khi nhận FCM)
     });
 
-    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data;
-      console.log('📲 User clicked notification:', data);
-      // navigate nếu muốn
-    });
+    const responseListener = Notifications.addNotificationResponseReceivedListener(
+      async (response) => {
+        const data = response.notification.request.content.data;
+        console.log('📲 User clicked notification:', data);
+
+        const notificationId = data?.NotificationId as string | undefined;
+
+        if (notificationId) {
+          try {
+            await MarkAsReadNotification(notificationId);
+            console.log('✅ Marked notification as read from click event');
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+          } catch (err) {
+            console.error('❌ Failed to mark as read:', err);
+          }
+        }
+
+        // navigate nếu muốn
+      },
+    );
 
     return () => {
       foregroundListener.remove();
@@ -86,6 +104,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       const { notification, data } = remoteMessage;
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       if (!notification) return;
 
       const type = data?.type;

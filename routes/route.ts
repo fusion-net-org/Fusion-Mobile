@@ -4,7 +4,7 @@ export const ROUTES = {
     SCHEDULE: '/(tabs)/schedule',
     CALENDAR: '/(tabs)/calendar',
     ANALYTICS: '/(tabs)/analytics',
-    NOTIFICATION: '/(tabs)/home/notification',
+    NOTIFICATION: '/(tabs)/notification',
   },
   ACCOUNT: {
     INDEX: '/(tabs)/home/profile',

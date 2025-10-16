@@ -1,5 +1,7 @@
 import { NotificationProvider } from '@/components/notification-layout/notfication-provider';
+import { queryClient } from '@/src/redux/queryClient'; // 👈 bạn tạo file này như ở bước trước
 import { store } from '@/src/redux/store';
+import { QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import Toast from 'react-native-toast-message';
@@ -19,15 +21,17 @@ export default function RootLayout() {
   });
 
   return (
-    <Provider store={store}>
-      <NotificationProvider>
-        <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
-          <Stack.Screen name="index" />
-          <Stack.Screen name="auth" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-        <Toast />
-      </NotificationProvider>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <NotificationProvider>
+          <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
+            <Stack.Screen name="index" />
+            <Stack.Screen name="auth" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+          <Toast />
+        </NotificationProvider>
+      </Provider>
+    </QueryClientProvider>
   );
 }

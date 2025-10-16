@@ -1,11 +1,11 @@
 import { Text, View } from 'react-native';
 
-const Notification_Setting = () => {
+const NotificationSetting = () => {
   return (
     <View>
-      <Text>Notification_Setting</Text>
+      <Text>Notification Setting</Text>
     </View>
   );
 };
 
-export default Notification_Setting;
+export default NotificationSetting;

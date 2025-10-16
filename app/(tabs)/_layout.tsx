@@ -1,13 +1,23 @@
 import { TABS } from '@/constants/navigate/tabs';
+import { GetNotifications } from '@/src/services/notificationService';
 import { TabIconProps } from '@/types/Icon/TabIconProps';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'expo-router';
 import { StatusBar, Text, View } from 'react-native';
 import '../globals.css';
 
 export default function IconLayout() {
-  // useForegroundNotification();
+  // 🧠 Lấy cache hiện tại của notifications (nếu có)
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: GetNotifications,
+  });
+  console.log('📨 Current notifications in cache:', notifications);
+  const unreadCount = notifications?.filter((n: any) => !n.isRead)?.length ?? 0;
+
   const TabIcon = ({ focused, iconName, title }: TabIconProps) => {
+    const isNotificationTab = title === 'Notification';
     return (
       <View className="mt-7 flex-col items-center justify-center" style={{ height: '100%' }}>
         <View
@@ -23,6 +33,27 @@ export default function IconLayout() {
             size={focused ? 25 : 25}
             color={focused ? '#0F0D23' : '#A8B5DB'}
           />
+          {/* 🔴 Badge số lượng chưa đọc */}
+          {isNotificationTab && unreadCount > 0 && (
+            <View
+              style={{
+                position: 'absolute',
+                top: -5,
+                right: -10,
+                backgroundColor: 'red',
+                borderRadius: 10,
+                paddingHorizontal: 5,
+                paddingVertical: 1,
+                minWidth: 18,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={{ minHeight: 20, marginTop: 2 }}>
@@ -30,7 +61,7 @@ export default function IconLayout() {
             <Text
               className="font-semibold"
               style={{
-                fontSize: 14,
+                fontSize: 11,
                 color: '#0F0D23',
                 textAlign: 'center',
                 width: 80,
@@ -47,7 +78,6 @@ export default function IconLayout() {
   return (
     <>
       <StatusBar hidden={true} />
-      {/* <Toast /> */}
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
@@ -55,8 +85,9 @@ export default function IconLayout() {
             backgroundColor: '#F2F2F2',
             height: 70,
             borderTopWidth: 0,
+            borderWidth: 2,
             borderRadius: 20,
-            marginHorizontal: 20,
+            marginHorizontal: 10,
             marginBottom: 20,
             position: 'absolute',
             shadowColor: '#000',

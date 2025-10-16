@@ -22,3 +22,44 @@ export const sendNotification = async (data: SendNotificationRequest): Promise<a
     throw new Error(message);
   }
 };
+
+export const MarkAsReadNotification = async (notificationId: string): Promise<any> => {
+  try {
+    console.log('📤 Marking notification as read:', notificationId);
+
+    const response = await apiInstance.put(`/notifications/${notificationId}/read`);
+
+    if (response.data?.statusCode === 200) {
+      console.log('✅ Notification marked as read successfully');
+      return response.data;
+    } else {
+      throw new Error(response.data?.message || 'Mark as read notification failed');
+    }
+  } catch (error: any) {
+    console.error('❌ Mark as read notification error:', error);
+
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      'Mark as read notification failed';
+    throw new Error(message);
+  }
+};
+
+export const GetNotifications = async (): Promise<any> => {
+  try {
+    console.log('📤 Fetching notifications for user:');
+    const response = await apiInstance.get(`/notifications/user`);
+    if (response.data?.statusCode === 200) {
+      console.log('✅ Notifications fetched successfully');
+      return response.data.data;
+    } else {
+      throw new Error(response.data?.message || 'Fetch notifications failed');
+    }
+  } catch (error: any) {
+    console.error('❌ Fetch notifications error:', error);
+    const message =
+      error.response?.data?.message || error.response?.data?.error || 'Fetch notifications failed';
+    throw new Error(message);
+  }
+};
