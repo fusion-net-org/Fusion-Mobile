@@ -2,6 +2,7 @@ import { NotificationProvider } from '@/components/notification-layout/notficati
 import { store } from '@/src/redux/store';
 import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import { Provider } from 'react-redux';
 
 export default function RootLayout() {
@@ -25,6 +26,7 @@ export default function RootLayout() {
           <Stack.Screen name="auth" />
           <Stack.Screen name="(tabs)" />
         </Stack>
+        <Toast />
       </NotificationProvider>
     </Provider>
   );

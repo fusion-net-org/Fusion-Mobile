@@ -1,3 +1,4 @@
+import { sendNotification } from '@/src/services/notificationService';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -64,22 +65,21 @@ export default function Login() {
         return;
       }
 
-      // try {
-      //   dispatch(
-      //     await sendNotification({
-      //       userId: userId,
-      //       title: '🎉 Đăng nhập thành công!',
-      //       body: `Chào mừng ${userData.userName} quay trở lại ứng dụng 👋`,
-      //       event: 'UserLogin',
-      //       context: JSON.stringify({ time: new Date().toISOString() }),
-      //       notificationType: 'SYSTEM',
-      //     }),
-      //   ).unwrap();
-
-      //   console.log('✅ Notification sent to user');
-      // } catch (notifyErr) {
-      //   console.warn('⚠️ Send notification failed:', notifyErr);
-      // }
+      try {
+        dispatch(
+          await sendNotification({
+            userId: userId,
+            title: '🎉 Đăng nhập thành công!',
+            body: `Chào mừng ${userData.userName} quay trở lại ứng dụng 👋`,
+            event: 'UserLogin',
+            context: JSON.stringify({ time: new Date().toISOString() }),
+            notificationType: 'SYSTEM',
+          }),
+        ).unwrap();
+        console.log('✅ Notification sent to user');
+      } catch (notifyErr) {
+        console.warn('⚠️ Send notification failed:', notifyErr);
+      }
 
       router.replace(ROUTES.HOME.COMPANY as any); // điều hướng sang trang chính
     } catch (err: any) {

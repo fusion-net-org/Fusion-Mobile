@@ -3,11 +3,12 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
 
-  // Cấu hình channel cho Android
+  // Android channel
   useEffect(() => {
     if (Platform.OS === 'android') {
       Notifications.setNotificationChannelAsync('default', {
@@ -19,55 +20,60 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     }
   }, []);
 
-  // Đăng ký permission và lấy token
+  // Lấy permission & token
   useEffect(() => {
     const registerForPushNotificationsAsync = async () => {
-      let token;
-      if (Device.isDevice) {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-
-        if (existingStatus !== 'granted') {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
-
-        if (finalStatus !== 'granted') {
-          console.log('🚨 Failed to get push token for push notification!');
-          return;
-        }
-
-        token = (await Notifications.getExpoPushTokenAsync()).data;
-        console.log('📨 Expo Push Token:', token);
-        setExpoPushToken(token);
-      } else {
+      if (!Device.isDevice) {
         console.log('Must use physical device for Push Notifications');
+        return;
       }
 
-      return token;
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== 'granted') {
+        console.log('🚨 Failed to get push token!');
+        return;
+      }
+
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log('📨 Expo Push Token:', token);
+      setExpoPushToken(token);
     };
 
     registerForPushNotificationsAsync();
   }, []);
 
-  // Nhận notification khi app ở foreground
+  // Expo foreground notifications
   useEffect(() => {
     const foregroundListener = Notifications.addNotificationReceivedListener((notification) => {
-      console.log('🔔 Notification received in foreground:', notification);
-      // Alert.alert(
-      //   notification.request.content.title ?? 'Thông báo',
-      //   notification.request.content.body ?? '',
-      // );
-      // Có thể show alert, cập nhật state, ...
+      const { data, title, body } = notification.request.content;
+      const type = data?.type;
+
+      if (type === 'SYSTEM') {
+        // SYSTEM → show toast
+        Toast.show({
+          type: 'info',
+          text1: title ?? 'Notification',
+          text2: body ?? '',
+          position: 'top',
+          visibilityTime: 3000,
+          autoHide: true,
+          topOffset: 50,
+        });
+      }
+      // BUSINESS → không xử lý ở foreground (schedule khi nhận FCM)
     });
 
-    // Khi click notification
     const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
       console.log('📲 User clicked notification:', data);
-
-      // Ví dụ điều hướng theo data:
-      // if (data.screen) navigate(data.screen, data.params);
+      // navigate nếu muốn
     });
 
     return () => {
@@ -76,17 +82,36 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     };
   }, []);
 
-  // Firebase background & quit notifications
+  // Firebase foreground messages
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      console.log('📨 FCM foreground message:', remoteMessage);
       const { notification, data } = remoteMessage;
-      if (notification) {
+      if (!notification) return;
+
+      const type = data?.type;
+      const title = notification.title ?? 'Notification';
+      const body = notification.body ?? '';
+
+      if (type === 'SYSTEM') {
+        // SYSTEM → show toast
+        Toast.show({
+          type: 'info',
+          text1: title,
+          text2: body,
+          position: 'top',
+          visibilityTime: 3000,
+          autoHide: true,
+          topOffset: 50,
+        });
+      }
+
+      if (type === 'BUSINESS') {
+        // BUSINESS → hiển thị banner notification
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: notification.title,
-            body: notification.body,
-            data: data,
+            title,
+            body,
+            data,
           },
           trigger: null,
         });
