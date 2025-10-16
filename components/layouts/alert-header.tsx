@@ -1,9 +1,10 @@
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { Image, TouchableOpacity, View } from 'react-native';
+import { useEffect, useMemo } from 'react';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import { notifications } from '../../constants/data/notification';
 import { images } from '../../constants/image/image';
 import { ROUTES } from '../../routes/route';
 import { RootState } from '../../src/redux/store';
@@ -13,6 +14,10 @@ const AlertHeader = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.user);
+
+  const unreadCount = useMemo(() => {
+    return notifications.filter((n) => !n.isRead).length;
+  }, []);
 
   // Gọi API lấy thông tin user chi tiết khi component mount
   useEffect(() => {
@@ -41,8 +46,16 @@ const AlertHeader = () => {
           >
             <View className="rounded-full bg-gray-100 p-2">
               <FontAwesome5 name="bell" size={20} color="#333" />
-              <View className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500" />
             </View>
+
+            {/* 🔴 Hiển thị số lượng chưa đọc */}
+            {unreadCount > 0 && (
+              <View className="absolute -right-1 -top-1 min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1">
+                <Text className="text-[10px] font-bold text-white">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
 
           {/* Avatar → Account */}

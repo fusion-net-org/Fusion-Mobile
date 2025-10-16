@@ -2,12 +2,12 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { RegisterUserDeviceRequest } from '../../interfaces/auth';
+import { RegisterUserDeviceRequest } from '../../interfaces/user';
 import { apiInstance } from '../api/apiInstance';
 
 export const registerDevice = async (deviceInfo: RegisterUserDeviceRequest): Promise<any> => {
   try {
-    const response = await apiInstance.post('/Device/Register', deviceInfo);
+    const response = await apiInstance.post('/user-device', deviceInfo);
 
     if (response.data.statusCode === 200) {
       return response.data;
@@ -47,13 +47,13 @@ export const getDeviceInfo = async () => {
       projectId: Constants.expoConfig?.extra?.eas.projectId,
     });
     const deviceToken = tokenData.data;
-    console.log('✅ FCM Token:', deviceToken);
+    console.log('🔥 Device token:', deviceToken);
 
     // 3️⃣ Device info
     return {
-      deviceToken,
-      platform: Platform.OS.toUpperCase(), // ANDROID
-      deviceName: Device.modelName || 'Expo Device',
+      DeviceToken: deviceToken,
+      Platform: Platform.OS.toUpperCase(), // 👈 enum khớp backend DevicePlatform
+      DeviceName: Device.modelName || 'Unknown Device',
     };
   } catch (error) {
     console.error('❌ Error getting FCM token:', error);

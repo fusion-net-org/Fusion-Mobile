@@ -3,9 +3,6 @@ import { apiInstance } from '../api/apiInstance';
 export const getUserById = async (userId: string): Promise<any> => {
   try {
     const response = await apiInstance.get(`/User/${userId}`);
-
-    console.log('getUserById response:', response);
-
     if (response.data.statusCode === 200) {
       return response.data;
     } else {

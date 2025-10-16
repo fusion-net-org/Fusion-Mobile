@@ -2,11 +2,12 @@ import { ROUTES } from '@/routes/route';
 import { useRootNavigationState, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { initializeUserState } from '../redux/store';
+import { initializeUserState } from '../../src/redux/store';
 export default function AuthGate() {
   const router = useRouter();
   const navReady = useRootNavigationState()?.key != null;
   const [loading, setLoading] = useState(true);
+  console.log('🔐 AuthGate mounted');
 
   useEffect(() => {
     if (!navReady) return;

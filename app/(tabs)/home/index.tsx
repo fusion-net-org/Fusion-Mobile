@@ -74,6 +74,7 @@ const Home = () => {
     <>
       <StatusBar hidden={true} />
       <AlertHeader />
+
       <View className="flex-1 bg-gray-50 pt-3">
         {/* Search Bar */}
         <View className="mx-4 mb-4 flex-row items-center rounded-full border border-gray-100 bg-white px-4 py-2 shadow-sm">

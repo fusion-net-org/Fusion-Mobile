@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -33,10 +34,6 @@ export default function Login() {
     try {
       const response = await login({ email, password });
 
-      // Debug log để kiểm tra response structure
-      console.log('Login response:', response);
-      console.log('Response data:', response.data);
-
       const userData = response.data;
       const loginData = {
         userName: userData.userName,
@@ -44,7 +41,7 @@ export default function Login() {
         refreshToken: userData.refreshToken,
       };
 
-      // Lưu user data vào Redux trước
+      // Lưu user data vào Redux
       dispatch(loginUser(loginData));
 
       // Sau khi lưu user data, gọi register device
@@ -53,6 +50,36 @@ export default function Login() {
       } catch (deviceError) {
         console.warn('⚠️ Device registration failed after login:', deviceError);
       }
+
+      const storedUser = await AsyncStorage.getItem('user');
+      if (!storedUser) {
+        console.warn('⚠️ Không tìm thấy user trong AsyncStorage');
+        return;
+      }
+
+      const user = JSON.parse(storedUser);
+      const userId = user.userId;
+      if (!userId) {
+        console.warn('⚠️ userId không tồn tại trong AsyncStorage');
+        return;
+      }
+
+      // try {
+      //   dispatch(
+      //     await sendNotification({
+      //       userId: userId,
+      //       title: '🎉 Đăng nhập thành công!',
+      //       body: `Chào mừng ${userData.userName} quay trở lại ứng dụng 👋`,
+      //       event: 'UserLogin',
+      //       context: JSON.stringify({ time: new Date().toISOString() }),
+      //       notificationType: 'SYSTEM',
+      //     }),
+      //   ).unwrap();
+
+      //   console.log('✅ Notification sent to user');
+      // } catch (notifyErr) {
+      //   console.warn('⚠️ Send notification failed:', notifyErr);
+      // }
 
       router.replace(ROUTES.HOME.COMPANY as any); // điều hướng sang trang chính
     } catch (err: any) {

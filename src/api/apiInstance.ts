@@ -12,6 +12,8 @@ export const apiInstance = axios.create({
   },
 });
 
+console.log(Constants.expoConfig?.extra?.FUSION_API_BASE_URL_REAL_DEVICE);
+
 // Request interceptor
 apiInstance.interceptors.request.use(
   async (config) => {

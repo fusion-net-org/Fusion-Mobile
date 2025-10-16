@@ -6,6 +6,7 @@ import { StatusBar, Text, View } from 'react-native';
 import '../globals.css';
 
 export default function IconLayout() {
+  // useForegroundNotification();
   const TabIcon = ({ focused, iconName, title }: TabIconProps) => {
     return (
       <View className="mt-7 flex-col items-center justify-center" style={{ height: '100%' }}>
@@ -46,7 +47,7 @@ export default function IconLayout() {
   return (
     <>
       <StatusBar hidden={true} />
-
+      {/* <Toast /> */}
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,

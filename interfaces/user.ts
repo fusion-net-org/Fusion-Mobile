@@ -9,3 +9,16 @@ export interface UserStore {
   avatar?: string; // URL avatar của user
   fullName?: string; // Tên đầy đủ của user
 }
+
+export interface RegisterUserDeviceRequest {
+  DeviceToken: string;
+  Platform: string; // "ANDROID" | "IOS" | "WEB"
+  DeviceName?: string;
+}
+
+export interface UserDeviceState {
+  isRegistering: boolean;
+  isRegistered: boolean;
+  error: string | null;
+  lastRegisteredAt: string | null;
+}

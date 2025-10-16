@@ -5,9 +5,6 @@ export const login = async (login: LoginRequest): Promise<any> => {
   try {
     console.log('baseURL =', apiInstance.defaults.baseURL);
     const response = await apiInstance.post('/Authen/login', login);
-
-    console.log(response);
-
     if (response.data.statusCode === 200) {
       return response.data;
     } else {

@@ -8,9 +8,3 @@ export interface LoginData {
   accessToken: string;
   refreshToken: string;
 }
-
-export interface RegisterUserDeviceRequest {
-  deviceToken: string;
-  platform: string;
-  deviceName: string;
-}

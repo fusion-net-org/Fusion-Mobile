@@ -1,12 +1,6 @@
+import { UserDeviceState } from '@/interfaces/user';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getDeviceInfo, registerDevice } from '../services/userDeviceService';
-
-interface UserDeviceState {
-  isRegistering: boolean;
-  isRegistered: boolean;
-  error: string | null;
-  lastRegisteredAt: string | null;
-}
 
 const initialState: UserDeviceState = {
   isRegistering: false,
@@ -24,7 +18,10 @@ export const registerUserDevice = createAsyncThunk(
       const response = await registerDevice(deviceInfo);
       return response;
     } catch (error: any) {
-      console.error('❌ Device registration failed:', error);
+      console.error(
+        '❌ Device registration failed:',
+        JSON.stringify(error.response?.data || error.message, null, 2),
+      );
       return rejectWithValue(error.message || 'Device registration failed');
     }
   },
