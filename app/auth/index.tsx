@@ -28,7 +28,7 @@ export default function AuthLayout() {
             activeOpacity={0.8}
             className="mb-4 rounded-lg border border-white py-3"
             onPress={() => {
-              //navigation.navigate('Register')
+              router.push(ROUTES.AUTH.REGISTER as any);
             }}
           >
             <Text className="text-center font-semibold text-white">CREATE ACCOUNT</Text>

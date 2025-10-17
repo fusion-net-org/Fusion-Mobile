@@ -76,7 +76,6 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     const responseListener = Notifications.addNotificationResponseReceivedListener(
       async (response) => {
         const data = response.notification.request.content.data;
-        console.log('📲 User clicked notification:', data);
 
         const notificationId = data?.NotificationId as string | undefined;
 

@@ -1,7 +1,8 @@
 import { UserStore } from '@/interfaces/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { LoginData } from '../../interfaces/auth';
+import { LoginData, LoginRequest, RegisterRequest } from '../../interfaces/auth';
+import { login, register } from '../services/authService';
 import { getUserById } from '../services/userService';
 import { getJWTPayload } from '../utils/jwtHelper';
 
@@ -16,7 +17,39 @@ const initialState: UserState = {
   loading: false,
   error: null,
 };
+/* =========================================================
+   🧠 LOGIN THUNK
+========================================================= */
+export const loginUserThunk = createAsyncThunk(
+  'user/loginUserThunk',
+  async (data: LoginRequest, { rejectWithValue }) => {
+    try {
+      const response = await login(data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Login failed');
+    }
+  },
+);
 
+/* =========================================================
+   🧠 REGISTER THUNK
+========================================================= */
+export const registerUserThunk = createAsyncThunk(
+  'user/registerUserThunk',
+  async (data: RegisterRequest, { rejectWithValue }) => {
+    try {
+      const response = await register(data);
+      return response.data; // Backend trả về token hoặc user info
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Register failed');
+    }
+  },
+);
+
+/* =========================================================
+   🧠 FETCH USER DETAILS
+========================================================= */
 // Async thunk để lấy thông tin user chi tiết
 export const fetchUserDetails = createAsyncThunk(
   'user/fetchUserDetails',
@@ -35,12 +68,12 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     loginUser: (state, action: PayloadAction<LoginData | UserStore>) => {
-      // Kiểm tra xem đã có userId chưa (từ restore)
       if ('userId' in action.payload && action.payload.userId) {
         state.user = action.payload;
         AsyncStorage.setItem('user', JSON.stringify(action.payload));
       } else {
         const loginData = action.payload as LoginData;
+        console.log('Access', loginData.accessToken);
         const jwtPayload = getJWTPayload(loginData.accessToken);
 
         const user: UserStore = {
@@ -76,6 +109,42 @@ const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    /* =========================================================
+       REGISTER THUNK
+    ========================================================= */
+    builder
+      .addCase(registerUserThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUserThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        const data = action.payload;
+
+        if (data.accessToken) {
+          const jwtPayload = getJWTPayload(data.accessToken);
+
+          const user: UserStore = {
+            userName: jwtPayload?.username || data.userName,
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+            userId: jwtPayload?.sub,
+            email: jwtPayload?.email,
+            expired: jwtPayload?.exp,
+          };
+
+          state.user = user;
+          AsyncStorage.setItem('user', JSON.stringify(user));
+        }
+      })
+      .addCase(registerUserThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    /* =========================================================
+       FETCH USER DETAILS
+    ========================================================= */
     builder
       .addCase(fetchUserDetails.pending, (state) => {
         state.loading = true;

@@ -8,3 +8,11 @@ export interface LoginData {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}

@@ -19,8 +19,7 @@ import { images } from '../../../constants/image/image';
 import { ROUTES } from '../../../routes/route';
 import { AppDispatch } from '../../../src/redux/store';
 import { registerUserDevice } from '../../../src/redux/userDeviceSlice';
-import { loginUser } from '../../../src/redux/userSlice';
-import { login } from '../../../src/services/authService';
+import { loginUser, loginUserThunk } from '../../../src/redux/userSlice';
 
 export default function Login() {
   const router = useRouter();
@@ -33,7 +32,12 @@ export default function Login() {
   const handleLogin = async () => {
     setError('');
     try {
-      const response = await login({ email, password });
+      const response = await dispatch(
+        loginUserThunk({
+          email,
+          password,
+        }),
+      ).unwrap();
 
       const userData = response.data;
       const loginData = {
@@ -41,7 +45,6 @@ export default function Login() {
         accessToken: userData.accessToken,
         refreshToken: userData.refreshToken,
       };
-
       // Lưu user data vào Redux
       dispatch(loginUser(loginData));
 
@@ -190,18 +193,14 @@ export default function Login() {
               <Text className="font-medium text-gray-700">Sign in with Google</Text>
             </TouchableOpacity>
 
-            {/* Sign up link & Forgot password */}
+            {/* Sign up link*/}
             <View className="mt-3 items-center space-y-2">
-              <TouchableOpacity activeOpacity={0.8}>
-                <Text className="text-sm font-medium text-[#0B66FF]">Forgot password?</Text>
-              </TouchableOpacity>
-
               <Text className="mt-3 text-sm text-gray-600">
                 Don&apos;t have account?{' '}
                 <Text
                   className="font-semibold text-[#0B66FF]"
                   onPress={() => {
-                    // router.push('/auth/register');
+                    router.push(ROUTES.AUTH.REGISTER as any);
                   }}
                 >
                   Sign up
