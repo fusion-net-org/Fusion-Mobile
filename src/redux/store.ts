@@ -1,6 +1,8 @@
 import { UserStore } from '@/interfaces/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { configureStore } from '@reduxjs/toolkit';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import companyReducer from './compnaySlice';
 import userDeviceReducer from './userDeviceSlice';
 import userReducer, { loginUser } from './userSlice';
 
@@ -25,11 +27,17 @@ export const store = configureStore({
   reducer: {
     user: userReducer,
     userDevice: userDeviceReducer,
+    company: companyReducer,
   },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+
+// // ✅ Dùng RootState thay cho State thông thường
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 // Hàm khởi tạo lại state khi app mở
 export const initializeUserState = async () => {

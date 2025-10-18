@@ -73,7 +73,6 @@ const userSlice = createSlice({
         AsyncStorage.setItem('user', JSON.stringify(action.payload));
       } else {
         const loginData = action.payload as LoginData;
-        console.log('Access', loginData.accessToken);
         const jwtPayload = getJWTPayload(loginData.accessToken);
 
         const user: UserStore = {

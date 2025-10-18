@@ -51,7 +51,6 @@ export const GetNotifications = async (): Promise<any> => {
     console.log('📤 Fetching notifications for user:');
     const response = await apiInstance.get(`/notifications/user`);
     if (response.data?.statusCode === 200) {
-      console.log('✅ Notifications fetched successfully');
       return response.data.data;
     } else {
       throw new Error(response.data?.message || 'Fetch notifications failed');

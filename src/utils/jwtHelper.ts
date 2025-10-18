@@ -5,7 +5,6 @@
  */
 export const decodeJWT = (token: string): any => {
   try {
-    console.log(token);
     // Check if token exists and is a string
     if (!token || typeof token !== 'string') {
       console.error('❌ Token passed to getJWTPayload is invalid:', token);

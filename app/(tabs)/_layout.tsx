@@ -1,22 +1,25 @@
-import { TABS } from '@/constants/navigate/tabs';
+import { HOMETABS } from '@/constants/navigate/tabs';
 import { GetNotifications } from '@/src/services/notificationService';
 import { TabIconProps } from '@/types/Icon/TabIconProps';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
+
 import { StatusBar, Text, View } from 'react-native';
 import '../globals.css';
 
 export default function IconLayout() {
   // 🧠 Lấy cache hiện tại của notifications (nếu có)
+  const pathname = usePathname();
+
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
     queryFn: GetNotifications,
   });
-  console.log('📨 Current notifications in cache:', notifications);
   const unreadCount = notifications?.filter((n: any) => !n.isRead)?.length ?? 0;
 
-  const TabIcon = ({ focused, iconName, title }: TabIconProps) => {
+  const TabIcon = ({ iconName, title, href }: TabIconProps) => {
+    const isFocused = pathname === href.replace('/(tabs)', '');
     const isNotificationTab = title === 'Notification';
     return (
       <View className="mt-7 flex-col items-center justify-center" style={{ height: '100%' }}>
@@ -24,14 +27,14 @@ export default function IconLayout() {
           style={{
             alignItems: 'center',
             justifyContent: 'center',
-            transform: [{ translateY: focused ? -1 : 0 }],
-            zIndex: focused ? 15 : 1,
+            transform: [{ translateY: isFocused ? -1 : 0 }],
+            zIndex: isFocused ? 15 : 1,
           }}
         >
           <FontAwesome5
             name={iconName}
-            size={focused ? 25 : 25}
-            color={focused ? '#0F0D23' : '#A8B5DB'}
+            size={isFocused ? 25 : 25}
+            color={isFocused ? '#0F0D23' : '#A8B5DB'}
           />
           {/* 🔴 Badge số lượng chưa đọc */}
           {isNotificationTab && unreadCount > 0 && (
@@ -57,7 +60,7 @@ export default function IconLayout() {
         </View>
 
         <View style={{ minHeight: 20, marginTop: 2 }}>
-          {focused && (
+          {isFocused && (
             <Text
               className="font-semibold"
               style={{
@@ -107,14 +110,14 @@ export default function IconLayout() {
           },
         }}
       >
-        {TABS.map((tab) => (
+        {HOMETABS.map((tab) => (
           <Tabs.Screen
             key={tab.name}
             name={tab.name}
             options={{
               headerShown: false,
-              tabBarIcon: ({ focused }) => (
-                <TabIcon focused={focused} iconName={tab.iconName} title={tab.title} />
+              tabBarIcon: () => (
+                <TabIcon href={tab.href} iconName={tab.iconName} title={tab.title} />
               ),
             }}
           />
