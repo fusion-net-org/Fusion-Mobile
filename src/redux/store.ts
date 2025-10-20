@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import companyReducer from './compnaySlice';
+import partnerReducer from './partnerSlice';
+
 import userDeviceReducer from './userDeviceSlice';
 import userReducer, { loginUser } from './userSlice';
 
@@ -28,6 +30,7 @@ export const store = configureStore({
     user: userReducer,
     userDevice: userDeviceReducer,
     company: companyReducer,
+    partner: partnerReducer,
   },
 });
 

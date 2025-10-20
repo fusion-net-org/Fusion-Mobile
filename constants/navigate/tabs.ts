@@ -25,3 +25,9 @@ export const COMPANYTABS = [
   { title: 'Members', path: ROUTES.COMPANY.MEMBERS, key: 'members' },
   { title: 'Partners', path: ROUTES.COMPANY.PARTNERS, key: 'partners' },
 ];
+
+export const PARTNERDETAILTABS = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'activity', label: 'Activity' },
+  { key: 'project_request', label: 'Project Request' },
+];

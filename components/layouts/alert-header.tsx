@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { images } from '../../constants/image/image';
 import { ROUTES } from '../../routes/route';
-import { clearSelectedCompany, loadCompanyFromCache } from '../../src/redux/compnaySlice';
+import { loadCompanyFromCache } from '../../src/redux/compnaySlice';
 import { RootState } from '../../src/redux/store';
 import { fetchUserDetails } from '../../src/redux/userSlice';
 
@@ -33,8 +33,11 @@ const AlertHeader = () => {
   }, []);
 
   const handleLogoPress = () => {
-    if (isInCompanyDetail) {
-      dispatch(clearSelectedCompany());
+    if (isInCompanyDetail && selectedCompany) {
+      // Quay về trang chính của công ty
+      router.replace(`${ROUTES.COMPANY.DETAIL}/${selectedCompany.id}` as any);
+    } else {
+      // Khi ở ngoài company_detail thì về trang danh sách công ty
       router.replace(ROUTES.HOME.COMPANY as any);
     }
   };

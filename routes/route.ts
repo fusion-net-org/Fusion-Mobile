@@ -13,6 +13,12 @@ export const ROUTES = {
     PROJECTS: '/(tabs)/home/company_detail/projects',
     WORKFLOWS: '/(tabs)/home/company_detail/workflows',
   },
+  PARTNER: {
+    DETAIL: '/(tabs)/home/company_detail/partners/partner_detail',
+    ACTIVITY: '/(tabs)/home/company_detail/partners/partner_detail/activity',
+    OVERVIEW: '/(tabs)/home/company_detail/partners/partner_detail/overview',
+    PROJECT_REQUEST: '/(tabs)/home/company_detail/partners/partner_detail/project_request',
+  },
   ACCOUNT: {
     INDEX: '/(tabs)/home/profile',
     NOTIFICATION_SETTING: '/(tabs)/home/profile/notification_setting',

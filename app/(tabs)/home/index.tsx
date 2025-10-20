@@ -1,6 +1,6 @@
 import FilterSection from '@/components/company-layout/filtersection';
 import AlertHeader from '@/components/layouts/alert-header';
-import { companyImages } from '@/constants/image/image';
+import { emptyImages } from '@/constants/image/image';
 import { ROUTES } from '@/routes/route'; // hoặc đường dẫn đúng đến file ROUTES.ts
 import {
   fetchCompaniesThunk,
@@ -135,7 +135,7 @@ const Home = () => {
         ) : data.length === 0 ? (
           <View className="flex-1 items-center justify-center">
             <Image
-              source={companyImages.emptyCompany}
+              source={emptyImages.emptyCompany}
               className="mb-4 h-48 w-48"
               resizeMode="contain"
             />

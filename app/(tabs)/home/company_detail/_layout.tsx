@@ -5,7 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Slot, useFocusEffect, useLocalSearchParams, usePathname } from 'expo-router';
 import { useCallback } from 'react';
 import { StatusBar, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
 export default function CompanyDetailLayout() {
@@ -18,7 +17,6 @@ export default function CompanyDetailLayout() {
       return () => {
         // Khi rời group company_detail
         if (!pathname.includes('company_detail')) {
-          console.log('🧹 Reset company data instantly');
           dispatch(clearSelectedCompany()); // 👉 reset Redux NGAY
           AsyncStorage.removeItem('selectedCompany'); // xoá nền sau
         }
@@ -27,13 +25,13 @@ export default function CompanyDetailLayout() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <>
       <StatusBar barStyle="dark-content" />
       <AlertHeader />
       {id && <CompanyDetailHeaderNavbar id={id as string} />}
       <View style={{ flex: 1 }}>
         <Slot />
       </View>
-    </SafeAreaView>
+    </>
   );
 }

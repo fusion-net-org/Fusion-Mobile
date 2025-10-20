@@ -38,10 +38,10 @@ export interface CompanyFilter {
 export interface CompanyFilterApi {
   keyword?: string;
   sortColumn?: string;
-  sortOrder?: boolean; // ✅ backend nhận boolean
+  sortOrder?: boolean;
   totalProject?: number;
   totalMember?: number;
-  relationship?: number; // ví dụ backend dùng enum number
+  relationship?: number;
   pageNumber: number;
   pageSize: number;
 }

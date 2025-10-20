@@ -13,32 +13,31 @@ const CompanyDetailHeaderNavbar = ({ id }: { id: string }) => {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 10 }}
+        contentContainerStyle={{
+          paddingHorizontal: 10,
+          alignItems: 'center',
+        }}
       >
         {COMPANYTABS.map((tab, index) => {
           const targetPath = `/home/company_detail/${tab.key}/${id}`;
-
           const isActive = tab.key === currentTab;
-
-          console.log(targetPath);
 
           return (
             <TouchableOpacity
               key={index}
-              onPress={() => {
-                if (!isActive) {
-                  router.replace(targetPath as any);
-                }
-              }}
               activeOpacity={0.7}
-              className="mr-6 items-center pb-2"
+              onPress={() => {
+                if (!isActive) router.replace(targetPath as any);
+              }}
+              className="mr-6 h-12 items-center justify-center"
             >
               <Text
-                className={`text-base font-medium ${isActive ? 'text-blue-600' : 'text-gray-600'}`}
+                className={`text-base font-medium ${isActive ? 'text-blue-600' : 'text-gray-700'}`}
               >
                 {tab.title}
               </Text>
-              {isActive && <View className="mt-1 h-[2px] w-6 rounded-full bg-blue-600" />}
+
+              {isActive && <View className="mt-1 h-[3px] w-8 rounded-full bg-blue-600" />}
             </TouchableOpacity>
           );
         })}
