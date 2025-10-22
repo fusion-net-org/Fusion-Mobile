@@ -3,7 +3,7 @@ import { PagedResult } from '@/interfaces/base';
 import { Company, CompanyFilter, CompanyState } from '@/interfaces/company';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GetPagedCompanies } from '../services/companyServices';
+import { GetCompanyById, GetPagedCompanies } from '../services/companyServices';
 import { mapRelationshipCompany, mapSortOrderToBool } from '../utils/mapRelationshipCompany';
 
 const initialState: CompanyState = {
@@ -43,6 +43,18 @@ export const fetchCompaniesThunk = createAsyncThunk<
     return rejectWithValue(error?.message || 'Failed to fetch companies');
   }
 });
+
+export const fetchCompanyByIdThunk = createAsyncThunk<Company, string, { rejectValue: string }>(
+  'company/fetchById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const result = await GetCompanyById(id);
+      return result;
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to fetch company by ID');
+    }
+  },
+);
 
 export const loadCompanyFromCache = createAsyncThunk('company/loadFromCache', async () => {
   const saved = await AsyncStorage.getItem('selectedCompany');
@@ -92,6 +104,14 @@ const companySlice = createSlice({
       .addCase(fetchCompaniesThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to load companies';
+      })
+      .addCase(loadCompanyFromCache.fulfilled, (state, action) => {
+        state.selectedCompany = action.payload;
+      })
+      .addCase(fetchCompanyByIdThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to load company details';
+        state.selectedCompany = null; // 👈 xoá data cũ khi fetch lỗi
       });
   },
 });

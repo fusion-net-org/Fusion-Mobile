@@ -4,6 +4,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import companyReducer from './compnaySlice';
 import partnerReducer from './partnerSlice';
+import projectRequestReducer from './projectRequestSlice';
 
 import userDeviceReducer from './userDeviceSlice';
 import userReducer, { loginUser } from './userSlice';
@@ -31,6 +32,7 @@ export const store = configureStore({
     userDevice: userDeviceReducer,
     company: companyReducer,
     partner: partnerReducer,
+    projectRequest: projectRequestReducer,
   },
 });
 

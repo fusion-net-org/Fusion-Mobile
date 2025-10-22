@@ -50,3 +50,20 @@ export const GetPagedCompanies = async (
     throw new Error(message);
   }
 };
+
+export const GetCompanyById = async (companyId: string): Promise<Company> => {
+  try {
+    const response = await apiInstance.get(`/company/${companyId}`);
+    console.log('Id theo company', response.data.data);
+    if (response.data?.statusCode === 200) {
+      return response.data.data as Company;
+    } else {
+      throw new Error(response.data?.message || 'Fetch company failed');
+    }
+  } catch (error: any) {
+    console.error('❌ Fetch company error:', error);
+    const message =
+      error.response?.data?.message || error.response?.data?.error || 'Fetch company failed';
+    throw new Error(message);
+  }
+};

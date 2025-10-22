@@ -1,4 +1,3 @@
-// components/DatePickerModal.tsx
 import { FontAwesome5 } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import { Modal, Text, TouchableOpacity, View } from 'react-native';
