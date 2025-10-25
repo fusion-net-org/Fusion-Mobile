@@ -9,7 +9,7 @@ export const GetPageMemberInCompany = async (
   try {
     const response = await apiInstance.get(`/companymember/paged/${companyId}`, {
       params: {
-        memberName: filter.memberName,
+        keyword: filter.memberName,
         sortColumn: filter.sortColumn,
         sortDescending: filter.sortOrder,
         pageNumber: filter.pageNumber,
