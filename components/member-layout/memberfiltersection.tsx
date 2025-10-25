@@ -5,10 +5,9 @@ import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import DatePickerSection from '../layouts/datepickersection';
 
-export default function PartnerFilterSection({ onFilterChange }: any) {
+export default function MemberFilterSection({ onFilterChange }: any) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('All');
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState<'from' | 'to' | null>(null);
@@ -18,20 +17,39 @@ export default function PartnerFilterSection({ onFilterChange }: any) {
     setIsOpen((prev) => {
       const next = !prev;
       height.value = withTiming(next ? 180 : 0, { duration: 250 });
-      if (!next) setShowDatePicker(null);
+
+      if (!next) {
+        // Khi đóng filter → reset lại tất cả
+        setShowDatePicker(null);
+        setSearch('');
+        setDateFrom(null);
+        setDateTo(null);
+
+        // Gọi reset filter (trả về mặc định)
+        onFilterChange({
+          memberName: '',
+          dateRange: {
+            from: null,
+            to: null,
+          },
+        });
+      }
+
       return next;
     });
   };
+
   const animatedStyle = useAnimatedStyle(() => ({ height: height.value, overflow: 'hidden' }));
 
   useEffect(() => {
     onFilterChange({
-      keyword: search,
-      status,
-      fromDate: dateFrom ? formatLocalDate(dateFrom) : null,
-      toDate: dateTo ? formatLocalDate(dateTo) : null,
+      memberName: search,
+      dateRange: {
+        from: dateFrom ? formatLocalDate(dateFrom) : null,
+        to: dateTo ? formatLocalDate(dateTo) : null,
+      },
     });
-  }, [search, status, dateFrom, dateTo]);
+  }, [search, dateFrom, dateTo]);
 
   return (
     <View className="mt-3 px-4">
@@ -47,12 +65,11 @@ export default function PartnerFilterSection({ onFilterChange }: any) {
         <View className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
           {/* Search */}
           <View className="mb-3">
-            <Text className="mb-1 text-xs text-gray-500">Search Company / Owner / Status</Text>
+            <Text className="mb-1 text-xs text-gray-500">Search Member Name</Text>
             <TextInput
               value={search}
               onChangeText={setSearch}
               placeholder="Type keyword..."
-              // onBlur={triggerFilter}
               className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700"
             />
           </View>
