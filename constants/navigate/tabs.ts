@@ -31,3 +31,5 @@ export const PARTNERDETAILTABS = [
   { key: 'activity', label: 'Activity' },
   { key: 'project_request', label: 'Project Request' },
 ];
+
+export const CompanyDetailTabs = ['Overview', 'Contact', 'Projects'];

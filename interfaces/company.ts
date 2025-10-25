@@ -9,10 +9,22 @@ export interface Company {
   detail: string;
   imageCompany: string;
   avatarCompany: string;
+  website: string;
+  address: string;
+  phoneNumber: string;
+
   createAt: string;
   updateAt: string;
+
+  isOwner: boolean;
+  isPartner: boolean;
+  isPendingAprovePartner: boolean;
+
   totalMember: number;
   totalProject: number;
+  totalPartners: number;
+  totalApproved: number;
+  totalWaitForApprove: number;
 }
 
 export interface CompanyState {

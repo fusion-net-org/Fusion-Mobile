@@ -11,7 +11,7 @@ import userReducer, { loginUser } from './userSlice';
 
 const loadUserState = async () => {
   try {
-    await AsyncStorage.clear();
+    // await AsyncStorage.clear();
     const storedUser = await AsyncStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   } catch (error) {
