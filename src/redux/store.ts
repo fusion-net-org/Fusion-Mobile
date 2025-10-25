@@ -3,15 +3,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import companyReducer from './compnaySlice';
+import memberReducer from './memberSlice';
 import partnerReducer from './partnerSlice';
 import projectRequestReducer from './projectRequestSlice';
-
 import userDeviceReducer from './userDeviceSlice';
 import userReducer, { loginUser } from './userSlice';
 
 const loadUserState = async () => {
   try {
-    // await AsyncStorage.clear();
+    await AsyncStorage.clear();
     const storedUser = await AsyncStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   } catch (error) {
@@ -33,6 +33,7 @@ export const store = configureStore({
     company: companyReducer,
     partner: partnerReducer,
     projectRequest: projectRequestReducer,
+    member: memberReducer,
   },
 });
 

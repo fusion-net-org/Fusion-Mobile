@@ -7,7 +7,6 @@ import {
 } from '@/src/redux/projectRequestSlice';
 import { RootState, useAppDispatch, useAppSelector } from '@/src/redux/store';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
-import { requestStatusColorBorder, requestStatusColorText } from '@/src/utils/statusColorHelper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -148,9 +147,20 @@ const ProjectRequestSection = ({ partnerId }: Props) => {
 
             {/* Status */}
             <View
-              className={`rounded-full border px-3 py-1 ${requestStatusColorBorder(item.status)}`}
+              className={`rounded-full border px-3 py-1
+                ${item.status === 'Accepted' ? 'border-green-500' : ''}
+                ${item.status === 'Rejected' ? 'border-red-500' : ''}
+                ${item.status === 'Pending' ? 'border-yellow-500' : ''}
+                ${!['Active', 'Inactive', 'Pending'].includes(item.status) ? 'border-gray-400' : ''}`}
             >
-              <Text className={`text-xs font-medium ${requestStatusColorText(item.status)}`}>
+              <Text
+                className={`
+                  text-xs font-medium
+                  ${item.status === 'Accepted' ? 'text-green-500' : ''}
+                  ${item.status === 'Rejected' ? 'text-red-500' : ''}
+                  ${item.status === 'Pending' ? 'text-yellow-500' : ''}
+                  ${!['Active', 'Inactive', 'Pending'].includes(item.status) ? 'text-gray-500' : ''}`}
+              >
                 {item.status || 'Unknown'}
               </Text>
             </View>

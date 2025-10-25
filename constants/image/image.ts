@@ -5,6 +5,7 @@ import register from '../../assets/images/auth/register.png';
 import emptyCompany from '../../assets/images/company/empty.png';
 import logoFusion from '../../assets/images/logoFusion/Logo and company.png';
 import google from '../../assets/images/logoFusion/icons8-google-96.png';
+import emptyMember from '../../assets/images/member/member.png';
 import emptyPartner from '../../assets/images/partner/partner.png';
 export const images = {
   logoFusion,
@@ -19,6 +20,7 @@ export const authImages = {
 export const emptyImages = {
   emptyCompany,
   emptyPartner,
+  emptyMember,
 };
 
 export const authHeroImage = {

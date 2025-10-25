@@ -3,7 +3,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import DatePickerSection from '../partner-layout/datepickersection'; // đúng path nhé
+import DatePickerSection from '../layouts/datepickersection'; // đúng path nhé
 
 interface Props {
   onChange: (data: {
