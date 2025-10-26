@@ -8,7 +8,7 @@ export const apiInstance = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-    Accept: 'text/plain',
+    Accept: 'application/json',
   },
 });
 
@@ -26,7 +26,8 @@ apiInstance.interceptors.request.use(
     }
 
     if (config.data instanceof FormData) {
-      delete config.headers['Content-Type'];
+      config.headers['Content-Type'] = 'multipart/form-data';
+      config.transformRequest = [(data) => data];
     }
 
     return config;

@@ -50,3 +50,38 @@ export const changePasswordService = async (data: {
     throw new Error(message);
   }
 };
+
+export const updateSelfUser = async (formData: FormData): Promise<any> => {
+  try {
+    const response = await apiInstance.put('/User/self-user', formData);
+
+    if (response.data.statusCode === 200) {
+      console.log('Update self user success:', response.data.data);
+      return response.data.data;
+    } else {
+      throw new Error(response.data.message || 'Update user failed');
+    }
+  } catch (error: any) {
+    if (error.response) {
+      console.error('❌ [Axios Error Response]');
+      console.error('Status:', error.response.status);
+      console.error('Data:', error.response.data);
+      console.error('Headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('📡 [Axios No Response]');
+      console.error('Request:', error.request);
+    } else {
+      console.error('⚙️ [Axios Config Error]');
+      console.error('Message:', error.message);
+    }
+    console.error('🔧 [Axios Config]', error.config);
+
+    const message =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      'Update user failure';
+
+    throw new Error(message);
+  }
+};
