@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LoginData, LoginRequest, RegisterRequest } from '../../interfaces/auth';
 import { login, register } from '../services/authService';
-import { getUserById } from '../services/userService';
+import { getUserById, updateSelfUser } from '../services/userService';
 import { getJWTPayload } from '../utils/jwtHelper';
 
 interface UserState {
@@ -18,7 +18,7 @@ const initialState: UserState = {
   error: null,
 };
 /* =========================================================
-   🧠 LOGIN THUNK
+   LOGIN THUNK
 ========================================================= */
 export const loginUserThunk = createAsyncThunk(
   'user/loginUserThunk',
@@ -33,7 +33,7 @@ export const loginUserThunk = createAsyncThunk(
 );
 
 /* =========================================================
-   🧠 REGISTER THUNK
+   REGISTER THUNK
 ========================================================= */
 export const registerUserThunk = createAsyncThunk(
   'user/registerUserThunk',
@@ -48,7 +48,7 @@ export const registerUserThunk = createAsyncThunk(
 );
 
 /* =========================================================
-   🧠 FETCH USER DETAILS
+   FETCH USER DETAILS
 ========================================================= */
 // Async thunk để lấy thông tin user chi tiết
 export const fetchUserDetails = createAsyncThunk(
@@ -59,6 +59,21 @@ export const fetchUserDetails = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch user details');
+    }
+  },
+);
+
+/* =========================================================
+   UPDATE SELF USER
+========================================================= */
+export const updateUserThunk = createAsyncThunk(
+  'user/updateUserThunk',
+  async (formData: FormData, { rejectWithValue }) => {
+    try {
+      const result = await updateSelfUser(formData);
+      return result; // đã là response.data.data từ service
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Update user failed');
     }
   },
 );
@@ -166,6 +181,34 @@ const userSlice = createSlice({
         }
       })
       .addCase(fetchUserDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+    /* =========================================================
+       UPDATE SELF USER
+    ========================================================= */
+    builder
+      .addCase(updateUserThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserThunk.fulfilled, (state, action) => {
+        state.loading = false;
+
+        if (state.user) {
+          const updatedUser = {
+            ...state.user,
+            avatar: action.payload.avatar || state.user.avatar,
+            phone: action.payload.phone || state.user.phone,
+            address: action.payload.address || state.user.address,
+            gender: action.payload.gender || state.user.gender,
+          } as UserStore;
+
+          state.user = updatedUser;
+          AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+      })
+      .addCase(updateUserThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

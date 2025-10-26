@@ -35,6 +35,7 @@ export default ({ config }) => ({
   plugins: [
     'expo-router',
     'expo-notifications',
+    'expo-image-picker',
     [
       'expo-splash-screen',
       {
