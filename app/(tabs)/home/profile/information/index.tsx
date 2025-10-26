@@ -21,7 +21,7 @@ const ProfileInformation = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(user?.avatar || null);
   const [formData, setFormData] = useState({
-    email: user?.email || '',
+    avatar: user?.avatar || '',
     phone: user?.phone || '',
     address: user?.address || '',
     gender: user?.gender || '',
@@ -64,20 +64,17 @@ const ProfileInformation = () => {
       // ⚙️ Tạo formData để gửi API
       const data = new FormData();
 
-      if (avatar && avatar !== user.avatar) {
-        data.append('avatar', {
+      if (avatar && avatar !== user.avatar && !avatar.startsWith('http')) {
+        data.append('Avatar', {
           uri: avatar,
           type: 'image/jpeg',
           name: 'avatar.jpg',
         } as any);
       }
 
-      data.append('phone', formData.phone);
-      data.append('address', formData.address);
-      data.append('gender', formData.gender);
-
-      console.log('Submit data:', formData);
-      console.log('Avatar file:', avatar);
+      data.append('Phone', formData.phone);
+      data.append('Address', formData.address);
+      data.append('Gender', formData.gender);
 
       // TODO: gọi API update
       const result = await dispatch(updateUserThunk(data));
@@ -200,7 +197,7 @@ const ProfileInformation = () => {
             <Text className="text-base font-semibold text-gray-700">Gender</Text>
             {isEditing ? (
               <View className="mt-2 flex-row gap-4">
-                {['Nam', 'Nữ'].map((g) => (
+                {['Male', 'Female'].map((g) => (
                   <TouchableOpacity
                     key={g}
                     onPress={() => handleChange('gender', g)}

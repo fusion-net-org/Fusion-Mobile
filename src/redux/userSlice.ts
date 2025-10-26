@@ -70,8 +70,9 @@ export const updateUserThunk = createAsyncThunk(
   'user/updateUserThunk',
   async (formData: FormData, { rejectWithValue }) => {
     try {
+      console.log(formData, 'second');
       const result = await updateSelfUser(formData);
-      return result; // đã là response.data.data từ service
+      return result;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Update user failed');
     }
