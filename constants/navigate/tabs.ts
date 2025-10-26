@@ -33,3 +33,10 @@ export const PARTNERDETAILTABS = [
 ];
 
 export const CompanyDetailTabs = ['Overview', 'Contact', 'Projects'];
+
+export const ProfileTabs = [
+  { title: 'Information', icon: 'info-circle', path: ROUTES.ACCOUNT.INFORMATION },
+  { title: 'Change Password', icon: 'lock', path: ROUTES.ACCOUNT.CHANGE_PASSWORD },
+  { title: 'Settings', icon: 'cog', path: ROUTES.ACCOUNT.SETTING },
+  { title: 'Log out', icon: 'sign-out-alt', path: 'Logout' },
+];

@@ -7,6 +7,8 @@ import logoFusion from '../../assets/images/logoFusion/Logo and company.png';
 import google from '../../assets/images/logoFusion/icons8-google-96.png';
 import emptyMember from '../../assets/images/member/member.png';
 import emptyPartner from '../../assets/images/partner/partner.png';
+import changePassword from '../../assets/images/password/change_password.png';
+
 export const images = {
   logoFusion,
   google,
@@ -29,4 +31,8 @@ export const authHeroImage = {
   // taskPriority,
   // mobileManage,
   // performanceAnalytics,
+};
+
+export const passwordImage = {
+  changePassword,
 };

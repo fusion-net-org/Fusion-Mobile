@@ -1,4 +1,5 @@
 import { FontAwesome5 } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
@@ -8,7 +9,7 @@ import { images } from '../../constants/image/image';
 import { ROUTES } from '../../routes/route';
 import { loadCompanyFromCache } from '../../src/redux/compnaySlice';
 import { RootState } from '../../src/redux/store';
-import { fetchUserDetails } from '../../src/redux/userSlice';
+import { fetchUserDetails, updateUserRedux } from '../../src/redux/userSlice';
 
 const AlertHeader = () => {
   const router = useRouter();
@@ -22,9 +23,25 @@ const AlertHeader = () => {
 
   // 🔹 Load user avatar nếu chưa có
   useEffect(() => {
-    if (user?.userId && !user.avatar) {
-      dispatch(fetchUserDetails(user.userId) as any);
-    }
+    const loadUserDetail = async () => {
+      if (user?.userId && !user.avatar) {
+        const resultAction = await dispatch(fetchUserDetails(user.userId) as any);
+        const data = resultAction.payload;
+        console.log(data.avatar, data.gender, data.phone, data.address);
+        if (data) {
+          const updatedUser = {
+            ...user,
+            avatar: data.avatar,
+            gender: data.gender,
+            phone: data.phone,
+            address: data.address,
+          };
+          await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+          dispatch(updateUserRedux(updatedUser));
+        }
+      }
+    };
+    loadUserDetail();
   }, [user?.userId, user?.avatar]);
 
   // 🔹 Khi app mở, load company cache 1 lần

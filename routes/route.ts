@@ -21,8 +21,9 @@ export const ROUTES = {
   },
   ACCOUNT: {
     INDEX: '/(tabs)/home/profile',
-    NOTIFICATION_SETTING: '/(tabs)/home/profile/notification_setting',
+    SETTING: '/(tabs)/home/profile/setting',
     CHANGE_PASSWORD: '/(tabs)/home/profile/change_password',
+    INFORMATION: '/(tabs)/home/profile/information',
   },
   AUTH: {
     LOGIN: '/auth/login',
