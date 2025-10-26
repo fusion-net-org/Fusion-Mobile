@@ -8,6 +8,10 @@ export interface UserStore {
   email?: string; // từ JWT email
   avatar?: string; // URL avatar của user
   fullName?: string; // Tên đầy đủ của user
+
+  phone?: string;
+  address?: string;
+  gender?: string;
 }
 
 export interface RegisterUserDeviceRequest {
