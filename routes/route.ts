@@ -29,5 +29,6 @@ export const ROUTES = {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
     MAIN: '/auth',
+    REQUIRE_EMAIL: '/auth/require_email',
   },
 };

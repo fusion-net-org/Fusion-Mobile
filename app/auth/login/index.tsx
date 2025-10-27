@@ -160,7 +160,12 @@ export default function Login() {
 
             {/* Forgot password */}
             <View className="mb-4 items-end">
-              <TouchableOpacity activeOpacity={0.8}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  router.push(ROUTES.AUTH.REQUIRE_EMAIL as any);
+                }}
+              >
                 <Text className="text-sm font-medium text-[#0B66FF]">Forgot password?</Text>
               </TouchableOpacity>
             </View>
