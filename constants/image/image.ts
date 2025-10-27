@@ -8,7 +8,7 @@ import google from '../../assets/images/logoFusion/icons8-google-96.png';
 import emptyMember from '../../assets/images/member/member.png';
 import emptyPartner from '../../assets/images/partner/partner.png';
 import changePassword from '../../assets/images/password/change_password.png';
-
+import requireEmail from '../../assets/images/password/require_mail.png';
 export const images = {
   logoFusion,
   google,
@@ -35,4 +35,5 @@ export const authHeroImage = {
 
 export const passwordImage = {
   changePassword,
+  requireEmail,
 };

@@ -36,3 +36,21 @@ export const register = async (register: RegisterRequest): Promise<any> => {
     throw new Error(message);
   }
 };
+
+export const requestPasswordReset = async (email: string) => {
+  try {
+    const response = await apiInstance.post('/Authen/request-password-reset/mobile', { email });
+    if (response.data.statusCode === 200) {
+      return response.data;
+    } else {
+      throw new Error(response.data.message || 'Forget Password error');
+    }
+  } catch (error: any) {
+    console.error('Register error:', error);
+
+    const message =
+      error.response?.data?.message || error.response?.data?.error || 'Register Failure';
+
+    throw new Error(message);
+  }
+};
