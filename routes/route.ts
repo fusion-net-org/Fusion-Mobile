@@ -31,4 +31,8 @@ export const ROUTES = {
     MAIN: '/auth',
     REQUIRE_EMAIL: '/auth/require_email',
   },
+  TASK: {
+    CALENDAR_TASK: '/(tabs)/calendar/calendar_task_detail',
+    CALENDAR_TASK_LIST: '/(tabs)/calendar/calendar_list',
+  },
 };

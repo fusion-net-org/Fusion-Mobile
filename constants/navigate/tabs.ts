@@ -3,7 +3,12 @@ import { ROUTES } from '@/routes/route'; // hoặc đường dẫn đúng đến
 export const HOMETABS = [
   { name: 'home', iconName: 'home', title: 'Company', href: ROUTES.HOME.COMPANY },
   { name: 'schedule/index', iconName: 'clock', title: 'Schedule', href: ROUTES.HOME.SCHEDULE },
-  { name: 'calendar/index', iconName: 'calendar', title: 'Calendar', href: ROUTES.HOME.CALENDAR },
+  {
+    name: 'calendar',
+    iconName: 'calendar',
+    title: 'Calendar',
+    href: ROUTES.HOME.CALENDAR,
+  },
   {
     name: 'analytics/index',
     iconName: 'chart-bar',
@@ -39,4 +44,9 @@ export const ProfileTabs = [
   { title: 'Change Password', icon: 'lock', path: ROUTES.ACCOUNT.CHANGE_PASSWORD },
   { title: 'Settings', icon: 'cog', path: ROUTES.ACCOUNT.SETTING },
   { title: 'Log out', icon: 'sign-out-alt', path: 'Logout' },
+];
+
+export const CALENDAR_TABS = [
+  { key: 'calendar_list', title: 'List' },
+  { key: 'calendar', title: 'Calendar' },
 ];
