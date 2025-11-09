@@ -1,4 +1,7 @@
 export const ROUTES = {
+  MEMBER: {
+    DETAIL: '/(tabs)/home/company_detail/members/member_detail',
+  },
   HOME: {
     COMPANY: '/(tabs)/home',
     SCHEDULE: '/(tabs)/schedule',

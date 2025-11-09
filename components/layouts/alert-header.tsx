@@ -24,10 +24,14 @@ const AlertHeader = () => {
   // 🔹 Load user avatar nếu chưa có
   useEffect(() => {
     const loadUserDetail = async () => {
+      if (!user?.userId) return;
+
+      // Nếu avatar đã có thì không fetch lại
+      if (user.avatar) return;
+
       if (user?.userId && !user.avatar) {
         const resultAction = await dispatch(fetchUserDetails(user.userId) as any);
         const data = resultAction.payload;
-        console.log(data.avatar, data.gender, data.phone, data.address);
         if (data) {
           const updatedUser = {
             ...user,
@@ -42,7 +46,7 @@ const AlertHeader = () => {
       }
     };
     loadUserDetail();
-  }, [user?.userId, user?.avatar]);
+  }, [user?.userId]);
 
   // 🔹 Khi app mở, load company cache 1 lần
   useEffect(() => {

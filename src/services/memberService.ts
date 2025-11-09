@@ -30,3 +30,19 @@ export const GetPageMemberInCompany = async (
     throw new Error(message);
   }
 };
+
+export const GetCompanyMemberByCompanyIdAndUserId = async (
+  companyId: string,
+  userId: string,
+): Promise<any> => {
+  try {
+    console.log('===== FETCH COMPANY MEMBER =====');
+    console.log('companyId:', companyId);
+    console.log('userId:', userId);
+    const response = await apiInstance.get(`/companymember/member/${companyId}/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error inviting member:', error);
+    throw new Error((error as any).response?.data?.message || 'Failed to invite member');
+  }
+};

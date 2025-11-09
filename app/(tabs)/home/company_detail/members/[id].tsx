@@ -1,9 +1,10 @@
 import MemberFilterSection from '@/components/member-layout/memberfiltersection';
 import { emptyImages } from '@/constants/image/image';
+import { ROUTES } from '@/routes/route';
 import { fetchMembersThunk, resetMembers, updateMemberFilter } from '@/src/redux/memberSlice';
 import { useAppDispatch, useAppSelector } from '@/src/redux/store';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect } from 'react';
 
 import {
@@ -19,6 +20,7 @@ import {
 const Members = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const companyId = id;
+  const navigation = useNavigation();
   const { data, loading, filter, statusSummary } = useAppSelector((state) => state.member);
   const dispatch = useAppDispatch();
 
@@ -49,8 +51,15 @@ const Members = () => {
     dispatch(updateMemberFilter(updatedFilter));
     dispatch(fetchMembersThunk({ companyId, filter: updatedFilter }));
   };
-
   const handleMemberPress = (memberId: string) => {
+    console.log('===== HANDLE MEMBER PRESS =====');
+    router.push({
+      pathname: `${ROUTES.MEMBER.DETAIL}/${memberId}` as any,
+      params: {
+        id: memberId,
+        companyId: companyId,
+      },
+    });
     //console.log(`${ROUTES.PARTNER.DETAIL}/${partnerId}`);
     // router.push(`${ROUTES.PARTNER.DETAIL}/${partnerId}` as any);
   };

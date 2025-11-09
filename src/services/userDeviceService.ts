@@ -30,7 +30,7 @@ export const getDeviceInfo = async () => {
       throw new Error('⚠️ Must use physical device for notifications');
     }
 
-    // 1️⃣ Request permission
+    // Request permission
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
@@ -41,7 +41,7 @@ export const getDeviceInfo = async () => {
       console.warn('⚠️ Notification permission not granted');
     }
 
-    // 2️⃣ Get FCM token
+    // Get FCM token
     // @ts-ignore
     const tokenData = await Notifications.getDevicePushTokenAsync({
       projectId: Constants.expoConfig?.extra?.eas.projectId,
@@ -49,7 +49,7 @@ export const getDeviceInfo = async () => {
     const deviceToken = tokenData.data;
     console.log('🔥 Device token:', deviceToken);
 
-    // 3️⃣ Device info
+    // Device info
     return {
       DeviceToken: deviceToken,
       Platform: Platform.OS.toUpperCase(), // 👈 enum khớp backend DevicePlatform

@@ -1,16 +1,21 @@
 import { ROUTES } from '@/routes/route';
 import { useRootNavigationState, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { initializeUserState } from '../../src/redux/store';
 export default function AuthGate() {
   const router = useRouter();
   const navReady = useRootNavigationState()?.key != null;
   const [loading, setLoading] = useState(true);
+  const didRedirect = useRef(false); // ⚡ flag chống lặp
+  let executed = false;
+
   console.log('🔐 AuthGate mounted');
 
   useEffect(() => {
-    if (!navReady) return;
+    if (!navReady || didRedirect.current) return;
+    if (executed) return;
+    executed = true;
 
     (async () => {
       try {
@@ -22,11 +27,14 @@ export default function AuthGate() {
         } else {
           router.replace(ROUTES.AUTH.MAIN as any);
         }
+        didRedirect.current = true; // ✅ chỉ redirect 1 lần
       } catch (error) {
         console.error('❌ AuthGate error:', error);
         router.replace(ROUTES.AUTH.MAIN as any);
+        didRedirect.current = true;
       } finally {
         setLoading(false);
+        executed = true;
       }
     })();
   }, [navReady]);
