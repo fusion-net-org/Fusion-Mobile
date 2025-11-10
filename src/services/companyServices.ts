@@ -67,7 +67,7 @@ export const GetCompanyById = async (companyId: string): Promise<Company> => {
 
 export const AllActivityLogCompanyById = async (
   companyId: string,
-  Keyword = null,
+  Keyword: string | null = null,
   From = null,
   To = null,
   PageNumber = 1,

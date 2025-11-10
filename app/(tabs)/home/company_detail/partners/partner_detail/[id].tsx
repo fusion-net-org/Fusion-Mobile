@@ -299,7 +299,7 @@ export default function PartnerSummary() {
               <PerformanceSection partnerName={partnerData.name} partnerId={companyId} />
             )}
             {activeTab === 'project_request' && <ProjectRequestSection partnerId={companyId} />}
-            {activeTab === 'activity' && <ActivitySection />}
+            {activeTab === 'activity' && <ActivitySection companyId={companyId} />}
           </View>
         </>
       )}
