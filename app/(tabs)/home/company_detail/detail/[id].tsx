@@ -1,12 +1,13 @@
 import CompanyTabs from '@/components/company-detail-layout/company-detail-tabs';
 import ContactSection from '@/components/company-detail-layout/ContactSection';
+import DashBoardCompanyDetailSection from '@/components/company-detail-layout/DashBoardCompanyDetailSection';
 import OverviewCompanySection from '@/components/company-detail-layout/OverviewCompanySection';
 import ProjectInforamtionSection from '@/components/company-detail-layout/ProjectInformationSection';
 import { emptyImages } from '@/constants/image/image';
 import { CompanyDetailTabs } from '@/constants/navigate/tabs';
 import { Company } from '@/interfaces/company';
+import { GetCompanyById } from '@/src/services/companyServices';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 
@@ -20,33 +21,30 @@ const CompanyDetail = () => {
 
   useEffect(() => {
     const fetchCompany = async () => {
-      const storedCompany = await AsyncStorage.getItem('selectedCompany');
+      const storedCompany = await GetCompanyById(id as string);
       if (storedCompany) {
-        const company = JSON.parse(storedCompany);
-        if (company.id === id) setSelectedCompany(company);
+        // const company = JSON.parse(storedCompany);
+        setSelectedCompany(storedCompany);
       }
       setLoading(false);
     };
+
     fetchCompany();
   }, [id]);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#fff' }} nestedScrollEnabled>
+      {/* Loading */}
       {loading && (
         <View
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 40,
-            gap: 12,
-          }}
+          style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 40, gap: 12 }}
         >
           <ActivityIndicator size="large" color="#2563EB" />
           <Text style={{ color: '#6B7280', fontSize: 15 }}>Loading company details...</Text>
         </View>
       )}
 
+      {/* No data */}
       {!loading && !selectedCompany && (
         <View className="flex-1 items-center justify-center">
           <Image
@@ -58,6 +56,7 @@ const CompanyDetail = () => {
         </View>
       )}
 
+      {/* Data */}
       {selectedCompany && (
         <>
           {/* Summary header */}
@@ -84,12 +83,15 @@ const CompanyDetail = () => {
             onChangeTab={(tab) => setActiveTab(tab)}
           />
 
-          {/* Nội dung từng tab */}
-          <ScrollView className="p-5">
+          {/* Tab content */}
+          <View style={{ padding: 20 }}>
             {activeTab === 'Overview' && <OverviewCompanySection company={selectedCompany} />}
+            {activeTab === 'DashBoard' && (
+              <DashBoardCompanyDetailSection company={selectedCompany} />
+            )}
             {activeTab === 'Contact' && <ContactSection company={selectedCompany} />}
             {activeTab === 'Projects' && <ProjectInforamtionSection company={selectedCompany} />}
-          </ScrollView>
+          </View>
         </>
       )}
     </ScrollView>

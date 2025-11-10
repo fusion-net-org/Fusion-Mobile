@@ -25,6 +25,31 @@ export interface Company {
   totalPartners: number;
   totalApproved: number;
   totalWaitForApprove: number;
+
+  totalOngoingProjects: number;
+  totalCompletedProjects: number;
+  totalClosedProjects: number;
+  totalLateProjects: number;
+  onTimeRelease: number;
+  totalProjectCreated: number;
+  totalProjectHired: number;
+
+  totalProjectRequestSent: number;
+  totalProjectRequestReceive: number;
+  totalProjectRequestAcceptSent: number;
+  totalProjectRequestRejectSent: number;
+  totalProjectRequestPendingSent: number;
+  totalProjectRequestAcceptReceive: number;
+  totalProjectRequestRejectReceive: number;
+  totalProjectRequestPendingReceive: number;
+
+  companyRoles?: CompanyRole[];
+}
+
+export interface CompanyRole {
+  roleId: number;
+  roleName: string;
+  totalMembers: number;
 }
 
 export interface CompanyState {
@@ -33,7 +58,7 @@ export interface CompanyState {
   loading: boolean;
   error: string | null;
   filter: CompanyFilter;
-  selectedCompany: any | null; // 👈 thêm dòng này
+  selectedCompany: any | null;
 }
 
 export interface CompanyFilter {

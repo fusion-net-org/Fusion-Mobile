@@ -38,7 +38,7 @@ export const PARTNERDETAILTABS = [
   { key: 'activity', label: 'Recent Activity' },
 ];
 
-export const CompanyDetailTabs = ['Overview', 'Contact', 'Projects'];
+export const CompanyDetailTabs = ['Overview', 'DashBoard', 'Projects', 'Contact'];
 
 export const ProfileTabs = [
   { title: 'Information', icon: 'info-circle', path: ROUTES.ACCOUNT.INFORMATION },
