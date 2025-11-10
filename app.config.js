@@ -56,7 +56,7 @@ export default ({ config }) => ({
   extra: {
     FUSION_API_BASE_URL: process.env.FUSION_API_BASE_URL || 'http://10.0.2.2:5191/api',
     FUSION_API_BASE_URL_REAL_DEVICE:
-      process.env.FUSION_API_BASE_URL_REAL_DEVICE || 'http://192.168.0.103:5191/api',
+      process.env.FUSION_API_BASE_URL_REAL_DEVICE || 'http://192.168.0.106:5191/api',
     eas: {
       projectId: '87d06425-2ddd-42e4-91d3-4b8173353533',
     },

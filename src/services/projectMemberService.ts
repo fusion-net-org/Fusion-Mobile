@@ -14,14 +14,6 @@ export const getProjectMemberByCompanyIdAndUserId = async (
   SortDescending = null,
 ) => {
   try {
-    console.log('===== FETCH PROJECT MEMBERS =====');
-    console.log('companyId:', companyId);
-    console.log('memberId:', memberId);
-    console.log('ProjectNameOrCode:', ProjectNameOrCode);
-    console.log('Status:', Status);
-    console.log('StartDate:', StartDate);
-    console.log('EndDate:', EndDate);
-    console.log('PageNumber:', PageNumber);
     const response = await apiInstance.get(`/projectmember/${companyId}/${memberId}`, {
       params: {
         ProjectNameOrCode,
@@ -35,7 +27,18 @@ export const getProjectMemberByCompanyIdAndUserId = async (
       },
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    const status = error.response?.status;
+
+    if (status === 404) {
+      return {
+        items: [],
+        totalCount: 0,
+        pageNumber: PageNumber,
+        pageSize: PageSize,
+      } as any;
+    }
+
     console.error('Error in getProjectMemberByCompanyIdAndUserId:', error);
     throw new Error((error as any).response?.data?.message || 'Fail!');
   }

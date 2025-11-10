@@ -30,10 +30,7 @@ export const GetPagedCompanies = async (
     }
   } catch (error: any) {
     const status = error.response?.status;
-
-    // 🚫 Nếu là 404 => không log đỏ, chỉ trả về rỗng
     if (status === 404) {
-      console.log('ℹ️ No companies found (404)');
       return {
         items: [],
         totalCount: 0,

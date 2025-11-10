@@ -50,7 +50,6 @@ export const GetProjectRequestPartnerPaged = async (
 
     // Nếu là 404 => không log đỏ, chỉ trả về rỗng
     if (status === 404) {
-      console.log('ℹ️ No project request found (404)');
       return {
         items: [],
         totalCount: 0,
