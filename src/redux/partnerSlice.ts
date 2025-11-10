@@ -47,6 +47,16 @@ export const fetchPartnersThunk = createAsyncThunk<
     const result = await GetPagePartner(companyId, apiFilter);
     return result;
   } catch (error: any) {
+    const status = error.response?.status;
+
+    if (status === 404) {
+      return {
+        items: [],
+        totalCount: 0,
+        pageNumber: filter?.pageNumber,
+        pageSize: filter?.pageSize,
+      } as any;
+    }
     return rejectWithValue(error?.message || 'Failed to fetch partners');
   }
 });

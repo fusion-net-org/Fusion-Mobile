@@ -25,7 +25,16 @@ export const GetPagePartner = async (
       throw new Error(response.data?.message || 'Fetch list partners failed');
     }
   } catch (error: any) {
-    console.error('❌ Fetch list partners error:', error);
+    const status = error.response?.status;
+    if (status === 404) {
+      return {
+        items: [],
+        totalCount: 0,
+        pageNumber: filter.pageNumber,
+        pageSize: filter.pageSize,
+      } as any;
+    }
+
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Fetch list partners failed';
     throw new Error(message);
@@ -36,13 +45,11 @@ export const GetPartnerStatusSummary = async (companyId: string): Promise<Partne
   try {
     const response = await apiInstance.get(`/partners/status-summary/${companyId}`);
     if (response.data?.statusCode === 200) {
-      console.log(response.data.data);
       return response.data.data as PartnerStatusSummary;
     } else {
       throw new Error(response.data?.message || 'Fetch list partners failed');
     }
   } catch (error: any) {
-    console.error('❌ Fetch list partners error:', error);
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Fetch notifications failed';
     throw new Error(message);

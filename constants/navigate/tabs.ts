@@ -33,8 +33,9 @@ export const COMPANYTABS = [
 
 export const PARTNERDETAILTABS = [
   { key: 'overview', label: 'Overview' },
-  { key: 'activity', label: 'Activity' },
+  { key: 'performance', label: 'Performance' },
   { key: 'project_request', label: 'Project Request' },
+  { key: 'activity', label: 'Recent Activity' },
 ];
 
 export const CompanyDetailTabs = ['Overview', 'Contact', 'Projects'];

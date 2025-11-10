@@ -36,9 +36,6 @@ export const GetCompanyMemberByCompanyIdAndUserId = async (
   userId: string,
 ): Promise<any> => {
   try {
-    console.log('===== FETCH COMPANY MEMBER =====');
-    console.log('companyId:', companyId);
-    console.log('userId:', userId);
     const response = await apiInstance.get(`/companymember/member/${companyId}/${userId}`);
     return response.data;
   } catch (error) {

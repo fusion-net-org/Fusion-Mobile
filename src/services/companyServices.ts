@@ -64,3 +64,32 @@ export const GetCompanyById = async (companyId: string): Promise<Company> => {
     throw new Error(message);
   }
 };
+
+export const AllActivityLogCompanyById = async (
+  companyId: string,
+  Keyword = null,
+  From = null,
+  To = null,
+  PageNumber = 1,
+  PageSize = 25,
+  SortColumn = null,
+  SortDescending = null,
+) => {
+  try {
+    const response = await apiInstance.get(`/CompanyActivityLogs`, {
+      params: {
+        companyId,
+        Keyword,
+        From,
+        To,
+        PageNumber,
+        PageSize,
+        SortColumn,
+        SortDescending,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
