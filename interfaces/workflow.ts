@@ -14,6 +14,7 @@ export type StatusPreview = {
   x: number;
   y: number;
   color?: string | null;
+  roles?: string[];
 };
 export type TransitionPreview = {
   fromStatusId: string;
