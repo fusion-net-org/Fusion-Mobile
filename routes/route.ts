@@ -2,6 +2,13 @@ export const ROUTES = {
   MEMBER: {
     DETAIL: '/(tabs)/home/company_detail/members/member_detail',
   },
+  PROJECT: {
+    REQUEST: '/(tabs)/home/company_detail/projects/project_detail_request',
+    DETAIL: '/(tabs)/home/company_detail/projects/project_detail',
+  },
+  TICKET: {
+    DETAIL: '/(tabs)/home/company_detail/projects/project_detail_request/ticket_detail',
+  },
   HOME: {
     COMPANY: '/(tabs)/home',
     SCHEDULE: '/(tabs)/schedule',

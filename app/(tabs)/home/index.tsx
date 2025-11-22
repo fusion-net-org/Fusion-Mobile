@@ -147,8 +147,8 @@ const Home = () => {
             renderItem={renderCompany}
             keyExtractor={(item) => item.id.toString()}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 80 }} // tăng khoảng cách tránh bị che
-            onEndReachedThreshold={0.5} // gọi khi còn 50% cuối danh sách
+            contentContainerStyle={{ paddingBottom: 80 }}
+            onEndReachedThreshold={0.5}
             onEndReached={handleLoadMore}
             ListFooterComponent={
               loading ? (

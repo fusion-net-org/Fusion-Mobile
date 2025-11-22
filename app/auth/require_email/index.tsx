@@ -40,7 +40,6 @@ const RequireEmail = () => {
           text1: 'Email sent successfully!',
           text2: 'Please check your inbox for the reset link.',
         });
-        // router.push('/verify-code');
       } else {
         Toast.show({
           type: 'error',

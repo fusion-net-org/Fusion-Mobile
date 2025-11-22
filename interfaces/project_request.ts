@@ -17,6 +17,8 @@ export interface ProjectRequest {
   endDate: string;
   createAt: string;
   updateAt: string;
+  isHaveProject: boolean;
+  convertedProjectId: string;
 }
 
 export interface ProjectRequestState {

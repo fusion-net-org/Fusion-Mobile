@@ -8,8 +8,6 @@ export const GetProjectRequestPartnerPaged = async (
   companyId: string,
 ): Promise<PagedResult<ProjectRequest>> => {
   try {
-    console.log('📤 Fetching paged companies with filter:', filter);
-
     const params = Object.fromEntries(
       Object.entries({
         keyword: filter.keyword,
@@ -29,15 +27,10 @@ export const GetProjectRequestPartnerPaged = async (
       }
     }
 
-    console.log(params.dateRange);
-    console.log('📤 Fetching paged companies with filter:', params);
-
     const response = await apiInstance.get(
       `projectrequest/companies/${companyId}/partners/${filter.partnerId}`,
       { params },
     );
-
-    console.log(response.data.data);
 
     //Kiểm tra statusCode trả về
     if (response.data?.statusCode === 200) {
@@ -48,7 +41,6 @@ export const GetProjectRequestPartnerPaged = async (
   } catch (error: any) {
     const status = error.response?.status;
 
-    // Nếu là 404 => không log đỏ, chỉ trả về rỗng
     if (status === 404) {
       return {
         items: [],

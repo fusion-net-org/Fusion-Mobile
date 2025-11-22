@@ -49,7 +49,6 @@ const Partners = () => {
   };
 
   const handlePartnerPress = (partnerId: string) => {
-    console.log(`${ROUTES.PARTNER.DETAIL}/${partnerId}`);
     router.push(`${ROUTES.PARTNER.DETAIL}/${partnerId}` as any);
   };
 

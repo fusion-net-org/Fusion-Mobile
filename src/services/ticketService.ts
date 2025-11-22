@@ -53,3 +53,13 @@ export const GetTicketByProjectId = async (
     throw error;
   }
 };
+
+export const GetTicketById = async (ticketId: string) => {
+  try {
+    const res = await apiInstance.get(`/ticket/${ticketId}`);
+    return res.data;
+  } catch (error) {
+    console.error('Get ticket by ID error:', error);
+    throw error;
+  }
+};

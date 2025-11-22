@@ -1,8 +1,9 @@
 // app/(tabs)/home/company_detail/projects/[id].tsx
 import ProjectFilterModal from '@/components/project-layout/ProjectFilterModal';
 import { Project, ProjectFilter } from '@/interfaces/project';
+import { ROUTES } from '@/routes/route';
 import { loadProjects } from '@/src/services/projectService';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BarChart2, Columns3, LayoutGrid, List } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -18,6 +19,8 @@ import {
 const statusColumns: Project['status'][] = ['Planned', 'InProgress', 'OnHold', 'Completed'];
 
 const Projects = () => {
+  const router = useRouter();
+
   const { id: companyId } = useLocalSearchParams();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -140,7 +143,12 @@ const Projects = () => {
                 {item.description}
               </Text>
 
-              <TouchableOpacity className="self-start rounded-md bg-blue-600 px-4 py-2">
+              <TouchableOpacity
+                onPress={() => {
+                  router.push(`${ROUTES.PROJECT.DETAIL}/${item.id}` as any);
+                }}
+                className="self-start rounded-md bg-blue-600 px-4 py-2"
+              >
                 <Text className="font-semibold text-white">Open →</Text>
               </TouchableOpacity>
             </View>
@@ -165,30 +173,35 @@ const Projects = () => {
 
             {/* Rows */}
             {projects.map((item, index) => (
-              <View
+              <TouchableOpacity
                 key={item.id}
-                className={`flex-row p-3 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                onPress={() => router.push(`${ROUTES.PROJECT.DETAIL}/${item.id}` as any)}
               >
-                <Text className="mr-3 w-28 text-xs">{item.code}</Text>
-                <Text className="mr-3 w-28 text-xs">{item.name}</Text>
-                <Text className="mr-3 w-28 text-xs">{item.ownerCompany || 'N/A'}</Text>
-                <Text className="mr-3 w-28 text-xs">{item.hiredCompany || 'N/A'}</Text>
-                <Text className="mr-3 w-28 text-xs">{item.workflow || 'WorkflowA'}</Text>
                 <View
-                  className={`mr-3 w-28 rounded border px-1 py-0.5 ${
-                    item.status === 'Completed' ? 'border-green-600' : 'border-yellow-600'
-                  }`}
+                  key={item.id}
+                  className={`flex-row p-3 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                 >
-                  <Text
-                    className={`text-center text-[10px] font-semibold ${
-                      item.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'
+                  <Text className="mr-3 w-28 text-xs">{item.code}</Text>
+                  <Text className="mr-3 w-28 text-xs">{item.name}</Text>
+                  <Text className="mr-3 w-28 text-xs">{item.ownerCompany || 'N/A'}</Text>
+                  <Text className="mr-3 w-28 text-xs">{item.hiredCompany || 'N/A'}</Text>
+                  <Text className="mr-3 w-28 text-xs">{item.workflow || 'WorkflowA'}</Text>
+                  <View
+                    className={`mr-3 w-28 rounded border px-1 py-0.5 ${
+                      item.status === 'Completed' ? 'border-green-600' : 'border-yellow-600'
                     }`}
                   >
-                    {item.status}
-                  </Text>
+                    <Text
+                      className={`text-center text-[10px] font-semibold ${
+                        item.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'
+                      }`}
+                    >
+                      {item.status}
+                    </Text>
+                  </View>
+                  <Text className="mr-3 w-28 text-xs">{item.ptype || 'Internal'}</Text>
                 </View>
-                <Text className="mr-3 w-28 text-xs">{item.ptype || 'Internal'}</Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </ScrollView>
@@ -204,19 +217,24 @@ const Projects = () => {
               {projects
                 .filter((p) => p.status === status)
                 .map((p) => (
-                  <View key={p.id} className="mb-2 rounded bg-white p-3 shadow">
-                    <View className="flex-row items-start justify-between">
-                      <Text className="text-xs font-semibold">{p.name}</Text>
-                      <View className="rounded bg-blue-100 px-2 py-0.5">
-                        <Text className="text-[10px] font-semibold text-blue-600">
-                          {p.ptype || 'Internal'}
-                        </Text>
+                  <TouchableOpacity
+                    key={p.id}
+                    onPress={() => router.push(`${ROUTES.PROJECT.DETAIL}/${p.id}` as any)}
+                  >
+                    <View key={p.id} className="mb-2 rounded bg-white p-3 shadow">
+                      <View className="flex-row items-start justify-between">
+                        <Text className="text-xs font-semibold">{p.name}</Text>
+                        <View className="rounded bg-blue-100 px-2 py-0.5">
+                          <Text className="text-[10px] font-semibold text-blue-600">
+                            {p.ptype || 'Internal'}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
 
-                    {/* Code */}
-                    <Text className="mt-1 text-[10px] text-gray-500">{p.code}</Text>
-                  </View>
+                      {/* Code */}
+                      <Text className="mt-1 text-[10px] text-gray-500">{p.code}</Text>
+                    </View>
+                  </TouchableOpacity>
                 ))}
             </View>
           ))}

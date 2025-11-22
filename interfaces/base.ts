@@ -4,3 +4,5 @@ export interface PagedResult<T> {
   pageNumber: number;
   pageSize: number;
 }
+
+export type StatusCategory = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE';

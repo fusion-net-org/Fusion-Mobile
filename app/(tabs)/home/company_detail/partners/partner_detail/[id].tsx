@@ -234,7 +234,6 @@ export default function PartnerSummary() {
           </View>
 
           {/* Scrollable Tabs */}
-          {/* Scrollable Tabs */}
           <ScrollView
             ref={scrollRef}
             horizontal
@@ -255,7 +254,7 @@ export default function PartnerSummary() {
                       const { x, width } = e.nativeEvent.layout;
                       tabLayouts.current[index] = { x, width };
 
-                      // ✅ Khi layout đo xong tab đầu tiên, set underline
+                      // Khi layout đo xong tab đầu tiên, set underline
                       if (index === 0 && activeTab === 'overview') {
                         underlineX.setValue(x);
                         underlineWidth.setValue(width);

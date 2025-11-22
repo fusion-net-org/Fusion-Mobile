@@ -1,5 +1,6 @@
 import { emptyImages } from '@/constants/image/image';
 import { ProjectRequest, ProjectRequestFilter } from '@/interfaces/project_request';
+import { ROUTES } from '@/routes/route';
 import {
   fetchProjectRequestPaged,
   resetProjectRequest,
@@ -8,7 +9,7 @@ import {
 import { RootState, useAppDispatch, useAppSelector } from '@/src/redux/store';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -19,6 +20,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import '../../app/globals.css';
 import ProjectRequestFilterSection from '../project-request-layout/ProjectRequestFilterSection';
 
@@ -103,7 +105,22 @@ const ProjectRequestSection = ({ partnerId }: Props) => {
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
-          // TODO: router.push(`/project_request/${item.id}`)
+          if (!item.convertedProjectId) {
+            Toast.show({
+              type: 'error',
+              text1: 'Project does not exist',
+              position: 'top',
+              visibilityTime: 1500,
+            });
+            return;
+          }
+
+          router.push({
+            pathname: `${ROUTES.PROJECT.REQUEST}/${item.convertedProjectId}` as any,
+            params: {
+              projectId: item.convertedProjectId,
+            },
+          });
         }}
       >
         <View className="mx-4 mb-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -180,12 +197,12 @@ const ProjectRequestSection = ({ partnerId }: Props) => {
           <Text className="text-sm text-gray-400">Between you and partner</Text>
         </View>
 
-        {/* 🧩 Filter */}
+        {/* Filter */}
         <View className="mx-4 mb-3">
           <ProjectRequestFilterSection onFilterChange={handleFilterChange} />
         </View>
 
-        {/* 📦 Danh sách */}
+        {/* List*/}
         {loading && data.length === 0 ? (
           <ActivityIndicator size="large" color="#007bff" className="mt-10" />
         ) : data.length === 0 ? (

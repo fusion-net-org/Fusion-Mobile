@@ -40,7 +40,7 @@ export async function loadProjects({
 
 export const GetProjectByProjectId = async (projectId: string) => {
   try {
-    const response = await apiInstance.get(`/projects/${projectId}`);
+    const response = await apiInstance.get(`/detail/${projectId}`);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Error!');

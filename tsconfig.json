@@ -6,6 +6,9 @@
     "skipLibCheck": true,
     "paths": {
       "@/*": ["*"],
+      "@components/*": ["components/*"],
+      "@services/*": ["services/*"],
+      "@hooks/*": ["hooks/*"],
       "tailwind.config": ["./tailwind.config.js"],
       "@env": ["./node_modules/react-native-dotenv"]
     },
