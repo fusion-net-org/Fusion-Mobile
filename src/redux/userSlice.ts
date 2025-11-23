@@ -23,12 +23,13 @@ const initialState: UserState = {
 export const loginUserThunk = createAsyncThunk(
   'user/loginUserThunk',
   async (data: LoginRequest, { rejectWithValue }) => {
-    try {
-      const response = await login(data);
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+    const response = await login(data);
+
+    if (response?.error) {
+      return rejectWithValue(response.message);
     }
+
+    return response;
   },
 );
 

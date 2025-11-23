@@ -46,3 +46,37 @@ export const GetProjectByProjectId = async (projectId: string) => {
     throw new Error(error.response?.data?.message || 'Error!');
   }
 };
+
+export const GetProjectByUserId = async (
+  CompanyName = '',
+  PageNumber = 1,
+  PageSize = 100,
+  SortColumn = '',
+  SortDescending = null,
+) => {
+  try {
+    const res = await apiInstance.get(`/projects/user`, {
+      params: {
+        CompanyName,
+        PageNumber,
+        PageSize,
+        SortColumn,
+        SortDescending,
+      },
+    });
+    return res.data;
+  } catch (error: any) {
+    const status = error.response?.status;
+
+    if (status === 404) {
+      return {
+        items: [],
+        totalCount: 0,
+        pageNumber: PageNumber,
+        pageSize: PageSize,
+      } as any;
+    }
+
+    throw error;
+  }
+};

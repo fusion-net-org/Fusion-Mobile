@@ -8,14 +8,18 @@ export const login = async (login: LoginRequest): Promise<any> => {
     if (response.data.statusCode === 200) {
       return response.data;
     } else {
-      throw new Error(response.data.message || 'Login failed');
+      return {
+        error: true,
+        message: response.data.message ?? 'Login failed',
+      };
     }
   } catch (error: any) {
-    console.error('Login error:', error);
-
     const message = error.response?.data?.message || error.response?.data?.error || 'Login Failure';
 
-    throw new Error(message);
+    return {
+      error: true,
+      message,
+    };
   }
 };
 
@@ -28,8 +32,6 @@ export const register = async (register: RegisterRequest): Promise<any> => {
       throw new Error(response.data.message || 'Register failed');
     }
   } catch (error: any) {
-    console.error('Register error:', error);
-
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Register Failure';
 
@@ -46,8 +48,6 @@ export const requestPasswordReset = async (email: string) => {
       throw new Error(response.data.message || 'Forget Password error');
     }
   } catch (error: any) {
-    console.error('Register error:', error);
-
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Register Failure';
 

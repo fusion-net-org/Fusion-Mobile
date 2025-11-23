@@ -13,6 +13,24 @@ export interface Project {
   hiredCompany: string;
 }
 
+export interface ProjectInfo {
+  id: string;
+  companyId: string;
+  isHired: boolean;
+  companyHiredId: string;
+  projectRequestId: string;
+  code: string;
+  name: string;
+  description: string;
+  status: string;
+  workflowId: string;
+  workflowName: string;
+  startDate: string;
+  endDate: string;
+  createAt: string;
+  updateAt: string;
+}
+
 export interface ProjectFilter {
   search?: string;
   sort?: 'recent' | 'start' | 'name';

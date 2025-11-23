@@ -56,3 +56,9 @@ export interface MemberStatusSummary {
   inactive: number;
   total: number;
 }
+
+export interface TaskMember {
+  memberId: string;
+  memberName: string;
+  avatar: string;
+}

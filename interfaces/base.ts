@@ -6,3 +6,8 @@ export interface PagedResult<T> {
 }
 
 export type StatusCategory = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE';
+
+export interface FilterItem {
+  id: string;
+  name: string;
+}

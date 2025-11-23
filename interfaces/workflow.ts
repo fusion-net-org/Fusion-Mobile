@@ -24,3 +24,13 @@ export type TransitionPreview = {
 };
 
 export type TransitionType = 'success' | 'failure' | 'optional';
+
+export interface WorkflowStatusInfo {
+  id: string;
+  workflowId: string;
+  name: string;
+  position: number;
+  isStart: boolean;
+  isEnd: boolean;
+  guardNameKey: string;
+}

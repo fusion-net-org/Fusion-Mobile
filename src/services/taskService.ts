@@ -1,3 +1,5 @@
+import { PagedResult } from '@/interfaces/base';
+import { TaskFilterApi, TaskItem } from '@/interfaces/task';
 import { apiInstance } from '../api/apiInstance';
 import { flashTaskCard } from '../utils/flash';
 
@@ -31,6 +33,50 @@ export const GetTaskBySprintId = async (
   } catch (error: any) {
     console.error('Error in GetTaskBySprintId:', error);
     throw new Error(error.response?.data?.message || 'Fail!');
+  }
+};
+
+export const GetPageTasksByUserId = async (
+  filter: TaskFilterApi,
+): Promise<PagedResult<TaskItem>> => {
+  try {
+    const response = await apiInstance.get(`/tasks/user`, {
+      params: {
+        type: filter.type,
+        priority: filter.priority,
+        keyword: filter.keyword,
+        projectId: filter.projectId,
+        sprintId: filter.sprintId,
+        statusId: filter.statusId,
+        overDue: filter.overDue,
+        sortColumn: filter.sortColumn,
+        sortDescending: filter.sortOrder,
+        pageNumber: filter.pageNumber,
+        pageSize: filter.pageSize,
+        'DateRange.From': filter.fromDate || null,
+        'DateRange.To': filter.toDate || null,
+      },
+    });
+
+    if (response.data?.statusCode === 200) {
+      return response.data.data as PagedResult<TaskItem>;
+    } else {
+      return response.data?.message;
+    }
+  } catch (error: any) {
+    const status = error.response?.status;
+    if (status === 404) {
+      return {
+        items: [],
+        totalCount: 0,
+        pageNumber: filter.pageNumber,
+        pageSize: filter.pageSize,
+      } as any;
+    }
+
+    const message =
+      error.response?.data?.message || error.response?.data?.error || 'Fetch list Task failed';
+    return message;
   }
 };
 
@@ -103,8 +149,8 @@ export const postTaskSplit = async (
 ) => {
   try {
     const res = await apiInstance.post(`/tasks/${taskId}/split`);
-    const dto = res?.data?.data ?? res?.data; // { partA, partB }
-    // Flash cho cả A (update) và B (new)
+    const dto = res?.data?.data ?? res?.data;
+
     if (dto?.partA?.id) flashTaskCard(dto.partA.id, { colorHex: flashColorHexA });
     if (dto?.partB?.id) flashTaskCard(dto.partB.id, { colorHex: flashColorHexB ?? flashColorHexA });
     return dto;

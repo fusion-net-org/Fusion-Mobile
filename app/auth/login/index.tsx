@@ -1,6 +1,4 @@
-import { sendNotification } from '@/src/services/notificationService';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -14,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
 import { images } from '../../../constants/image/image';
 import { ROUTES } from '../../../routes/route';
@@ -32,61 +31,39 @@ export default function Login() {
   const handleLogin = async () => {
     setError('');
     try {
-      const response = await dispatch(
-        loginUserThunk({
-          email,
-          password,
-        }),
-      ).unwrap();
+      const res = await dispatch(loginUserThunk({ email, password }));
 
-      const userData = response.data;
-      const loginData = {
-        userName: userData.userName,
-        accessToken: userData.accessToken,
-        refreshToken: userData.refreshToken,
-      };
-      // Lưu user data vào Redux
-      dispatch(loginUser(loginData));
+      if (loginUserThunk.fulfilled.match(res)) {
+        const userData = res.payload.data;
 
-      // Sau khi lưu user data, gọi register device
-      try {
-        await dispatch(registerUserDevice()).unwrap();
-      } catch (deviceError) {
-        console.warn('⚠️ Device registration failed after login:', deviceError);
+        const loginData = {
+          userName: userData.userName,
+          accessToken: userData.accessToken,
+          refreshToken: userData.refreshToken,
+        };
+
+        dispatch(loginUser(loginData));
+
+        try {
+          await dispatch(registerUserDevice()).unwrap();
+        } catch (deviceError) {
+          console.warn('⚠️ Device registration failed after login:', deviceError);
+        }
+
+        router.replace(ROUTES.HOME.COMPANY as any);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Login Fail',
+          text2: 'Invalid email or password. Please try again.',
+        });
       }
-
-      const storedUser = await AsyncStorage.getItem('user');
-      if (!storedUser) {
-        console.warn('⚠️ Không tìm thấy user trong AsyncStorage');
-        return;
-      }
-
-      const user = JSON.parse(storedUser);
-      const userId = user.userId;
-      if (!userId) {
-        console.warn('⚠️ userId không tồn tại trong AsyncStorage');
-        return;
-      }
-
-      try {
-        dispatch(
-          await sendNotification({
-            userId: userId,
-            title: '🎉 Đăng nhập thành công!',
-            body: `Chào mừng ${userData.userName} quay trở lại ứng dụng 👋`,
-            event: 'UserLogin',
-            context: JSON.stringify({ time: new Date().toISOString() }),
-            notificationType: 'SYSTEM',
-          }),
-        ).unwrap();
-        console.log('✅ Notification sent to user');
-      } catch (notifyErr) {
-        console.warn('⚠️ Send notification failed:', notifyErr);
-      }
-
-      router.replace(ROUTES.HOME.COMPANY as any); // điều hướng sang trang chính
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: 'Login Fail',
+        text2: 'Something went wrong.',
+      });
     }
   };
 
@@ -155,8 +132,6 @@ export default function Login() {
                 <Ionicons name={show ? 'eye-off' : 'eye'} size={20} color="#64748b" />
               </TouchableOpacity>
             </View>
-
-            {error ? <Text className="mb-2 text-sm text-red-500">{error}</Text> : null}
 
             {/* Forgot password */}
             <View className="mb-4 items-end">

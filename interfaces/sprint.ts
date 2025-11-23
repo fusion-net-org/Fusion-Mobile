@@ -28,3 +28,17 @@ export type SprintVm = {
   statusMeta: Record<string, StatusMeta>; // id -> meta
   columns: Record<string, TaskVm[]>; // statusId -> TaskVm[]
 };
+
+export interface SprintInfo {
+  id: string;
+  name: string;
+  start: string;
+  end: string;
+  color: string;
+  goal: string;
+  capacityHours: number;
+  committedPoints: number;
+  status: string;
+  isDeleted: boolean;
+  createdAt: string;
+}
