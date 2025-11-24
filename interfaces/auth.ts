@@ -16,3 +16,12 @@ export interface RegisterRequest {
   password: string;
   confirmPassword: string;
 }
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface TokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}

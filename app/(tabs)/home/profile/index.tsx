@@ -1,9 +1,13 @@
 // src/screens/Profile.tsx
 import { ProfileTabs } from '@/constants/navigate/tabs';
+import { ROUTES } from '@/routes/route';
 import { RootState } from '@/src/redux/store';
+import { logoutUser } from '@/src/redux/userSlice';
 import { FontAwesome5 } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Profile = () => {
@@ -11,14 +15,26 @@ const Profile = () => {
   const { user, loading } = useSelector((state: RootState) => state.user);
 
   const handleLogout = async () => {
-    // try {
-    //   await revokeToken(user?.refreshToken!);
-    //   dispatch(clearUser());
-    //   Alert.alert('Logged out', 'You have been successfully logged out.');
-    //   navigation.replace('Login');
-    // } catch (err) {
-    //   Alert.alert('Error', 'Failed to log out.');
-    // }
+    try {
+      dispatch(logoutUser());
+      await AsyncStorage.removeItem('user');
+
+      Toast.show({
+        type: 'success',
+        text1: 'Logged out',
+        text2: 'You have been successfully logged out.',
+        position: 'top',
+        visibilityTime: 2000,
+      });
+      router.replace(ROUTES.AUTH.LOGIN as any);
+    } catch (err: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'There is error when logout',
+        text2: err,
+        position: 'top',
+      });
+    }
   };
 
   if (loading || !user) {

@@ -89,7 +89,6 @@ export default function PartnerFilterSection({ onFilterChange }: any) {
           if (showDatePicker === 'from') setDateFrom(selected);
           else setDateTo(selected);
           setShowDatePicker(null);
-          //triggerFilter();
         }}
       />
     </View>

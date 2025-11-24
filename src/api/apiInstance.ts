@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Constants from 'expo-constants';
-import { router } from 'expo-router';
+import { store } from '../redux/store';
+import { refreshToken } from '../services/authService';
 
 export const apiInstance = axios.create({
   baseURL: Constants.expoConfig?.extra?.FUSION_API_BASE_URL_REAL_DEVICE,
@@ -35,8 +36,13 @@ apiInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+type QueueItem = {
+  resolve: (value: string | null) => void;
+  reject: (error: any) => void;
+};
+
+let failedQueue: QueueItem[] = [];
 let isRefreshing = false;
-let failedQueue: any[] = [];
 
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
@@ -50,16 +56,19 @@ const processQueue = (error: any, token: string | null = null) => {
 apiInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as any;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
+        return new Promise<string | null>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return apiInstance(originalRequest);
+            if (token) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              return apiInstance(originalRequest);
+            }
+            return Promise.reject(error);
           })
           .catch((err) => Promise.reject(err));
       }
@@ -67,39 +76,16 @@ apiInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const userStr = await AsyncStorage.getItem('user');
-      const user = userStr ? JSON.parse(userStr) : null;
-      const refreshTokenValue = user?.refreshToken;
+      const token = await refreshToken(store.dispatch);
+      processQueue(token ? null : error, token);
+      isRefreshing = false;
 
-      if (!refreshTokenValue) {
-        isRefreshing = false;
-        await AsyncStorage.removeItem('user');
-        router.replace('/auth/login');
-        return Promise.reject(error);
+      if (token) {
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        return apiInstance(originalRequest);
       }
 
-      // try {
-      //   const data = await refreshToken(refreshTokenValue);
-      //   const newAccessToken = data.accessToken;
-      //   const newRefreshToken = data.refreshToken;
-
-      //   // update storage
-      //   user.token = newAccessToken;
-      //   user.refreshToken = newRefreshToken;
-      //   await AsyncStorage.setItem('user', JSON.stringify(user));
-
-      //   axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
-      //   processQueue(null, newAccessToken);
-
-      //   return axiosInstance(originalRequest);
-      // } catch (err) {
-      //   processQueue(err, null);
-      //   await AsyncStorage.removeItem('user');
-      //   router.replace('/auth/login');
-      //   return Promise.reject(err);
-      // } finally {
-      //   isRefreshing = false;
-      // }
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

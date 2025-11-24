@@ -60,7 +60,6 @@ export default function CalendarScreen() {
       const result = await GetPageTasksByUserId({ ...filters, pageNumber: 1, pageSize: 1000 });
       const items = result?.items ?? [];
       setTasks(items);
-      console.log(items, 'taskCale');
     } catch (err: any) {
       Toast.show({
         type: 'error',
