@@ -108,3 +108,13 @@ export const refreshToken = async (dispatch: AppDispatch): Promise<string | null
     return null;
   }
 };
+
+export const loginGoogle = async (data: any) => {
+  try {
+    const response = await apiInstance.post('/Authen/login-google', data);
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Error!';
+    throw new Error(message);
+  }
+};
