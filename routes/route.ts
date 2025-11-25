@@ -44,5 +44,6 @@ export const ROUTES = {
   TASK: {
     CALENDAR_TASK: '/(tabs)/calendar/calendar_task_detail',
     CALENDAR_TASK_LIST: '/(tabs)/calendar/calendar_list',
+    TASK_DETAIL: '/(tabs)/home/company_detail/projects/project_detail/task_detail',
   },
 };

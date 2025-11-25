@@ -145,7 +145,10 @@ export default function TaskListScreen() {
     return (
       <TouchableOpacity
         onPress={() =>
-          router.push({ pathname: ROUTES.TASK.CALENDAR_TASK as any, params: { id: item.taskId } })
+          router.push({
+            pathname: ROUTES.TASK.CALENDAR_TASK as any,
+            params: { id: item.taskId, backRoute: ROUTES.HOME.CALENDAR },
+          })
         }
         className="m-3 rounded-xl bg-white p-4 shadow-md"
       >

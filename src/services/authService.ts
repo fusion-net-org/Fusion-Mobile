@@ -91,8 +91,6 @@ export const refreshToken = async (dispatch: AppDispatch): Promise<string | null
 
     await AsyncStorage.setItem('user', JSON.stringify(data));
 
-    console.log(data.accessToken, 'New Acesss');
-
     return data.accessToken;
   } catch (err: any) {
     Toast.show({

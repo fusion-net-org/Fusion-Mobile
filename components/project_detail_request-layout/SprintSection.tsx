@@ -74,7 +74,6 @@ export default function SprintSection({ projectId }: { projectId: string }) {
 
       const newTasks = response.data.items || [];
       setTasks(reset ? newTasks : [...tasks, ...newTasks]);
-
       setTotalPage(Math.ceil(response.data.totalCount / 4));
 
       // fetch assignees
@@ -85,6 +84,7 @@ export default function SprintSection({ projectId }: { projectId: string }) {
   };
 
   const loadAssignees = async (taskId: string, userIds: string[]) => {
+    console.log(userIds, 'List User');
     const names: string[] = [];
     for (const uid of userIds) {
       try {

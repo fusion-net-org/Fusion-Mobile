@@ -3,9 +3,9 @@ import { GetNotifications } from '@/src/services/notificationService';
 import { TabIconProps } from '@/types/Icon/TabIconProps';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { Tabs, usePathname } from 'expo-router';
+import { router, Tabs, usePathname } from 'expo-router';
 
-import { StatusBar, Text, View } from 'react-native';
+import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import '../globals.css';
 
 export default function IconLayout() {
@@ -21,28 +21,31 @@ export default function IconLayout() {
   const TabIcon = ({ iconName, title, href }: TabIconProps) => {
     const isFocused = pathname === href.replace('/(tabs)', '');
     const isNotificationTab = title === 'Notification';
+
     return (
-      <View className="mt-7 flex-col items-center justify-center" style={{ height: '100%' }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          transform: [{ translateY: isFocused ? -7 : -10 }],
+        }}
+      >
         <View
           style={{
             alignItems: 'center',
             justifyContent: 'center',
-            transform: [{ translateY: isFocused ? -1 : 0 }],
-            zIndex: isFocused ? 15 : 1,
+            transform: [{ translateY: isFocused ? -2 : 0 }],
           }}
         >
-          <FontAwesome5
-            name={iconName}
-            size={isFocused ? 25 : 25}
-            color={isFocused ? '#0F0D23' : '#A8B5DB'}
-          />
-          {/* 🔴 Badge số lượng chưa đọc */}
+          <FontAwesome5 name={iconName} size={25} color={isFocused ? '#0F0D23' : '#A8B5DB'} />
+
           {isNotificationTab && unreadCount > 0 && (
             <View
               style={{
                 position: 'absolute',
-                top: -5,
-                right: -10,
+                top: -6,
+                right: -12,
                 backgroundColor: 'red',
                 borderRadius: 10,
                 paddingHorizontal: 5,
@@ -59,21 +62,18 @@ export default function IconLayout() {
           )}
         </View>
 
-        <View style={{ minHeight: 20, marginTop: 2 }}>
-          {isFocused && (
-            <Text
-              className="font-semibold"
-              style={{
-                fontSize: 11,
-                color: '#0F0D23',
-                textAlign: 'center',
-                width: 80,
-              }}
-            >
-              {title}
-            </Text>
-          )}
-        </View>
+        {isFocused && (
+          <Text
+            style={{
+              fontSize: 11,
+              color: '#0F0D23',
+              textAlign: 'center',
+              marginTop: 2,
+            }}
+          >
+            {title}
+          </Text>
+        )}
       </View>
     );
   };
@@ -116,8 +116,15 @@ export default function IconLayout() {
             name={tab.name}
             options={{
               headerShown: false,
-              tabBarIcon: () => (
-                <TabIcon href={tab.href} iconName={tab.iconName} title={tab.title} />
+              tabBarButton: () => (
+                <TouchableOpacity
+                  onPress={() => {
+                    router.replace(tab.href as any);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <TabIcon href={tab.href} iconName={tab.iconName} title={tab.title} />
+                </TouchableOpacity>
               ),
             }}
           />

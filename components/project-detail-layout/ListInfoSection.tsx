@@ -1,17 +1,21 @@
 import { StatusCategory } from '@/interfaces/base';
 import { SprintVm } from '@/interfaces/sprint';
 import { MemberRef, TaskVm } from '@/interfaces/task';
+import { ROUTES } from '@/routes/route';
 import { useProjectBoard } from '@/src/utils/ProjectBoardContext';
-import {
-  Check,
-  Clock,
-  MoveDown,
-  MoveRight,
-  Search,
-  SplitSquareHorizontal,
-} from 'lucide-react-native';
+import { router } from 'expo-router';
+import { Check, Clock, MoveDown, MoveRight, Search } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { FlatList, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const brand = '#2E8BFF';
 const cn = (...xs: (string | false | null | undefined)[]) => xs.filter(Boolean).join(' ');
@@ -117,133 +121,149 @@ export default function ListInfoSection({
     console.log('task:', t);
 
     return (
-      <View className={cn('mb-3 rounded-xl bg-white p-4 shadow', isDone && 'opacity-70')}>
-        {/* Header */}
-        <View className="flex-row justify-between">
-          <Text className="pb-2 font-semibold text-gray-800">{t.title}</Text>
-          <Text className="text-xs text-gray-500">Sprint {t.sprintId?.split('-')[1] ?? '—'}</Text>
-        </View>
-
-        {/* Title + tags */}
-        <View className="mt-1 flex-row flex-wrap gap-2">
-          <View
-            className={cn(
-              'rounded-full border px-3 py-1',
-              t.priority === 'Urgent'
-                ? 'border-red-500 bg-red-50 text-red-700'
-                : t.priority === 'High'
-                  ? 'border-amber-500 bg-amber-50 text-amber-700'
-                  : 'border-gray-400 bg-gray-50 text-gray-700',
-            )}
-          >
-            <Text className="text-[11px] font-semibold">{t.priority}</Text>
+      <Pressable
+        onPress={() =>
+          router.push({
+            pathname: ROUTES.TASK.TASK_DETAIL as any,
+            params: { id: t.id, backRoute: ROUTES.PROJECT.DETAIL },
+          })
+        }
+      >
+        <View className={cn('mb-3 rounded-xl bg-white p-4 shadow', isDone && 'opacity-70')}>
+          {/* Header */}
+          <View className="flex-row justify-between">
+            <Text className="pb-2 font-semibold text-gray-800">{t.title}</Text>
+            <Text className="text-xs text-gray-500">Sprint {t.sprintId?.split('-')[1] ?? '—'}</Text>
           </View>
 
-          <View className="rounded-full border border-blue-400 bg-blue-50 px-3 py-1">
-            <Text className="text-[11px] font-semibold">{t.type}</Text>
-          </View>
-        </View>
-
-        {/* Assignees */}
-        <View className="mt-3 flex-row items-center">
-          {(t.assignees ?? []).slice(0, 3).map((m, i) => (
+          {/* Title + tags */}
+          <View className="mt-1 flex-row flex-wrap gap-2">
             <View
-              key={m.id}
               className={cn(
-                'h-8 w-8 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gray-200',
-                i > 0 && '-ml-3',
+                'rounded-full border px-3 py-1',
+                t.priority === 'Urgent'
+                  ? 'border-red-500 bg-red-50 text-red-700'
+                  : t.priority === 'High'
+                    ? 'border-amber-500 bg-amber-50 text-amber-700'
+                    : 'border-gray-400 bg-gray-50 text-gray-700',
               )}
             >
-              {m.avatarUrl ? (
-                <Image source={{ uri: m.avatarUrl }} className="h-full w-full" resizeMode="cover" />
-              ) : (
-                <Text className="text-[10px] font-semibold text-gray-700">
-                  {(
-                    m.name
-                      .split(' ')
-                      .map((x) => x[0])
-                      .slice(0, 2)
-                      .join('') || '?'
-                  ).toUpperCase()}
-                </Text>
-              )}
+              <Text className="text-[11px] font-semibold">{t.priority}</Text>
             </View>
-          ))}
-          {Math.max(0, (t.assignees?.length ?? 0) - 3) > 0 && (
-            <View className="-ml-3 h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gray-300">
-              <Text className="text-[10px] font-semibold text-gray-700">
-                +{Math.max(0, (t.assignees?.length ?? 0) - 3)}
+
+            <View className="rounded-full border border-blue-400 bg-blue-50 px-3 py-1">
+              <Text className="text-[11px] font-semibold">{t.type}</Text>
+            </View>
+          </View>
+
+          {/* Assignees */}
+          <View className="mt-3 flex-row items-center">
+            {Array.from(new Map((t.assignees ?? []).map((m) => [m.id, m])).values())
+              .slice(0, 3)
+              .map((m, i) => (
+                <View
+                  key={`${m.id}-${i}`}
+                  className={cn(
+                    'h-8 w-8 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gray-200',
+                    i > 0 && '-ml-3',
+                  )}
+                >
+                  {m.avatarUrl ? (
+                    <Image
+                      source={{ uri: m.avatarUrl }}
+                      className="h-full w-full"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Text className="text-[10px] font-semibold text-gray-700">
+                      {(
+                        m.name
+                          .split(' ')
+                          .map((x) => x[0])
+                          .slice(0, 2)
+                          .join('') || '?'
+                      ).toUpperCase()}
+                    </Text>
+                  )}
+                </View>
+              ))}
+            {Math.max(
+              0,
+              Array.from(new Map((t.assignees ?? []).map((m) => [m.id, m])).values()).length - 3,
+            ) > 0 && (
+              <View className="-ml-3 h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gray-300">
+                <Text className="text-[10px] font-semibold text-gray-700">
+                  +
+                  {Math.max(
+                    0,
+                    Array.from(new Map((t.assignees ?? []).map((m) => [m.id, m])).values()).length -
+                      3,
+                  )}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* Status */}
+          <Text className="mt-2 text-sm font-medium capitalize">{labelFromCode(t.statusCode)}</Text>
+
+          {/* Progress */}
+          <View className="mt-2 h-3 w-full rounded-full bg-gray-100">
+            <View
+              className="h-3 rounded-full"
+              style={{ width: `${Math.round(ratio * 100)}%`, backgroundColor: brand }}
+            />
+          </View>
+
+          {/* SLA */}
+          {target != null && !isDone && (
+            <View
+              className={cn(
+                'mt-2 flex-row items-center gap-1 rounded-full border px-3 py-1',
+                remain! < 0
+                  ? 'border-red-300 bg-red-50 text-red-700'
+                  : remain! <= 12
+                    ? 'border-amber-300 bg-amber-50 text-amber-700'
+                    : 'border-gray-300 bg-gray-50 text-gray-600',
+              )}
+            >
+              <Clock className="h-3 w-3" />
+              <Text className="text-[11px]">
+                {remain! < 0 ? `Overdue ${Math.abs(remain!)}h` : `SLA ${remain}h left`}
               </Text>
             </View>
           )}
-        </View>
 
-        {/* Status */}
-        <Text className="mt-2 text-sm font-medium capitalize">{labelFromCode(t.statusCode)}</Text>
-
-        {/* Progress */}
-        <View className="mt-2 h-3 w-full rounded-full bg-gray-100">
-          <View
-            className="h-3 rounded-full"
-            style={{ width: `${Math.round(ratio * 100)}%`, backgroundColor: brand }}
-          />
-        </View>
-
-        {/* SLA */}
-        {target != null && !isDone && (
-          <View
-            className={cn(
-              'mt-2 flex-row items-center gap-1 rounded-full border px-3 py-1',
-              remain! < 0
-                ? 'border-red-300 bg-red-50 text-red-700'
-                : remain! <= 12
-                  ? 'border-amber-300 bg-amber-50 text-amber-700'
-                  : 'border-gray-300 bg-gray-50 text-gray-600',
+          {/* Actions */}
+          <View className="mt-3 flex-row flex-wrap gap-2">
+            {!isDone && (
+              <TouchableOpacity
+                onPress={() => onMarkDone?.(t)}
+                className="flex-row items-center gap-1 rounded-lg border border-green-300 bg-green-50 px-3 py-1"
+              >
+                <Check className="h-3 w-3" />
+                <Text className="text-xs font-medium text-green-700">Done</Text>
+              </TouchableOpacity>
             )}
-          >
-            <Clock className="h-3 w-3" />
-            <Text className="text-[11px]">
-              {remain! < 0 ? `Overdue ${Math.abs(remain!)}h` : `SLA ${remain}h left`}
-            </Text>
+            {!isDone && (
+              <TouchableOpacity
+                onPress={() => onNext?.(t)}
+                className="flex-row items-center gap-1 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1"
+              >
+                <MoveRight className="h-3 w-3" />
+                <Text className="text-xs font-medium text-blue-700">Next</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              onPress={() => onMoveNext?.(t)}
+              className="flex-row items-center gap-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-1"
+            >
+              <MoveDown className="h-3 w-3" />
+              <Text className="text-xs font-medium text-gray-700">Move next</Text>
+            </TouchableOpacity>
           </View>
-        )}
-
-        {/* Actions */}
-        <View className="mt-3 flex-row flex-wrap gap-2">
-          {!isDone && (
-            <TouchableOpacity
-              onPress={() => onMarkDone?.(t)}
-              className="flex-row items-center gap-1 rounded-lg border border-green-300 bg-green-50 px-3 py-1"
-            >
-              <Check className="h-3 w-3" />
-              <Text className="text-xs font-medium text-green-700">Done</Text>
-            </TouchableOpacity>
-          )}
-          {!isDone && (
-            <TouchableOpacity
-              onPress={() => onNext?.(t)}
-              className="flex-row items-center gap-1 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1"
-            >
-              <MoveRight className="h-3 w-3" />
-              <Text className="text-xs font-medium text-blue-700">Next</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            onPress={() => onSplit?.(t)}
-            className="flex-row items-center gap-1 rounded-lg border border-purple-300 bg-purple-50 px-3 py-1"
-          >
-            <SplitSquareHorizontal className="h-3 w-3" />
-            <Text className="text-xs font-medium text-purple-700">Split</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => onMoveNext?.(t)}
-            className="flex-row items-center gap-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-1"
-          >
-            <MoveDown className="h-3 w-3" />
-            <Text className="text-xs font-medium text-gray-700">Move next</Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      </Pressable>
     );
   };
 
@@ -288,7 +308,7 @@ export default function ListInfoSection({
       {/* Task list */}
       <FlatList
         data={filtered}
-        keyExtractor={(t) => t.id}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         renderItem={renderTask}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={

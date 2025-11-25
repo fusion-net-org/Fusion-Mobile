@@ -3,6 +3,7 @@ import ProjectFilterModal from '@/components/project-layout/ProjectFilterModal';
 import { Project, ProjectFilter } from '@/interfaces/project';
 import { ROUTES } from '@/routes/route';
 import { loadProjects } from '@/src/services/projectService';
+import { formatLocalDate } from '@/src/utils/formatLocalDate';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BarChart2, Columns3, LayoutGrid, List } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
@@ -128,7 +129,7 @@ const Projects = () => {
                 {item.companyName} — {item.workflow || 'WorkflowA'}
               </Text>
               <Text className="mb-2 text-xs text-gray-500">
-                {item.startDate} — {item.endDate}
+                {formatLocalDate(item.startDate)} — {formatLocalDate(item.endDate)}
               </Text>
 
               <View className="mb-2 flex-row space-x-2">
@@ -145,7 +146,16 @@ const Projects = () => {
 
               <TouchableOpacity
                 onPress={() => {
-                  router.push(`${ROUTES.PROJECT.DETAIL}/${item.id}` as any);
+                  if (item.isRequest === true) {
+                    router.push({
+                      pathname: `${ROUTES.PROJECT.REQUEST}/${item.id}` as any,
+                      params: {
+                        projectId: item.id,
+                      },
+                    });
+                  } else {
+                    router.push(`${ROUTES.PROJECT.DETAIL}/${item.id}` as any);
+                  }
                 }}
                 className="self-start rounded-md bg-blue-600 px-4 py-2"
               >

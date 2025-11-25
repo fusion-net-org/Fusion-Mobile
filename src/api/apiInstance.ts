@@ -59,6 +59,8 @@ apiInstance.interceptors.response.use(
     const originalRequest = error.config as any;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log('RefreshToen');
+
       if (isRefreshing) {
         return new Promise<string | null>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -77,6 +79,7 @@ apiInstance.interceptors.response.use(
       isRefreshing = true;
 
       const token = await refreshToken(store.dispatch);
+      console.log(token);
       processQueue(token ? null : error, token);
       isRefreshing = false;
 

@@ -23,7 +23,9 @@ export default function ProjectBoardScreen() {
     let dead = false;
     (async () => {
       try {
+        console.log(projectId, 'proId');
         const res = await fetchSprintBoard(projectId as string);
+        console.log(res, 'ResPro');
         const normalized = normalizeBoardInput(res ?? {});
         if (!dead) setInit(normalized);
       } catch (err) {

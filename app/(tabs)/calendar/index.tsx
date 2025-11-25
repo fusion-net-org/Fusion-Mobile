@@ -228,7 +228,10 @@ export default function CalendarScreen() {
     return (
       <TouchableOpacity
         onPress={() =>
-          router.push({ pathname: ROUTES.TASK.CALENDAR_TASK as any, params: { id: item.taskId } })
+          router.push({
+            pathname: ROUTES.TASK.CALENDAR_TASK as any,
+            params: { id: item.taskId, backRoute: ROUTES.HOME.CALENDAR },
+          })
         }
         className="mb-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
       >

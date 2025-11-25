@@ -51,7 +51,6 @@ export const GetPagedCompanies = async (
 export const GetCompanyById = async (companyId: string): Promise<Company> => {
   try {
     const response = await apiInstance.get(`/company/${companyId}`);
-    console.log('Id theo company', response.data.data);
     if (response.data?.statusCode === 200) {
       return response.data.data as Company;
     } else {

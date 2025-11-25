@@ -1,6 +1,8 @@
-import TaskCard from '@/components/project-detail-layout/TaskInfoSection';
+import TaskCard from '@/components/task-layout.tsx/TaskInfoSection';
 import { TaskVm } from '@/interfaces/task';
+import { ROUTES } from '@/routes/route';
 import { useProjectBoard } from '@/src/utils/ProjectBoardContext';
+import { router } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import {
@@ -226,6 +228,12 @@ export default function SprintInfoSection() {
                       onNext={(x: TaskVm) => changeStatus((global as any).__projectId, x, stId)}
                       onMoveNext={(x: TaskVm) =>
                         moveToNextSprint((global as any).__projectId, x, sprintId)
+                      }
+                      onOpenTask={(id: string) =>
+                        router.push({
+                          pathname: ROUTES.TASK.TASK_DETAIL as any,
+                          params: { id: id, backRoute: ROUTES.PROJECT.DETAIL },
+                        })
                       }
                     />
                   ))}

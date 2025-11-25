@@ -1,7 +1,7 @@
 import { PagedResult } from '@/interfaces/base';
 import { TaskFilterApi, TaskItem } from '@/interfaces/task';
+import Toast from 'react-native-toast-message';
 import { apiInstance } from '../api/apiInstance';
-import { flashTaskCard } from '../utils/flash';
 
 export const GetTaskBySprintId = async (
   sprintId: string,
@@ -33,6 +33,31 @@ export const GetTaskBySprintId = async (
   } catch (error: any) {
     console.error('Error in GetTaskBySprintId:', error);
     throw new Error(error.response?.data?.message || 'Fail!');
+  }
+};
+
+export const GetDetailTasksByUserId = async (taskId: string): Promise<TaskItem | null> => {
+  try {
+    const response = await apiInstance.get(`/tasks/detail/${taskId}`);
+
+    if (response.data?.statusCode === 200) {
+      return response.data.data as TaskItem;
+    } else {
+      Toast.show({
+        type: 'info',
+        text1: 'Fetch Task Warning',
+        text2: response.data?.message || 'Unknown warning',
+      });
+      return null;
+    }
+  } catch (error: any) {
+    const status = error.response?.status;
+    if (status === 404) {
+      return null;
+    }
+
+    console.error('Fetch task failed:', error.response?.data?.message || error.message);
+    return null;
   }
 };
 
@@ -87,10 +112,7 @@ export const patchTaskStatusById = async (
 ) => {
   try {
     const res = await apiInstance.patch(`/tasks/${taskId}/status-id`, { statusId });
-    // ResponseModel => lấy data
     const dto = res?.data?.data ?? res?.data;
-    // Flash tại DOM card
-    flashTaskCard(taskId, { colorHex: flashColorHex });
     return dto;
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Change status failed');
@@ -104,13 +126,14 @@ export const putReorderTask = async (
   { flashColorHex }: any = {},
 ) => {
   try {
+    console.log('reOrder');
     const res = await apiInstance.put(`/projects/${projectId}/sprints/${sprintId}/tasks/reorder`, {
       taskId,
       toStatusId,
       toIndex,
     });
     const dto = res?.data?.data ?? res?.data;
-    flashTaskCard(taskId, { colorHex: flashColorHex });
+
     return dto;
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Reorder failed');
@@ -125,7 +148,6 @@ export const postMoveTask = async (
   try {
     const res = await apiInstance.post(`/tasks/${taskId}/move`, { toSprintId });
     const dto = res?.data?.data ?? res?.data;
-    flashTaskCard(taskId, { colorHex: flashColorHex });
     return dto;
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Move to sprint failed');
@@ -136,7 +158,6 @@ export const postTaskMarkDone = async (taskId: string, { flashColorHex }: any = 
   try {
     const res = await apiInstance.post(`/tasks/${taskId}/mark-done`);
     const dto = res?.data?.data ?? res?.data;
-    flashTaskCard(taskId, { colorHex: flashColorHex });
     return dto;
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Mark done failed');
@@ -151,8 +172,6 @@ export const postTaskSplit = async (
     const res = await apiInstance.post(`/tasks/${taskId}/split`);
     const dto = res?.data?.data ?? res?.data;
 
-    if (dto?.partA?.id) flashTaskCard(dto.partA.id, { colorHex: flashColorHexA });
-    if (dto?.partB?.id) flashTaskCard(dto.partB.id, { colorHex: flashColorHexB ?? flashColorHexA });
     return dto;
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Split failed');

@@ -1,13 +1,7 @@
 import { MemberRef } from '@/interfaces/task';
-import {
-  CalendarDays,
-  Check,
-  Clock,
-  Flag,
-  MoveDown,
-  SplitSquareHorizontal,
-  TimerReset,
-} from 'lucide-react-native';
+import { formatLocalDate } from '@/src/utils/formatLocalDate';
+import { useFlashTask } from '@/src/utils/useFlashTask';
+import { CalendarDays, Check, Clock, Flag, MoveDown, TimerReset } from 'lucide-react-native';
 import { Image, Pressable, Text, View } from 'react-native';
 
 function Initials({ name }: { name: string }) {
@@ -34,7 +28,7 @@ function AvatarGroup({ members }: { members: MemberRef[] }) {
   return (
     <View className="flex-row items-center">
       {shown.map((m, i) => (
-        <View key={m.id} className={i > 0 ? '-ml-2' : ''}>
+        <View key={`${m.id}-${i}`} className={i > 0 ? '-ml-2' : ''}>
           <Avatar m={m} />
         </View>
       ))}
@@ -47,6 +41,10 @@ function AvatarGroup({ members }: { members: MemberRef[] }) {
   );
 }
 
+interface FlashRef {
+  current: (() => void) | null;
+}
+
 export default function TaskInfoSection({
   t,
   onMarkDone,
@@ -54,17 +52,28 @@ export default function TaskInfoSection({
   onSplit,
   onMoveNext,
   onMoveToSprint,
-  onOpenTicket,
+  onOpenTask,
   onLongPress,
   isActive = false,
   statusColorHex,
   statusLabel,
+  flashRef,
 }: any) {
+  const { flash, backgroundColor } = useFlashTask(statusColorHex);
+  if (flashRef) flashRef.current = flash;
+
   const isDone = t.statusCategory === 'DONE';
   const blocked = (t.dependsOn || []).length > 0;
 
   const statusText = (statusLabel ?? t.statusCode ?? '').trim();
   const statusColor = statusColorHex ?? '#0F172A';
+
+  const assignees = t.assignees || [];
+  const uniqueAssigneesMap = new Map<string, MemberRef>();
+  assignees.forEach((a: MemberRef) => {
+    if (!uniqueAssigneesMap.has(a.name)) uniqueAssigneesMap.set(a.name, a);
+  });
+  const uniqueAssignees = Array.from(uniqueAssigneesMap.values());
 
   return (
     <Pressable
@@ -111,7 +120,7 @@ export default function TaskInfoSection({
       </View>
 
       {/* Title */}
-      <Pressable onPress={() => onOpenTicket?.(t.id)}>
+      <Pressable onPress={() => onOpenTask?.(t.id)}>
         <Text className="mb-1 text-[13px] font-semibold text-blue-600">{t.title}</Text>
       </Pressable>
 
@@ -133,18 +142,20 @@ export default function TaskInfoSection({
             {Math.max(0, t.remainingHours ?? 0)}/{t.estimateHours ?? 0}h
           </Text>
         </View>
+      </View>
 
-        <View className="flex-row items-center gap-1">
-          <CalendarDays width={12} height={12} />
-          <Text className="text-[9px]">Due: {t.dueDate ?? 'N/A'}</Text>
-        </View>
+      <View className="flex-row items-center gap-1">
+        <CalendarDays width={12} height={12} />
+        <Text className="text-[9px]">Due: {formatLocalDate(t.dueDate) ?? 'N/A'}</Text>
       </View>
 
       {/* Assignees */}
-      <View className="mb-2 flex-row items-center justify-between">
-        <AvatarGroup members={t.assignees || []} />
+      <View className="mb-2 flex-row items-center justify-between pt-2">
+        <AvatarGroup members={uniqueAssignees || []} />
         <Text className="max-w-[100px] truncate text-[9px] text-slate-600">
-          {(t.assignees || []).map((a: any) => a.name).join(', ') || 'Unassigned'}
+          {uniqueAssignees.length > 0
+            ? uniqueAssignees.map((a) => a.name).join(', ')
+            : 'Unassigned'}
         </Text>
       </View>
 
@@ -159,14 +170,6 @@ export default function TaskInfoSection({
             <Text className="text-[9px] text-emerald-700">Done</Text>
           </Pressable>
         )}
-
-        <Pressable
-          className="flex-row items-center gap-1 rounded-lg border border-violet-300 px-2 py-1"
-          onPress={() => onSplit(t)}
-        >
-          <SplitSquareHorizontal width={12} height={12} />
-          <Text className="text-[9px] text-violet-700">Split</Text>
-        </Pressable>
 
         <Pressable
           className="flex-row items-center gap-1 rounded-lg border border-slate-300 px-2 py-1"

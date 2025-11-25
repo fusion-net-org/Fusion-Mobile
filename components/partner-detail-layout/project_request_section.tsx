@@ -93,7 +93,6 @@ const ProjectRequestSection = ({ partnerId }: Props) => {
 
   // Render từng request
   const renderRequest = ({ item }: { item: ProjectRequest }) => {
-    // Xác định vai trò của công ty hiện tại
     const side =
       selectedCompanyId === item.requesterCompanyId
         ? 'Requester'
@@ -115,8 +114,13 @@ const ProjectRequestSection = ({ partnerId }: Props) => {
             return;
           }
 
+          const url =
+            side === 'Requester'
+              ? `${ROUTES.PROJECT.REQUEST}/${item.convertedProjectId}`
+              : `${ROUTES.PROJECT.DETAIL}/${item.convertedProjectId}`;
+
           router.push({
-            pathname: `${ROUTES.PROJECT.REQUEST}/${item.convertedProjectId}` as any,
+            pathname: url as any,
             params: {
               projectId: item.convertedProjectId,
             },

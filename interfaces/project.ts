@@ -11,6 +11,7 @@ export interface Project {
   code: string;
   ownerCompany: string;
   hiredCompany: string;
+  isRequest: boolean;
 }
 
 export interface ProjectInfo {

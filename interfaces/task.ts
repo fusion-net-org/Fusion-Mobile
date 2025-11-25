@@ -62,6 +62,7 @@ export interface TaskItem {
   title: string;
   img: string;
   type: string;
+  description: string;
   priority: string;
   severity: string;
   status: string;
@@ -82,6 +83,7 @@ export interface TaskItem {
   sprint?: SprintInfo;
   workflowStatus?: WorkflowStatusInfo;
 
+  taskAttachments: TaskAttachments[];
   members: TaskMember[];
   checklist: TaskChecklistItem[];
   dependencies: TaskDependency[];
@@ -105,4 +107,18 @@ export interface TaskDependency {
   status: string;
   point: number;
   estimateHours: number;
+}
+
+export interface TaskAttachments {
+  id: string;
+  taskId: string;
+  fileName: string;
+  url: string;
+  contentType?: string;
+  size: number;
+  isImage: boolean;
+  description?: string;
+  uploadedAt: string;
+  uploadedBy: string;
+  uploadedByName?: string;
 }

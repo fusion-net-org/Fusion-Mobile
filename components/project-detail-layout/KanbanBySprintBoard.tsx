@@ -1,13 +1,19 @@
 import { SprintVm } from '@/interfaces/sprint';
 import { TaskVm } from '@/interfaces/task';
+import { ROUTES } from '@/routes/route';
 import { putReorderTask } from '@/src/services/taskService';
-import { useState } from 'react';
+import { router } from 'expo-router';
+import { useRef, useState } from 'react';
 import { Dimensions, ScrollView, Text, View } from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
-import TaskInfoSection from './TaskInfoSection';
+import TaskInfoSection from '../task-layout.tsx/TaskInfoSection';
 
 const screenW = Dimensions.get('window').width;
 const COL_W = Math.min(420, Math.max(300, screenW * 0.78));
+
+interface FlashRef {
+  current: (() => void) | null;
+}
 
 type Props = {
   projectId: string;
@@ -50,6 +56,8 @@ export default function KanbanBySprintBoard({
     ),
   );
 
+  const flashRefs = useRef<{ [taskId: string]: () => void }>({});
+
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-3">
       {sprints.map((s) => {
@@ -85,7 +93,7 @@ export default function KanbanBySprintBoard({
               {/* DRAG LIST */}
               <DraggableFlatList
                 data={tasks}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
                 activationDistance={2}
                 containerStyle={{ flexGrow: 1 }}
                 contentContainerStyle={{ paddingBottom: 80 }}
@@ -109,12 +117,17 @@ export default function KanbanBySprintBoard({
                       taskId: movedTask.id,
                       toStatusId: toStatus,
                       toIndex: to,
-                    }).catch((err) => console.log('Reorder failed', err));
+                    })
+                      .then(() => {
+                        flashRefs.current[movedTask.id]?.();
+                      })
+                      .catch((err) => console.log('Reorder failed', err));
                   }
                 }}
                 renderItem={({ item, drag, isActive }) => (
                   <TaskInfoSection
                     t={item}
+                    flashRef={{ current: (fn: () => void) => (flashRefs.current[item.id] = fn) }}
                     isActive={isActive}
                     onLongPress={drag}
                     onMarkDone={() => onMarkDone(item)}
@@ -122,6 +135,13 @@ export default function KanbanBySprintBoard({
                     onSplit={() => onSplit(item)}
                     onMoveNext={() => onMoveNext(item)}
                     onMoveToSprint={(id: string) => onMoveToSprint(item, id)}
+                    onOpenTask={(id: string) => {
+                      console.log(id, '-', item.id, 'Vao project');
+                      router.push({
+                        pathname: ROUTES.TASK.TASK_DETAIL as any,
+                        params: { id, backRoute: ROUTES.PROJECT.DETAIL },
+                      });
+                    }}
                   />
                 )}
               />
