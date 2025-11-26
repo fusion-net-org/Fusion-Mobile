@@ -21,8 +21,8 @@ export type TaskVm = {
   storyPoints?: number;
   estimateHours?: number;
   remainingHours?: number;
+  orderInSprint?: number;
   dueDate?: string;
-
   sprintId: string | null;
   workflowStatusId: string;
   statusCode: string;
@@ -121,4 +121,21 @@ export interface TaskAttachments {
   uploadedAt: string;
   uploadedBy: string;
   uploadedByName?: string;
+}
+
+export interface TaskSubItem {
+  taskId: string;
+  code: string;
+  title: string;
+  description: string;
+  type: string;
+  priority: string;
+  severity: string;
+  status: string;
+  estimateHours?: number;
+  remainingHours?: number;
+  createAt: string;
+  dueDate?: string;
+  createBy: string;
+  createByName: string;
 }

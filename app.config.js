@@ -26,6 +26,7 @@ export default ({ config }) => ({
     googleServicesFile: './google-services.json',
     package: 'com.fusion.mobile',
     useNextNotificationsApi: true,
+    softwareKeyboardLayoutMode: 'resize',
   },
   web: {
     output: 'static',

@@ -192,34 +192,39 @@ export default function SprintSection({ projectId }: { projectId: string }) {
 
       {/* Task list */}
       <ScrollView className="px-3 py-2">
-        {tasks.map((task) => (
-          <View
-            key={task.id}
-            className="mb-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-          >
-            <Text className="text-base font-semibold text-gray-900">{task.title}</Text>
+        {tasks
+          .slice()
+          .sort((a, b) => (a.orderInSprint ?? 0) - (b.orderInSprint ?? 0))
+          .map((task) => (
+            <View
+              key={task.id}
+              className="mb-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+            >
+              <Text className="text-base font-semibold text-gray-900">{task.title}</Text>
 
-            <View className="mt-2 flex-row justify-between">
-              <Text className={`rounded-full px-2 py-1 text-xs ${getStatusColor(task.status)}`}>
-                {task.status}
+              <View className="mt-2 flex-row justify-between">
+                <Text className={`rounded-full px-2 py-1 text-xs ${getStatusColor(task.status)}`}>
+                  {task.status}
+                </Text>
+                <Text
+                  className={`rounded-full px-2 py-1 text-xs ${getPriorityColor(task.priority)}`}
+                >
+                  {task.priority}
+                </Text>
+              </View>
+
+              <Text className="mt-1 text-sm text-gray-600">
+                Assignees:{' '}
+                {(assignees[task.id]?.length ?? 0) > 0
+                  ? assignees[task.id].join(', ')
+                  : 'No assignee'}
               </Text>
-              <Text className={`rounded-full px-2 py-1 text-xs ${getPriorityColor(task.priority)}`}>
-                {task.priority}
+
+              <Text className="mt-2 text-xs text-gray-500">
+                Due: {task.dueDate ? new Date(task.dueDate).toDateString() : 'No deadline'}
               </Text>
             </View>
-
-            <Text className="mt-1 text-sm text-gray-600">
-              Assignees:{' '}
-              {(assignees[task.id]?.length ?? 0) > 0
-                ? assignees[task.id].join(', ')
-                : 'No assignee'}
-            </Text>
-
-            <Text className="mt-2 text-xs text-gray-500">
-              Due: {task.dueDate ? new Date(task.dueDate).toDateString() : 'No deadline'}
-            </Text>
-          </View>
-        ))}
+          ))}
 
         {page < totalPage && (
           <TouchableOpacity

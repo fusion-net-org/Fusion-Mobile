@@ -11,12 +11,18 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import dayjs from 'dayjs';
 import { useLocalSearchParams } from 'expo-router';
 import {
+  AlertTriangle,
+  Banknote,
   Calendar,
+  Code,
+  FileText,
+  Flag,
   Layers,
   Mail,
   MapPin,
   MessageSquare,
   Phone,
+  StickyNote,
   Trash2,
   User,
 } from 'lucide-react-native';
@@ -60,6 +66,62 @@ export default function TicketDetailPage() {
   useEffect(() => {
     loadComments();
   }, [debounced]);
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High':
+        return '#EF4444';
+      case 'Medium':
+        return '#FBBF24';
+      case 'Low':
+        return '#10B981';
+      default:
+        return '#6B7280';
+    }
+  };
+
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'Completed':
+        return '#10B981';
+      case 'InProgress':
+        return '#F59E0B';
+      case 'OnHold':
+        return '#EF4444';
+      default:
+        return '#6B7280';
+    }
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'OnHold':
+        return 'bg-red-500';
+      case 'InProgress':
+        return 'bg-orange-400';
+      case 'Completed':
+        return 'bg-green-500';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
+  const getPriorityBadgeColor = (priority: string) => {
+    switch (priority) {
+      case 'High':
+        return 'bg-red-500';
+      case 'Medium':
+        return 'bg-yellow-400';
+      case 'Low':
+        return 'bg-green-500';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
+  const getUrgencyBadgeColor = (isHighestUrgent: boolean) => {
+    return isHighestUrgent ? 'bg-red-500' : 'bg-yellow-400';
+  };
 
   const loadTicket = async () => {
     try {
@@ -128,25 +190,63 @@ export default function TicketDetailPage() {
 
       {/* TICKET CARD */}
       <View className="mb-4 rounded-2xl border border-gray-200 bg-white p-4 shadow">
-        <Text className="text-xl font-semibold text-gray-900">{ticket.ticketName}</Text>
+        <View className="mb-3 flex-row items-center space-x-2">
+          <StickyNote size={20} color="#3B82F6" />
+          <Text className="ml-2 text-xl font-semibold text-gray-900">{ticket.ticketName}</Text>
+        </View>
+        {/* Ticket info card */}
+        <View className="rounded-2xl bg-white p-4 shadow">
+          {[
+            {
+              icon: <Calendar size={20} color="#3B82F6" />,
+              label: 'Created',
+              value: dayjs(ticket.createdAt).format('DD/MM/YYYY'),
+            },
+            {
+              icon: <Calendar size={20} color="#3B82F6" />,
+              label: 'Updated',
+              value: ticket.updatedAt ? dayjs(ticket.updatedAt).format('DD/MM/YYYY') : '-',
+            },
+            ticket.budget != null &&
+              ticket.isBillable && {
+                icon: <Banknote size={20} color="#FBBF24" />,
+                label: 'Budget',
+                value: `${ticket.budget} VND`,
+              },
+            {
+              icon: <AlertTriangle size={20} color="#EF4444" />,
+              label: 'Urgency',
+              value: ticket.isHighestUrgent ? 'High' : 'Low',
+              isBadge: true,
+              badgeColor: getUrgencyBadgeColor(ticket.isHighestUrgent),
+            },
+            {
+              icon: <Flag size={20} color={getPriorityColor(ticket.priority)} />,
+              label: 'Priority',
+              value: ticket.priority,
+              badgeColor: getPriorityBadgeColor(ticket.priority),
+              isBadge: true,
+            },
+          ]
+            .filter(Boolean)
+            .map((item, i) => (
+              <View key={i} className="mb-3 flex-row items-center justify-between">
+                {/* Left: icon + label */}
+                <View className="flex-row items-center space-x-2">
+                  {item.icon}
+                  <Text className="ml-3 text-base font-semibold text-gray-700">{item.label}</Text>
+                </View>
 
-        {/* PRIORITY */}
-        <Text className="mt-1 self-start rounded-full bg-red-500 px-3 py-1 text-white">
-          {ticket.priority}
-        </Text>
-
-        {/* DESCRIPTION */}
-        <Text className="mt-3 text-sm text-gray-700">{ticket.description}</Text>
-
-        <View className="mt-3 gap-2">
-          <Text className="text-gray-700">
-            <Calendar size={14} /> Created: {dayjs(ticket.createdAt).format('DD/MM/YYYY')}
-          </Text>
-
-          <Text className="text-gray-700">
-            <Calendar size={14} /> Updated:{' '}
-            {ticket.updatedAt ? dayjs(ticket.updatedAt).format('DD/MM/YYYY') : '-'}
-          </Text>
+                {/* Right: value / badge */}
+                {item.isBadge && item.badgeColor ? (
+                  <View className={`${item.badgeColor} rounded-full px-4 py-1`}>
+                    <Text className="text-base font-bold text-white">{item.value}</Text>
+                  </View>
+                ) : (
+                  <Text className="text-base font-bold text-gray-900">{item.value}</Text>
+                )}
+              </View>
+            ))}
         </View>
       </View>
 
@@ -157,10 +257,51 @@ export default function TicketDetailPage() {
           <Text className="text-lg font-semibold">Project Info</Text>
         </View>
 
-        <Text className="text-gray-700">Name: {project?.name}</Text>
-        <Text className="text-gray-700">Code: {project?.code}</Text>
-        <Text className="text-gray-700">Status: {project?.status}</Text>
-        <Text className="mt-2 text-gray-700">{project?.description}</Text>
+        <View className="rounded-2xl bg-white p-4 shadow">
+          {[
+            {
+              icon: <FileText size={20} color="#3B82F6" />,
+              label: 'Name',
+              value: project?.name ?? '-',
+            },
+            {
+              icon: <Code size={20} color="#3B82F6" />,
+              label: 'Code',
+              value: project?.code ?? '-',
+            },
+            {
+              icon: <Flag size={20} color="#3B82F6" />,
+              label: 'Status',
+              value: project?.status ?? '-',
+              isBadge: true,
+              badgeColor: getStatusBadgeColor(project?.status),
+            },
+            project?.description && {
+              icon: <FileText size={20} color="#3B82F6" />,
+              label: 'Description',
+              value: project.description,
+            },
+          ]
+            .filter(Boolean)
+            .map((item, i) => (
+              <View key={i} className="mb-3 flex-row items-center justify-between">
+                {/* Left: icon + label */}
+                <View className="flex-row items-center space-x-2">
+                  {item.icon}
+                  <Text className="ml-3 text-base font-semibold text-gray-700">{item.label}</Text>
+                </View>
+
+                {/* Right: value / badge */}
+                {item.isBadge ? (
+                  <View className={`${item.badgeColor} rounded-full px-4 py-1`}>
+                    <Text className="text-base font-bold text-white">{item.value}</Text>
+                  </View>
+                ) : (
+                  <Text className="text-base font-bold text-gray-900">{item.value}</Text>
+                )}
+              </View>
+            ))}
+        </View>
       </View>
 
       {/* SUBMITTED BY */}
@@ -172,7 +313,7 @@ export default function TicketDetailPage() {
 
         <View className="flex-row gap-4">
           <Avatar.Image size={70} source={{ uri: user?.avatar }} />
-          <View className="flex-1">
+          <View className="ml-3 flex-1">
             <Text className="text-lg font-bold">{user?.userName}</Text>
             <Text className="text-gray-500">Ticket Submitter</Text>
 
@@ -213,28 +354,32 @@ export default function TicketDetailPage() {
             <Text className="text-gray-500">Be the first to comment on this ticket.</Text>
           </View>
         ) : (
-          comments.slice(0, visibleCount).map((c) => (
-            <View
-              key={c.id}
-              className="mb-2 flex-row gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3"
-            >
-              <Avatar.Image size={40} source={{ uri: c.authorUserAvatar }} />
+          comments
+            .slice(0, visibleCount)
+            .filter((c) => c.isDeleted === true)
+            .sort((a, b) => new Date(b.createAt).getTime() - new Date(a.createAt).getTime())
+            .map((c) => (
+              <View
+                key={c.id}
+                className="mb-2 flex-row gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3"
+              >
+                <Avatar.Image size={40} source={{ uri: c.authorUserAvatar }} />
 
-              <View className="flex-1">
-                <Text className="font-bold">{c.authorUserName}</Text>
-                <Text className="text-xs text-gray-500">
-                  {dayjs(c.createAt).format('DD/MM/YYYY HH:mm')}
-                </Text>
-                <Text className="mt-1 text-gray-700">{c.body}</Text>
+                <View className="flex-1">
+                  <Text className="font-bold">{c.authorUserName}</Text>
+                  <Text className="text-xs text-gray-500">
+                    {dayjs(c.createAt).format('DD/MM/YYYY HH:mm')}
+                  </Text>
+                  <Text className="mt-1 text-gray-700">{c.body}</Text>
+                </View>
+
+                {c.isOwner && (
+                  <TouchableOpacity onPress={() => handleDelete(c.id)}>
+                    <Trash2 size={18} color="red" />
+                  </TouchableOpacity>
+                )}
               </View>
-
-              {c.isOwner && (
-                <TouchableOpacity onPress={() => handleDelete(c.id)}>
-                  <Trash2 size={18} color="red" />
-                </TouchableOpacity>
-              )}
-            </View>
-          ))
+            ))
         )}
 
         {visibleCount < comments.length && (

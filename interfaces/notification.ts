@@ -15,3 +15,9 @@ export interface SendNotificationRequest {
   context?: string;
   notificationType?: string;
 }
+
+export interface SendTaskCommentNotificationRequest {
+  title: string;
+  body: string;
+  event: string;
+}

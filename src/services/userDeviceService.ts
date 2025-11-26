@@ -52,11 +52,11 @@ export const getDeviceInfo = async () => {
     // Device info
     return {
       DeviceToken: deviceToken,
-      Platform: Platform.OS.toUpperCase(), // 👈 enum khớp backend DevicePlatform
+      Platform: Platform.OS.toUpperCase(),
       DeviceName: Device.modelName || 'Unknown Device',
     };
   } catch (error) {
-    console.error('❌ Error getting FCM token:', error);
+    console.error('Error getting FCM token:', error);
     throw error;
   }
 };

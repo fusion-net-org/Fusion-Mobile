@@ -2,8 +2,9 @@ import { SprintVm } from '@/interfaces/sprint';
 import { TaskVm } from '@/interfaces/task';
 import { ROUTES } from '@/routes/route';
 import { putReorderTask } from '@/src/services/taskService';
+import { fetchOrderAndSortTasks } from '@/src/utils/fetchOrderAndSortTasks';
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dimensions, ScrollView, Text, View } from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import TaskInfoSection from '../task-layout.tsx/TaskInfoSection';
@@ -36,25 +37,31 @@ export default function KanbanBySprintBoard({
   onMoveNext,
   onMoveToSprint,
 }: Props) {
-  const flattenSprintTasks = (s: SprintVm) => {
+  const flattenSprintTasks = async (s: SprintVm) => {
     const order = s.statusOrder ?? Object.keys(s.columns ?? {});
     const out: TaskVm[] = [];
     for (const stId of order) {
       const arr = (s.columns?.[stId] as TaskVm[]) ?? [];
       out.push(...arr.map((t) => ({ ...t, workflowStatusId: t.workflowStatusId ?? stId })));
     }
-    return out;
+    const sortedTasks = await fetchOrderAndSortTasks(s.id, out);
+
+    return sortedTasks;
   };
 
-  const [tasksState, setTasksState] = useState<{ [sprintId: string]: TaskVm[] }>(() =>
-    sprints.reduce(
-      (acc, s) => {
-        acc[s.id] = flattenSprintTasks(s);
-        return acc;
-      },
-      {} as { [sprintId: string]: TaskVm[] },
-    ),
-  );
+  const [tasksState, setTasksState] = useState<{ [sprintId: string]: TaskVm[] }>({});
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const newState: { [sprintId: string]: TaskVm[] } = {};
+      for (const s of sprints) {
+        newState[s.id] = await flattenSprintTasks(s);
+      }
+      setTasksState(newState);
+    };
+
+    fetchTasks();
+  }, [sprints]);
 
   const flashRefs = useRef<{ [taskId: string]: () => void }>({});
 
@@ -136,7 +143,6 @@ export default function KanbanBySprintBoard({
                     onMoveNext={() => onMoveNext(item)}
                     onMoveToSprint={(id: string) => onMoveToSprint(item, id)}
                     onOpenTask={(id: string) => {
-                      console.log(id, '-', item.id, 'Vao project');
                       router.push({
                         pathname: ROUTES.TASK.TASK_DETAIL as any,
                         params: { id, backRoute: ROUTES.PROJECT.DETAIL },

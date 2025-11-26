@@ -1,10 +1,11 @@
 import TaskCard from '@/components/task-layout.tsx/TaskInfoSection';
 import { TaskVm } from '@/interfaces/task';
 import { ROUTES } from '@/routes/route';
+import { fetchOrderAndSortTasks } from '@/src/utils/fetchOrderAndSortTasks';
 import { useProjectBoard } from '@/src/utils/ProjectBoardContext';
 import { router } from 'expo-router';
 import { Search } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   LayoutAnimation,
   Platform,
@@ -202,18 +203,42 @@ export default function SprintInfoSection() {
   // Board accordion
   function Board(sprintId: string) {
     const sprint = sprints.find((s) => s.id === sprintId);
-    if (!sprint) return null;
     const isExpanded = expandedSprints[sprintId];
-    if (!isExpanded) return null;
 
-    const order = columns.order;
-    const byId = columns.byId;
+    // 1. Hooks phải gọi ngay, không nằm trong if
+    const [sortedTasksById, setSortedTasksById] = useState<{ [stId: string]: TaskVm[] }>({});
+
+    useEffect(() => {
+      if (!sprint || !isExpanded) return; // logic bên trong useEffect, không return component
+
+      const fetchAndSort = async () => {
+        const newById: { [stId: string]: TaskVm[] } = {};
+        const order = sprint.statusOrder ?? Object.keys(sprint.columns ?? {});
+        const byId = sprint.columns ?? {};
+
+        for (const stId of order) {
+          const tasks = byId[stId] || [];
+          newById[stId] = await fetchOrderAndSortTasks(sprintId, tasks);
+        }
+        setSortedTasksById(newById);
+      };
+
+      fetchAndSort();
+    }, [sprintId, sprint, isExpanded]);
+
+    if (!sprint || !isExpanded) return null; // return component chỉ sau hook
+
+    const order = sprint.statusOrder ?? Object.keys(sprint.columns ?? {});
+    // render sử dụng sortedTasksById, fallback về byId cũ nếu chưa load xong
+    const byIdToRender = Object.keys(sortedTasksById).length
+      ? sortedTasksById
+      : (sprint.columns ?? {});
 
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
         <View className="flex-row gap-4 px-4">
           {order.map((stId) => {
-            const items = byId[stId] || [];
+            const items = byIdToRender[stId] || [];
             const meta = sprint.statusMeta[stId];
             return (
               <View key={stId} className="w-72 rounded-2xl border bg-white p-3">

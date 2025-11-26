@@ -21,13 +21,11 @@ export default function Notification() {
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
 
-  // 🔹 Fetch danh sách noti
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: GetNotifications,
   });
 
-  // 🔹 Mutation đánh dấu đã đọc
   const markAsReadMutation = useMutation({
     mutationFn: MarkAsReadNotification,
     onSuccess: () => {
@@ -35,7 +33,6 @@ export default function Notification() {
     },
   });
 
-  // 🔹 Kéo để refresh
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await queryClient.invalidateQueries({ queryKey: ['notifications'] });

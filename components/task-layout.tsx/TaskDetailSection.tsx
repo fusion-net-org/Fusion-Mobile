@@ -1,8 +1,18 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { TaskItem } from '@/interfaces/task';
 import { TaskComment } from '@/interfaces/task_comment';
+import { sendTaskCommentNotification } from '@/src/services/notificationService';
+import { CreateComment, DeleteComment } from '@/src/services/taskCommentService';
 import { GetDetailTasksByUserId } from '@/src/services/taskService';
 import { downloadAndOpenFile } from '@/src/utils/dowloadFile';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
@@ -30,9 +40,15 @@ interface TaskDetailSectionProps {
 const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
   const [task, setTask] = useState<TaskItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [newComment, setNewComment] = useState('');
   const [activeTab, setActiveTab] = useState<'checklist' | 'comments' | 'activities'>('checklist');
   const [commentsWithUser, setCommentsWithUser] = useState<CommentWithUser[]>([]);
+  const [comments, setComments] = useState<any[]>(task?.comments || []);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  const [showMention, setShowMention] = useState(false);
+  const [mentionSearch, setMentionSearch] = useState('');
+  const [filteredMembers, setFilteredMembers] = useState<any[]>([]);
 
   interface CommentWithUser extends TaskComment {
     authorUserName?: string;
@@ -44,7 +60,7 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
       const userString = await AsyncStorage.getItem('user');
       if (userString) {
         const user = JSON.parse(userString);
-        setCurrentUserId(user.id);
+        setCurrentUserId(user.userId);
       }
     };
     loadUser();
@@ -64,23 +80,22 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
   useEffect(() => {
     if (!task?.comments?.length || !task?.members?.length) return;
 
-    // Tạo map memberId => member info
     const membersMap: Record<string, { name: string; avatar: string }> = {};
     task.members.forEach((m) => {
       membersMap[m.memberId] = { name: m.memberName, avatar: m.avatar };
     });
 
-    // Map comment + lấy author info từ membersMap
     const newComments = task.comments.map((c) => ({
       ...c,
       authorUserName: membersMap[c.authorUserId]?.name ?? c.authorUserId,
       authorUserAvatar: membersMap[c.authorUserId]?.avatar ?? '',
     }));
 
+    console.log(newComments);
+
     setCommentsWithUser(newComments);
   }, [task?.comments, task?.members]);
 
-  // Helpers: set màu theo value
   const getPriorityColor = (priority: TaskItem['priority']) => {
     switch (priority) {
       case 'Urgent':
@@ -128,7 +143,73 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
     (m, index, self) => index === self.findIndex((x) => x.memberId === m.memberId),
   );
 
-  const handleDelete = (id: number) => {};
+  const handleDelete = async (id: number) => {
+    try {
+      await DeleteComment(id);
+      setCommentsWithUser((prev) => prev.filter((c) => c.id !== id));
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+    }
+  };
+
+  const handleChangeText = (text: string) => {
+    setNewComment(text);
+
+    const lastWord = text.split(/[\s]/).pop();
+
+    // nếu đang gõ @
+    if (lastWord?.startsWith('@')) {
+      const search = lastWord.substring(1).toLowerCase();
+
+      setShowMention(true);
+
+      const list = task?.members?.filter((m) => m.memberName.toLowerCase().includes(search)) ?? [];
+
+      setFilteredMembers(list);
+    } else {
+      setShowMention(false);
+    }
+  };
+
+  const insertMention = (user: any) => {
+    const parts = newComment.split(' ');
+    parts.pop();
+
+    const newText = parts.join(' ') + ` @${user.memberName} `;
+
+    setNewComment(newText.trimStart());
+    setShowMention(false);
+  };
+
+  const handleCreateComment = async () => {
+    if (!newComment.trim()) return;
+
+    try {
+      const payload = {
+        taskId: task?.taskId,
+        body: newComment,
+      };
+
+      const { data } = await CreateComment(payload);
+      const newCommentWithUser: CommentWithUser = {
+        ...data,
+        authorUserName:
+          task?.members?.find((m) => m.memberId === currentUserId)?.memberName ?? currentUserId,
+        authorUserAvatar: task?.members?.find((m) => m.memberId === currentUserId)?.avatar ?? '',
+      };
+
+      await sendTaskCommentNotification(task?.taskId!, {
+        title: `${newCommentWithUser.authorUserName} commented on task "${task?.title}"`,
+        body: newComment,
+        event: 'TASK_COMMENT',
+      });
+
+      setCommentsWithUser((prev) => [...prev, newCommentWithUser]);
+      setNewComment('');
+    } catch (err) {
+      console.log('Create comment failed:', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -376,14 +457,10 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
         ))}
       </View>
 
-      {/* Subtasks */}
+      {/* checkList */}
       {activeTab === 'checklist' && (
         <View className="rounded-2xl bg-white p-4 shadow">
           <Text className="mb-2 font-semibold text-gray-700">Task Process</Text>
-
-          {/* <View className="h-3 overflow-hidden rounded-full bg-gray-200">
-            <View className="h-3 bg-blue-600" style={{ width: `${task.progress ?? 50}%` }} />
-          </View> */}
 
           {task.checklist && task.checklist.length > 0 ? (
             <View className="mt-2">
@@ -428,33 +505,71 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
       {/* Comments */}
       {activeTab === 'comments' && (
         <View className="rounded-2xl bg-white p-4 shadow">
+          {/*List Comments */}
           {commentsWithUser && commentsWithUser.length > 0 ? (
-            commentsWithUser.map((c) => (
-              <View
-                key={c.id}
-                className="mb-2 flex-row gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3"
-              >
-                {/* Avatar */}
-                <Avatar.Image size={40} source={{ uri: c.authorUserAvatar }} />
+            commentsWithUser
+              .filter((c) => c.status === 'Active')
+              .sort((a, b) => new Date(b.createAt).getTime() - new Date(a.createAt).getTime())
+              .map((c) => (
+                <View
+                  key={c.id}
+                  className="mb-2 flex-row gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3"
+                >
+                  {/* Avatar */}
+                  <Avatar.Image size={40} source={{ uri: c.authorUserAvatar }} />
 
-                {/* Info */}
-                <View className="flex-1">
-                  <Text className="font-bold">{c.authorUserName}</Text>
-                  <Text className="text-xs text-gray-500">{formatLocalDate(c.createAt)}</Text>
-                  <Text className="mt-1 text-gray-700">{c.body}</Text>
+                  {/* Info */}
+                  <View className="flex-1">
+                    <Text className="font-bold">{c.authorUserName}</Text>
+                    <Text className="text-xs text-gray-500">{formatLocalDate(c.createAt)}</Text>
+                    <Text className="mt-1 text-gray-700">{c.body}</Text>
+                  </View>
+
+                  {/* Delete button nếu là owner */}
+                  {currentUserId === c.authorUserId && (
+                    <TouchableOpacity onPress={() => handleDelete(c.id)}>
+                      <Trash2 size={18} color="red" />
+                    </TouchableOpacity>
+                  )}
                 </View>
-
-                {/* Delete button nếu là owner */}
-                {currentUserId === c.authorUserId && (
-                  <TouchableOpacity onPress={() => handleDelete(c.id)}>
-                    <Trash2 size={18} color="red" />
-                  </TouchableOpacity>
-                )}
-              </View>
-            ))
+              ))
           ) : (
-            <Text className="text-gray-400">No comments</Text>
+            <View className="mt-5 items-center justify-center">
+              <Text className="text-4xl">📭</Text>
+              <Text className="mt-2 text-lg font-semibold text-gray-700">No Comments Found</Text>
+              <Text className="text-gray-500">Be the first to comment on this task.</Text>
+            </View>
           )}
+
+          <View className="mt-4 gap-2">
+            <TextInput
+              value={newComment}
+              onChangeText={handleChangeText}
+              placeholder="Write a comment..."
+              className="rounded-xl border p-3 text-sm"
+            />
+            {showMention && filteredMembers.length > 0 && (
+              <View className="max-h-45 rounded-xl border border-gray-300 bg-white shadow-lg">
+                <ScrollView>
+                  {filteredMembers.map((m) => (
+                    <TouchableOpacity
+                      key={m.memberId}
+                      onPress={() => insertMention(m)}
+                      className="border-b border-gray-200 p-2"
+                    >
+                      <Text>{m.memberName}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+            <TouchableOpacity
+              onPress={handleCreateComment}
+              className="rounded-xl bg-indigo-600 py-2"
+            >
+              <Text className="text-center font-semibold text-white">Comment</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 

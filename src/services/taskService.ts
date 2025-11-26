@@ -55,7 +55,7 @@ export const GetDetailTasksByUserId = async (taskId: string): Promise<TaskItem |
     if (status === 404) {
       return null;
     }
-
+    console.log(error.response?.data?.message);
     console.error('Fetch task failed:', error.response?.data?.message || error.message);
     return null;
   }

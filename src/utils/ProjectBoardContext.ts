@@ -98,6 +98,12 @@ function syncColumns(rawSprints: SprintVm[], tasks: TaskVm[]): SprintVm[] {
     s.columns[nt.workflowStatusId].push(nt);
   }
 
+  for (const s of all) {
+    for (const colId of Object.keys(s.columns)) {
+      s.columns[colId].sort((a, b) => (a.orderInSprint ?? 0) - (b.orderInSprint ?? 0));
+    }
+  }
+
   return [...map.values()];
 }
 
