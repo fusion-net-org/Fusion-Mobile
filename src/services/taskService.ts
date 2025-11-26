@@ -1,5 +1,5 @@
 import { PagedResult } from '@/interfaces/base';
-import { TaskFilterApi, TaskItem } from '@/interfaces/task';
+import { TaskFilterApi, TaskItem, TaskSubItem } from '@/interfaces/task';
 import Toast from 'react-native-toast-message';
 import { apiInstance } from '../api/apiInstance';
 
@@ -175,5 +175,27 @@ export const postTaskSplit = async (
     return dto;
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || 'Split failed');
+  }
+};
+
+export const GetSubTasksByTaskId = async (taskId: string): Promise<TaskSubItem[]> => {
+  try {
+    const response = await apiInstance.get(`/tasks/${taskId}/subtasks`);
+    const subTasks = response.data?.data || [];
+
+    console.log(subTasks, 'SubSDAATA');
+    return subTasks || [];
+  } catch (error: any) {
+    const status = error.response?.status;
+    if (status === 404) {
+      Toast.show({
+        type: 'error',
+        text1: 'SubTask not exited',
+        position: 'top',
+        visibilityTime: 2000,
+      });
+    }
+
+    return [];
   }
 };

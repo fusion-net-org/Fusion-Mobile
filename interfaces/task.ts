@@ -124,18 +124,20 @@ export interface TaskAttachments {
 }
 
 export interface TaskSubItem {
-  taskId: string;
-  code: string;
+  taskId: string; // map từ API id
+  code?: string | null;
   title: string;
   description: string;
   type: string;
   priority: string;
+  point: number;
   severity: string;
   status: string;
+  orderInSprint: number; // API trả number
   estimateHours?: number;
   remainingHours?: number;
   createAt: string;
   dueDate?: string;
-  createBy: string;
-  createByName: string;
+  createBy?: string; // optional
+  createByName?: string; // optional
 }

@@ -9,11 +9,11 @@ import {
   View,
 } from 'react-native';
 
-import { TaskItem } from '@/interfaces/task';
+import { TaskItem, TaskSubItem } from '@/interfaces/task';
 import { TaskComment } from '@/interfaces/task_comment';
 import { sendTaskCommentNotification } from '@/src/services/notificationService';
 import { CreateComment, DeleteComment } from '@/src/services/taskCommentService';
-import { GetDetailTasksByUserId } from '@/src/services/taskService';
+import { GetDetailTasksByUserId, GetSubTasksByTaskId } from '@/src/services/taskService';
 import { downloadAndOpenFile } from '@/src/utils/dowloadFile';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,6 +22,7 @@ import {
   Box,
   Calendar,
   ClipboardList,
+  Clock,
   Flag,
   GitMerge,
   Info,
@@ -40,10 +41,17 @@ interface TaskDetailSectionProps {
 const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
   const [task, setTask] = useState<TaskItem | null>(null);
   const [loading, setLoading] = useState(true);
-  const [newComment, setNewComment] = useState('');
-  const [activeTab, setActiveTab] = useState<'checklist' | 'comments' | 'activities'>('checklist');
+
+  const [subTasks, setSubTasks] = useState<TaskSubItem[]>([]);
+  const [loadingSubTasks, setLoadingSubTasks] = useState(false);
+  const [subTasksNotFound, setSubTasksNotFound] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<'checklist' | 'comments' | 'subtasks'>('checklist');
+
   const [commentsWithUser, setCommentsWithUser] = useState<CommentWithUser[]>([]);
   const [comments, setComments] = useState<any[]>(task?.comments || []);
+  const [newComment, setNewComment] = useState('');
+
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const [showMention, setShowMention] = useState(false);
@@ -74,7 +82,28 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
       setTask(data);
       setLoading(false);
     };
+
+    const fetchSubTasks = async () => {
+      try {
+        setLoadingSubTasks(true);
+        setSubTasksNotFound(false);
+
+        const data = await GetSubTasksByTaskId(taskId);
+        console.log(data, 'SubDat2');
+        setSubTasks(data);
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          setSubTasksNotFound(true);
+        } else {
+          console.error(err);
+        }
+        setSubTasks([]);
+      } finally {
+        setLoadingSubTasks(false);
+      }
+    };
     fetchTask();
+    fetchSubTasks();
   }, [taskId]);
 
   useEffect(() => {
@@ -91,8 +120,6 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
       authorUserAvatar: membersMap[c.authorUserId]?.avatar ?? '',
     }));
 
-    console.log(newComments);
-
     setCommentsWithUser(newComments);
   }, [task?.comments, task?.members]);
 
@@ -108,6 +135,21 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
         return '#16A34A';
       default:
         return '#111827';
+    }
+  };
+
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'Done':
+        return '#10B981';
+      case 'In Progress':
+        return '#FACC15';
+      case 'Pending':
+        return '#F59E0B';
+      case 'OverDue':
+        return '#EF4444';
+      default:
+        return '#6B7280';
     }
   };
 
@@ -134,6 +176,8 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
         return '#3B82F6';
       case 'Chore':
         return '#6B7280';
+      case 'Task':
+        return '#10B981';
       default:
         return '#111827';
     }
@@ -238,7 +282,12 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
 
         <View className="rounded-2xl bg-white p-4 shadow">
           {[
-            { icon: <Flag size={18} color="#3B82F6" />, label: 'Status', value: task.status },
+            {
+              icon: <Flag size={18} color="#3B82F6" />,
+              label: 'Status',
+              value: task.status,
+              color: getStatusColor(task.status),
+            },
             {
               icon: <ClipboardList size={18} color="#3B82F6" />,
               label: 'Title',
@@ -444,7 +493,7 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
 
       {/* Tabs */}
       <View className="mb-3 flex-row rounded-xl bg-white shadow">
-        {['checklist', 'comments', 'activities'].map((t) => (
+        {['checklist', 'comments', 'subtasks'].map((t) => (
           <Text
             key={t}
             onPress={() => setActiveTab(t as any)}
@@ -497,7 +546,12 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
                 ))}
             </View>
           ) : (
-            <Text className="italic text-gray-400">No checklist found</Text>
+            <View className="flex-1 items-center justify-center py-10">
+              <ClipboardList size={50} color="#3B82F6" />
+              <Text className="mt-2 text-center text-lg italic text-gray-500">
+                No checklist found
+              </Text>
+            </View>
           )}
         </View>
       )}
@@ -573,21 +627,102 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
         </View>
       )}
 
-      {/* Activities */}
-      {/* {activeTab === 'activities' && (
-        <View className="rounded-2xl bg-white p-4 shadow">
-          {task.activities?.length ? (
-            task.activities.map((a, i) => (
-              <View key={i} className="mb-2 flex-row">
-                <View className="mr-2 mt-2 h-2 w-2 rounded-full bg-blue-600" />
-                <Text className="text-gray-600">{a}</Text>
-              </View>
-            ))
+      {/* SubTasks */}
+      {activeTab === 'subtasks' && (
+        <>
+          <View className="mb-4 flex-row items-center px-4 pt-1">
+            <GitMerge size={20} color="#3B82F6" />
+            <Text className="ml-2 text-lg font-semibold text-gray-800">Sub Tasks</Text>
+          </View>
+          {loadingSubTasks ? (
+            <ActivityIndicator size="small" color="#2E8BFF" />
+          ) : subTasksNotFound || subTasks.length === 0 ? (
+            <View className="flex-1 items-center justify-center py-10">
+              <Text className="text-5xl">🗂️</Text>
+              <Text className="mt-2 text-center text-lg text-gray-500">
+                {subTasksNotFound ? 'No Subtasks Found' : 'No Subtasks Yet'}
+              </Text>
+            </View>
           ) : (
-            <Text className="text-gray-400">No activity</Text>
+            <View className="space-y-4">
+              {subTasks.map((s, i) => (
+                <View
+                  key={`${s.taskId}-${i}`}
+                  className="mb-3 space-y-2 rounded-2xl bg-white p-4 shadow"
+                >
+                  {[
+                    { icon: <Info size={18} color="#3B82F6" />, label: 'Title', value: s.title },
+                    {
+                      icon: <Flag size={18} color="#3B82F6" />,
+                      label: 'Type',
+                      value: (
+                        <View className="flex-row items-center justify-end">
+                          <Text style={{ color: getTypeColor(s.type), fontWeight: '600' }}>
+                            {s.type}
+                          </Text>
+                          <Text
+                            style={{ color: '#111827', fontWeight: '600', marginHorizontal: 4 }}
+                          >
+                            •
+                          </Text>
+                          <Text style={{ color: getPriorityColor(s.priority), fontWeight: '600' }}>
+                            {s.priority}
+                          </Text>
+                          <Text
+                            style={{ color: '#111827', fontWeight: '600', marginHorizontal: 4 }}
+                          >
+                            •
+                          </Text>
+                          <Text style={{ color: getStatusColor(s.status), fontWeight: '600' }}>
+                            {s.status}
+                          </Text>
+                        </View>
+                      ),
+                    },
+                    {
+                      icon: <Star size={18} color="#3B82F6" />,
+                      label: 'Points',
+                      value: s.point ?? '—',
+                    },
+                    {
+                      icon: <Clock size={18} color="#3B82F6" />,
+                      label: 'Estimate Hours',
+                      value: s.estimateHours ?? '—',
+                    },
+                    {
+                      icon: <Calendar size={18} color="#3B82F6" />,
+                      label: 'Start / End',
+                      value: `${formatLocalDate(s.createAt)} - ${formatLocalDate(s.dueDate ?? '')}`,
+                    },
+                  ].map((item, j) => (
+                    <View key={j} className="flex-row items-center pt-2">
+                      <View className="w-32 flex-row items-center">
+                        {item.icon}
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          className="ml-2 font-medium text-gray-700"
+                        >
+                          {item.label}
+                        </Text>
+                      </View>
+                      <View className="ml-4 flex-1 pl-6">
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          className="font-semibold text-gray-900"
+                        >
+                          {item.value}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              ))}
+            </View>
           )}
-        </View>
-      )} */}
+        </>
+      )}
     </ScrollView>
   );
 };

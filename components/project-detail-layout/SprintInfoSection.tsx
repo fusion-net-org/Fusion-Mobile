@@ -4,7 +4,7 @@ import { ROUTES } from '@/routes/route';
 import { fetchOrderAndSortTasks } from '@/src/utils/fetchOrderAndSortTasks';
 import { useProjectBoard } from '@/src/utils/ProjectBoardContext';
 import { router } from 'expo-router';
-import { Search } from 'lucide-react-native';
+import { BarChart, Search } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import {
   LayoutAnimation,
@@ -14,6 +14,7 @@ import {
   TextInput,
   TouchableOpacity,
   UIManager,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { LineChart } from 'react-native-wagmi-charts';
@@ -174,28 +175,74 @@ export default function SprintInfoSection() {
     </View>
   );
 
+  interface ChartPoint {
+    timestamp: number;
+    value: number;
+  }
+
+  const chartData = [
+    { timestamp: 0, value: 0 },
+    { timestamp: 1, value: committedPoints },
+    { timestamp: 2, value: completedPoints },
+  ];
+
+  const { width } = useWindowDimensions();
+  const paddingHorizontal = 16;
+  const chartWidth = width - 32;
+  const chartHeight = 180;
+  const maxValue = Math.max(...chartData.map((d) => d.value));
+
   // Burn-up Chart
   const BurnUpChart = (
-    <View className="mx-4 mb-6 rounded-xl border border-gray-200 bg-white p-4">
-      <Text className="mb-2 font-semibold">Burn-up</Text>
+    <View className="mx-4 mb-6 overflow-hidden rounded-xl border border-gray-200 bg-white p-4">
+      {/* Tên biểu đồ */}
+      <Text className="mb-2 text-lg font-semibold">Burn-up Chart</Text>
+
       {committedPoints > 0 ? (
-        <LineChart.Provider
-          data={[
-            { timestamp: 0, value: 0 },
-            { timestamp: 1, value: committedPoints },
-            { timestamp: 2, value: completedPoints },
-          ]}
-        >
-          <LineChart height={180}>
-            <LineChart.Path color="#2E8BFF" />
-            <LineChart.Gradient color="#2E8BFF" />
-            <LineChart.CursorCrosshair>
-              <LineChart.Tooltip />
-            </LineChart.CursorCrosshair>
-          </LineChart>
-        </LineChart.Provider>
+        <>
+          <View className="h-[180px] w-full">
+            <LineChart.Provider data={chartData}>
+              <LineChart height={180}>
+                <LineChart.Path color="#2E8BFF" />
+                <LineChart.Gradient color="#2E8BFF" />
+                {chartData.map((_, i) => (
+                  <LineChart.Dot key={i} at={i} color="#2E8BFF" size={6} />
+                ))}
+                <LineChart.CursorCrosshair>
+                  <LineChart.Tooltip />
+                </LineChart.CursorCrosshair>
+              </LineChart>
+
+              <View className="absolute left-0 top-[-8] h-full w-full">
+                {chartData.map((point, i) => {
+                  const x = (i / (chartData.length - 1)) * chartWidth;
+                  const y = chartHeight - (point.value / maxValue) * chartHeight;
+
+                  return (
+                    <Text
+                      key={i}
+                      className="absolute text-xs font-bold text-gray-800"
+                      style={{
+                        left: x - 6,
+                        top: y - 18,
+                      }}
+                    >
+                      {point.value}
+                    </Text>
+                  );
+                })}
+              </View>
+            </LineChart.Provider>
+          </View>
+          <Text className="mt-2 text-xs text-gray-500">
+            This chart shows the number of story points committed and completed over the sprint.
+          </Text>
+        </>
       ) : (
-        <Text>No data</Text>
+        <View className="flex-1 items-center justify-center py-10">
+          <BarChart size={50} color="#3B82F6" />
+          <Text className="mt-2 text-center text-lg italic text-gray-500">No Burn-up Data</Text>
+        </View>
       )}
     </View>
   );
@@ -209,7 +256,7 @@ export default function SprintInfoSection() {
     const [sortedTasksById, setSortedTasksById] = useState<{ [stId: string]: TaskVm[] }>({});
 
     useEffect(() => {
-      if (!sprint || !isExpanded) return; // logic bên trong useEffect, không return component
+      if (!sprint || !isExpanded) return;
 
       const fetchAndSort = async () => {
         const newById: { [stId: string]: TaskVm[] } = {};

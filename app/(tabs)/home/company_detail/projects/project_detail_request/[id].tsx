@@ -36,7 +36,7 @@ export default function ProjectDetailRequest() {
         if (proj.status === 404) {
           Toast.show({
             type: 'error',
-            text1: 'Project không tồn tại',
+            text1: 'Project Not Found',
             position: 'top',
             visibilityTime: 2000,
           });
