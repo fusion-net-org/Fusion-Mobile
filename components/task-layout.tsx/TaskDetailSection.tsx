@@ -13,7 +13,11 @@ import { TaskItem, TaskSubItem } from '@/interfaces/task';
 import { TaskComment } from '@/interfaces/task_comment';
 import { sendTaskCommentNotification } from '@/src/services/notificationService';
 import { CreateComment, DeleteComment } from '@/src/services/taskCommentService';
-import { GetDetailTasksByUserId, GetSubTasksByTaskId } from '@/src/services/taskService';
+import {
+  GetDetailTasksByUserId,
+  GetSubTasksByTaskId,
+  markChecklistDone,
+} from '@/src/services/taskService';
 import { downloadAndOpenFile } from '@/src/utils/dowloadFile';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -89,7 +93,6 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
         setSubTasksNotFound(false);
 
         const data = await GetSubTasksByTaskId(taskId);
-        console.log(data, 'SubDat2');
         setSubTasks(data);
       } catch (err: any) {
         if (err.response?.status === 404) {
@@ -252,6 +255,29 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
       setNewComment('');
     } catch (err) {
       console.log('Create comment failed:', err);
+    }
+  };
+
+  const handleToggleChecklist = async (checklistId: string) => {
+    if (!task) return;
+
+    // tìm item
+    const item = task.checklist.find((c) => c.id === checklistId);
+    if (!item || item.isDone) return;
+
+    try {
+      await markChecklistDone(task.taskId, checklistId);
+
+      // update local state
+      setTask((prev) => {
+        if (!prev) return prev;
+        const newChecklist = prev.checklist.map((c) =>
+          c.id === checklistId ? { ...c, isDone: true } : c,
+        );
+        return { ...prev, checklist: newChecklist };
+      });
+    } catch (err) {
+      console.error('Failed to mark checklist as done:', err);
     }
   };
 
@@ -530,8 +556,12 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
               {/* Checklist Items */}
               {task.checklist
                 .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
-                .map((s, i) => (
-                  <View key={i} className="mt-3 flex-row items-start">
+                .map((s) => (
+                  <TouchableOpacity
+                    key={s.id}
+                    className="mt-3 flex-row items-start"
+                    onPress={() => handleToggleChecklist(s.id)}
+                  >
                     <View
                       className={`mr-3 h-5 w-5 rounded-md border ${
                         s.isDone ? 'border-blue-600 bg-blue-600' : 'border-gray-400'
@@ -542,7 +572,7 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
                     >
                       {s.label}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
             </View>
           ) : (

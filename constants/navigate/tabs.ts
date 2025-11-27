@@ -10,7 +10,7 @@ export const HOMETABS = [
     href: ROUTES.HOME.CALENDAR,
   },
   {
-    name: 'analytics/index',
+    name: 'analytics',
     iconName: 'chart-bar',
     title: 'Analytics',
     href: ROUTES.HOME.ANALYTICS,
@@ -29,6 +29,8 @@ export const COMPANYTABS = [
   { title: 'Workflows', path: ROUTES.COMPANY.WORKFLOWS, key: 'workflows' },
   { title: 'Members', path: ROUTES.COMPANY.MEMBERS, key: 'members' },
   { title: 'Partners', path: ROUTES.COMPANY.PARTNERS, key: 'partners' },
+  { title: 'Project Requests', path: ROUTES.COMPANY.PROJECT_REQUESTS, key: 'project_requests' },
+  { title: 'Tickets', path: ROUTES.COMPANY.TICKETS, key: 'tickets' },
 ];
 
 export const PARTNERDETAILTABS = [
@@ -50,4 +52,10 @@ export const ProfileTabs = [
 export const CALENDAR_TABS = [
   { key: 'calendar_list', title: 'List' },
   { key: 'calendar', title: 'Calendar' },
+];
+
+export const ANALYTICSTABS = [
+  { key: 'assign', label: 'Assigned To Me' },
+  { key: 'dashboard', label: 'Dashboard' },
+  { key: 'activity', label: 'Activity Stream' },
 ];

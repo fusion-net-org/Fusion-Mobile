@@ -199,3 +199,10 @@ export const GetSubTasksByTaskId = async (taskId: string): Promise<TaskSubItem[]
     return [];
   }
 };
+
+export const markChecklistDone = async (taskId: string, checklistId: string) => {
+  const response = await apiInstance.patch(`tasks/${taskId}/checklist/${checklistId}/done`, {
+    isDone: true,
+  });
+  return response.data;
+};

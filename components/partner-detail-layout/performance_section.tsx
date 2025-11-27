@@ -1,24 +1,45 @@
-import React from 'react';
+import { GetPartnerTaskStats } from '@/src/services/partnerService';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, Text, View } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
+import { ActivityIndicator } from 'react-native-paper';
 
 interface PerformanceSectionProps {
   partnerName: string;
   partnerId?: string;
 }
 
-const screenWidth = Dimensions.get('window').width - 40; // padding 2 bên
+const screenWidth = Dimensions.get('window').width - 40;
 
 const PerformanceSection: React.FC<PerformanceSectionProps> = ({ partnerName, partnerId }) => {
-  // Demo data, sau này có thể fetch theo partnerId
+  const [chartData, setChartData] = useState<number[]>([0, 0, 0]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const data = await GetPartnerTaskStats(partnerId);
+      if (data) {
+        setChartData([data.onTime, data.violations, data.completed]);
+      }
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [partnerId]);
+
   const data = {
     labels: ['On-Time', 'Violations', 'Completed'],
-    datasets: [
-      {
-        data: [85, 3, 47],
-      },
-    ],
+    datasets: [{ data: chartData }],
   };
+
+  if (loading) {
+    return (
+      <View className="p-4">
+        <ActivityIndicator size="large" color="#6366F1" />
+      </View>
+    );
+  }
 
   return (
     <View className="p-4 pb-24">

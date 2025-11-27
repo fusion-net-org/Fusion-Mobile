@@ -5,3 +5,8 @@ export const formatLocalDate = (date: Date | string) => {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
+export const safeDate = (value: any) => {
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d;
+};

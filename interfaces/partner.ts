@@ -45,3 +45,9 @@ export interface PartnerStatusSummary {
   inactive: number;
   total: number;
 }
+
+export interface PartnerTaskStats {
+  onTime: number;
+  violations: number;
+  completed: number;
+}

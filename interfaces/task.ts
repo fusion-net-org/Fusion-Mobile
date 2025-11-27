@@ -73,6 +73,7 @@ export interface TaskItem {
   orderInSprint: number;
   isBacklog: boolean;
   createAt: string;
+  updateAt: string;
   dueDate: string;
   createByName: string;
   createBy: string;
@@ -88,6 +89,15 @@ export interface TaskItem {
   checklist: TaskChecklistItem[];
   dependencies: TaskDependency[];
   comments: TaskComment[];
+}
+
+export interface TaskAssgin {
+  id: string;
+  code: string;
+  title: string;
+  type: string;
+  createAt: string;
+  updateAt: string;
 }
 
 export interface TaskChecklistItem {
@@ -137,7 +147,17 @@ export interface TaskSubItem {
   estimateHours?: number;
   remainingHours?: number;
   createAt: string;
+  updateAt: string;
   dueDate?: string;
   createBy?: string; // optional
   createByName?: string; // optional
+}
+
+export interface UserTaskDashBoard {
+  bugPercent: number;
+  featurePercent: number;
+  chorePercent: number;
+  overduePercent: number;
+  onTimePercent: number;
+  earlyCompletedPercent: number;
 }

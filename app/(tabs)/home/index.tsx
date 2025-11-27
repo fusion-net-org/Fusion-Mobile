@@ -56,7 +56,7 @@ const Home = () => {
       onPress={async () => {
         dispatch(setSelectedCompany(item));
         await AsyncStorage.setItem('selectedCompany', JSON.stringify(item));
-        router.push(`${ROUTES.COMPANY.DETAIL}/${item.id}` as any); // 👈 chuyển sang trang chi tiết
+        router.push(`${ROUTES.COMPANY.DETAIL}/${item.id}` as any); //chuyển sang trang chi tiết
       }}
     >
       <View className="mx-4 mb-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">

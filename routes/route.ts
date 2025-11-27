@@ -22,6 +22,8 @@ export const ROUTES = {
     PARTNERS: '/(tabs)/home/company_detail/partners',
     PROJECTS: '/(tabs)/home/company_detail/projects',
     WORKFLOWS: '/(tabs)/home/company_detail/workflows',
+    PROJECT_REQUESTS: '/(tabs)/home/company_detail/projects_request',
+    TICKETS: '/(tabs)/home/company_detail/tickets',
   },
   PARTNER: {
     DETAIL: '/(tabs)/home/company_detail/partners/partner_detail',
@@ -43,6 +45,7 @@ export const ROUTES = {
   },
   TASK: {
     CALENDAR_TASK: '/(tabs)/calendar/calendar_task_detail',
+    ANALYTICS_TASK: '/(tabs)/analytics/analytic_task_detail',
     CALENDAR_TASK_LIST: '/(tabs)/calendar/calendar_list',
     TASK_DETAIL: '/(tabs)/home/company_detail/projects/project_detail/task_detail',
   },

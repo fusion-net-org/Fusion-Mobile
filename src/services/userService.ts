@@ -1,3 +1,4 @@
+import { AnalyticsUserResponse } from '@/interfaces/user';
 import { apiInstance } from '../api/apiInstance';
 
 export const getUserById = async (userId: string): Promise<any> => {
@@ -63,18 +64,13 @@ export const updateSelfUser = async (formData: FormData): Promise<any> => {
     }
   } catch (error: any) {
     if (error.response) {
-      console.error('❌ [Axios Error Response]');
-      console.error('Status:', error.response.status);
-      console.error('Data:', error.response.data);
-      console.error('Headers:', error.response.headers);
+      console.error('[Axios Error Response]:', error.response.status);
     } else if (error.request) {
-      console.error('📡 [Axios No Response]');
       console.error('Request:', error.request);
     } else {
-      console.error('⚙️ [Axios Config Error]');
       console.error('Message:', error.message);
     }
-    console.error('🔧 [Axios Config]', error.config);
+    console.error('[Axios Config]', error.config);
 
     const message =
       error.response?.data?.message ||
@@ -82,6 +78,23 @@ export const updateSelfUser = async (formData: FormData): Promise<any> => {
       error.message ||
       'Update user failure';
 
+    throw new Error(message);
+  }
+};
+
+export const getAnalyticsUser = async (): Promise<AnalyticsUserResponse> => {
+  try {
+    const response = await apiInstance.get(`User/analytics`);
+
+    if (response.data?.statusCode === 200) {
+      return response.data.data as AnalyticsUserResponse;
+    } else {
+      throw new Error(response.data?.message || 'Fetch Analytics User failed');
+    }
+  } catch (error: any) {
+    console.error('❌ Fetch Analytics User error:', error);
+    const message =
+      error.response?.data?.message || error.response?.data?.error || 'Fetch Analytics User failed';
     throw new Error(message);
   }
 };

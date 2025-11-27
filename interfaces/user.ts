@@ -1,3 +1,7 @@
+import { PagedResult } from './base';
+import { TaskAssgin, UserTaskDashBoard } from './task';
+import { UserLogResponse } from './user_log';
+
 export interface UserStore {
   userName: string;
   refreshToken: string;
@@ -25,4 +29,18 @@ export interface UserDeviceState {
   isRegistered: boolean;
   error: string | null;
   lastRegisteredAt: string | null;
+}
+
+export interface AnalyticsUserResponse {
+  userPerformance: UserPerformance;
+  assignToMe: TaskAssgin[];
+  activityStream: PagedResult<UserLogResponse>;
+  dashboard: UserTaskDashBoard;
+}
+
+export interface UserPerformance {
+  totalTasksAssigned: number;
+  totalCompanies: number;
+  totalProjects: number;
+  totalSubscriptions: number;
 }

@@ -21,7 +21,7 @@ const AlertHeader = () => {
 
   const isInCompanyDetail = pathname.includes('/company_detail');
 
-  // 🔹 Load user avatar nếu chưa có
+  // Load user avatar nếu chưa có
   useEffect(() => {
     const loadUserDetail = async () => {
       if (!user?.userId) return;

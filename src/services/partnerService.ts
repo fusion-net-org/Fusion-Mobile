@@ -1,5 +1,11 @@
 import { PagedResult } from '@/interfaces/base';
-import { PartnerFilterAPI, PartnerItem, PartnerStatusSummary } from '@/interfaces/partner';
+import {
+  PartnerFilterAPI,
+  PartnerItem,
+  PartnerStatusSummary,
+  PartnerTaskStats,
+} from '@/interfaces/partner';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiInstance } from '../api/apiInstance';
 
 export const GetPagePartner = async (
@@ -53,5 +59,26 @@ export const GetPartnerStatusSummary = async (companyId: string): Promise<Partne
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Fetch notifications failed';
     throw new Error(message);
+  }
+};
+
+export const GetPartnerTaskStats = async (partnerId?: string): Promise<PartnerTaskStats | null> => {
+  if (!partnerId) return null;
+
+  try {
+    const storedCompany = await AsyncStorage.getItem('selectedCompany');
+    if (!storedCompany) return null;
+
+    const company = JSON.parse(storedCompany);
+    const myCompanyId = company.id;
+
+    const response = await apiInstance.get(
+      `/partners/task-stats?PartnerCompanyId=${partnerId}&MyCompanyId=${myCompanyId}`,
+    );
+
+    return response.data.data as PartnerTaskStats;
+  } catch (error) {
+    console.error('Failed to fetch performance data:', error);
+    return null;
   }
 };

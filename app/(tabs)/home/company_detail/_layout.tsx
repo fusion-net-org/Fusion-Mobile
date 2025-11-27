@@ -17,7 +17,7 @@ export default function CompanyDetailLayout() {
       return () => {
         // Khi rời group company_detail
         if (!pathname.includes('company_detail')) {
-          dispatch(clearSelectedCompany()); // 👉 reset Redux NGAY
+          dispatch(clearSelectedCompany()); // reset Redux NGAY
           AsyncStorage.removeItem('selectedCompany'); // xoá nền sau
         }
       };
