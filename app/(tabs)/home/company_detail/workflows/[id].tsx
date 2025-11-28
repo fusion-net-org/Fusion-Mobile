@@ -3,7 +3,7 @@ import WorkflowPreviewModal from '@/components/workflow-layout/WorkflowPreviewMo
 import { Workflow } from '@/interfaces/workflow';
 import { getWorkflowPreviews } from '@/src/services/workflowService';
 import { useLocalSearchParams } from 'expo-router';
-import { Eye } from 'lucide-react-native';
+import { Eye, XCircle } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 
@@ -58,7 +58,12 @@ const WorkFlows = () => {
         {loading ? (
           <ActivityIndicator size="large" className="mt-10" />
         ) : workflows.length === 0 ? (
-          <Text className="text-gray-500">No workflows found.</Text>
+          <View className="flex-1 items-center justify-center py-10">
+            <View className="items-center">
+              <XCircle size={42} color="#9ca3af" />
+              <Text className="mt-3 text-lg font-medium text-gray-500">No workflows found.</Text>
+            </View>
+          </View>
         ) : (
           <FlatList
             data={workflows}

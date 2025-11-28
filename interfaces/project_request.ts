@@ -4,21 +4,24 @@ export interface ProjectRequest {
   id: string;
   requesterCompanyId: string;
   requesterCompanyName: string;
+  requesterCompanyLogoUrl: string;
   executorCompanyId: string;
   executorCompanyName: string;
+  executorCompanyLogoUrl: string;
   createdBy: string;
   createdName: string;
   code: string;
   projectName: string;
   description: string;
   status: string;
-  isDeleted: boolean;
   startDate: string;
   endDate: string;
   createAt: string;
   updateAt: string;
+  isDeleted: boolean;
   isHaveProject: boolean;
   convertedProjectId: string;
+  contractId: string;
 }
 
 export interface ProjectRequestState {
@@ -53,4 +56,19 @@ export interface ProjectRequestFilterApi {
   dateRange?: DateRange;
   pageNumber: number;
   pageSize: number;
+}
+
+export type ProjectRequestViewMode = 'AsRequester' | 'AsExecutor';
+export type DateFilterType =
+  | 'CreatedDate'
+  | 'StartEndDate'
+  | 'ApprovedDate'
+  | 'RejectedDate'
+  | 'PendingDate';
+
+export enum ProjectRequestStatusEnum {
+  Pending = 'Pending',
+  Accepted = 'Accepted',
+  Rejected = 'Rejected',
+  Finished = 'Finished',
 }

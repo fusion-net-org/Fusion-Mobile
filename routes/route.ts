@@ -9,6 +9,9 @@ export const ROUTES = {
   TICKET: {
     DETAIL: '/(tabs)/home/company_detail/projects/project_detail_request/ticket_detail',
   },
+  PROJECT_REQUEST: {
+    DETAIL: '/(tabs)/home/company_detail/project_requests/project_request_detail',
+  },
   HOME: {
     COMPANY: '/(tabs)/home',
     SCHEDULE: '/(tabs)/schedule',
@@ -22,7 +25,7 @@ export const ROUTES = {
     PARTNERS: '/(tabs)/home/company_detail/partners',
     PROJECTS: '/(tabs)/home/company_detail/projects',
     WORKFLOWS: '/(tabs)/home/company_detail/workflows',
-    PROJECT_REQUESTS: '/(tabs)/home/company_detail/projects_request',
+    PROJECT_REQUESTS: '/(tabs)/home/company_detail/project_requests',
     TICKETS: '/(tabs)/home/company_detail/tickets',
   },
   PARTNER: {

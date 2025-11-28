@@ -104,25 +104,21 @@ const ProjectRequestSection = ({ partnerId }: Props) => {
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
-          if (!item.convertedProjectId) {
+          if (!item.id) {
             Toast.show({
               type: 'error',
-              text1: 'Project does not exist',
+              text1: 'Project Request does not exist',
               position: 'top',
               visibilityTime: 1500,
             });
             return;
           }
 
-          const url =
-            side === 'Requester'
-              ? `${ROUTES.PROJECT.REQUEST}/${item.convertedProjectId}`
-              : `${ROUTES.PROJECT.DETAIL}/${item.convertedProjectId}`;
-
           router.push({
-            pathname: url as any,
+            pathname: `${ROUTES.PROJECT_REQUEST.DETAIL}/${item.id}` as any,
             params: {
-              projectId: item.convertedProjectId,
+              projectRequestId: item.id,
+              companyId: selectedCompanyId,
             },
           });
         }}
@@ -162,7 +158,7 @@ const ProjectRequestSection = ({ partnerId }: Props) => {
                       : 'text-gray-400'
                 }`}
               >
-                {side}
+                As{side}
               </Text>
             </View>
 

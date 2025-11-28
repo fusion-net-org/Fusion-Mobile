@@ -1,4 +1,3 @@
-// app/(tabs)/home/company_detail/projects/[id].tsx
 import ProjectFilterModal from '@/components/project-layout/ProjectFilterModal';
 import { Project, ProjectFilter } from '@/interfaces/project';
 import { ROUTES } from '@/routes/route';
@@ -18,6 +17,37 @@ import {
 } from 'react-native';
 
 const statusColumns: Project['status'][] = ['Planned', 'InProgress', 'OnHold', 'Completed'];
+
+const getStatusStyle = (status: string) => {
+  switch (status) {
+    case 'Planned':
+      return { bg: 'bg-yellow-100', text: 'text-yellow-600' };
+    case 'InProgress':
+      return { bg: 'bg-blue-100', text: 'text-blue-600' };
+    case 'OnHold':
+      return { bg: 'bg-red-100', text: 'text-red-600' };
+    case 'Completed':
+      return { bg: 'bg-green-100', text: 'text-green-600' };
+    default:
+      return { bg: 'bg-gray-100', text: 'text-gray-600' };
+  }
+};
+
+const getPTypeStyle = (isRequester?: boolean) => {
+  if (isRequester) {
+    return {
+      label: 'Requester',
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-600',
+    };
+  }
+
+  return {
+    label: 'Executor',
+    bg: 'bg-blue-100',
+    text: 'text-blue-600',
+  };
+};
 
 const Projects = () => {
   const router = useRouter();
@@ -104,71 +134,83 @@ const Projects = () => {
       {viewMode === 'card' && (
         <FlatList
           data={projects}
+          contentContainerStyle={{ paddingBottom: 80 }}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View className="mb-4 rounded-xl bg-white p-4 shadow-md">
-              <View className="mb-2 flex-row justify-between">
-                <Text className="text-xs font-semibold text-blue-600">{item.code}</Text>
-                <View
-                  className={`rounded-full px-2 py-1 ${
-                    item.status === 'Completed' ? 'bg-green-100' : 'bg-yellow-100'
-                  }`}
+          renderItem={({ item }) => {
+            const statusColor = getStatusStyle(item.status);
+            const ptype = getPTypeStyle(item.isRequest);
+
+            return (
+              <View className="mb-4 rounded-xl bg-white p-4 shadow-md">
+                <View className="flex-row items-start justify-between">
+                  <View>
+                    <Text className="text-xs font-semibold text-blue-600">{item.code}</Text>
+                    <Text className="mt-1 text-base font-semibold">{item.name}</Text>
+                  </View>
+                  <View>
+                    <View className={`rounded-full px-2 py-1 ${statusColor.bg}`}>
+                      <Text className={`text-[10px] font-semibold ${statusColor.text}`}>
+                        {item.status}
+                      </Text>
+                    </View>
+                    <View
+                      className={`justify-centermt-1 flex items-center rounded-full px-2 py-1 ${ptype.bg}`}
+                    >
+                      <Text className={`text-[10px] font-semibold ${ptype.text}`}>
+                        {ptype.label}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <Text className="mb-1 text-gray-600">
+                  {item.companyName} — {item.workflow || 'WorkflowA'}
+                </Text>
+                <Text className="mb-2 text-xs text-gray-500">
+                  {formatLocalDate(item.startDate)} — {formatLocalDate(item.endDate)}
+                </Text>
+
+                <View className="mb-2 flex-row space-x-2">
+                  <View className="rounded-full bg-blue-100 px-2 py-1">
+                    <Text className="text-xs font-semibold text-blue-600">
+                      {item.ptype || 'Internal'}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text numberOfLines={2} className="mb-2 text-xs leading-4 text-gray-600">
+                  {item.description}
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    if (item.isRequest === true) {
+                      router.push({
+                        pathname: `${ROUTES.PROJECT.REQUEST}/${item.id}` as any,
+                        params: {
+                          projectId: item.id,
+                        },
+                      });
+                    } else {
+                      router.push(`${ROUTES.PROJECT.DETAIL}/${item.id}` as any);
+                    }
+                  }}
+                  className="self-start rounded-md bg-blue-600 px-4 py-2"
                 >
-                  <Text
-                    className={`text-[10px] font-semibold ${
-                      item.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'
-                    }`}
-                  >
-                    {item.status}
-                  </Text>
-                </View>
+                  <Text className="font-semibold text-white">Open →</Text>
+                </TouchableOpacity>
               </View>
-
-              <Text className="mb-1 text-base font-bold">{item.name}</Text>
-              <Text className="mb-1 text-gray-600">
-                {item.companyName} — {item.workflow || 'WorkflowA'}
-              </Text>
-              <Text className="mb-2 text-xs text-gray-500">
-                {formatLocalDate(item.startDate)} — {formatLocalDate(item.endDate)}
-              </Text>
-
-              <View className="mb-2 flex-row space-x-2">
-                <View className="rounded-full bg-blue-100 px-2 py-1">
-                  <Text className="text-xs font-semibold text-blue-600">
-                    {item.ptype || 'Internal'}
-                  </Text>
-                </View>
-              </View>
-
-              <Text numberOfLines={2} className="mb-2 text-xs leading-4 text-gray-600">
-                {item.description}
-              </Text>
-
-              <TouchableOpacity
-                onPress={() => {
-                  if (item.isRequest === true) {
-                    router.push({
-                      pathname: `${ROUTES.PROJECT.REQUEST}/${item.id}` as any,
-                      params: {
-                        projectId: item.id,
-                      },
-                    });
-                  } else {
-                    router.push(`${ROUTES.PROJECT.DETAIL}/${item.id}` as any);
-                  }
-                }}
-                className="self-start rounded-md bg-blue-600 px-4 py-2"
-              >
-                <Text className="font-semibold text-white">Open →</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+            );
+          }}
         />
       )}
 
       {/* List View */}
       {viewMode === 'list' && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView
+          horizontal
+          contentContainerStyle={{ paddingBottom: 80 }}
+          showsHorizontalScrollIndicator={false}
+        >
           <View>
             {/* Header */}
             <View className="flex-row bg-gray-200 p-3">
@@ -182,70 +224,119 @@ const Projects = () => {
             </View>
 
             {/* Rows */}
-            {projects.map((item, index) => (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() => router.push(`${ROUTES.PROJECT.DETAIL}/${item.id}` as any)}
-              >
-                <View
+            {projects.map((item, index) => {
+              const getPTypeLabel = (isRequest?: boolean) => {
+                return isRequest ? 'Requester' : 'Executor';
+              };
+
+              return (
+                <TouchableOpacity
                   key={item.id}
-                  className={`flex-row p-3 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                  onPress={() => {
+                    if (item.isRequest === true) {
+                      router.push({
+                        pathname: `${ROUTES.PROJECT.REQUEST}/${item.id}` as any,
+                        params: {
+                          projectId: item.id,
+                        },
+                      });
+                    } else {
+                      router.push(`${ROUTES.PROJECT.DETAIL}/${item.id}` as any);
+                    }
+                  }}
                 >
-                  <Text className="mr-3 w-28 text-xs">{item.code}</Text>
-                  <Text className="mr-3 w-28 text-xs">{item.name}</Text>
-                  <Text className="mr-3 w-28 text-xs">{item.ownerCompany || 'N/A'}</Text>
-                  <Text className="mr-3 w-28 text-xs">{item.hiredCompany || 'N/A'}</Text>
-                  <Text className="mr-3 w-28 text-xs">{item.workflow || 'WorkflowA'}</Text>
                   <View
-                    className={`mr-3 w-28 rounded border px-1 py-0.5 ${
-                      item.status === 'Completed' ? 'border-green-600' : 'border-yellow-600'
-                    }`}
+                    key={item.id}
+                    className={`flex-row p-3 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
                   >
-                    <Text
-                      className={`text-center text-[10px] font-semibold ${
-                        item.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'
+                    <Text className="mr-3 w-28 text-xs">{item.code}</Text>
+                    <Text className="mr-3 w-28 text-xs">{item.name}</Text>
+                    <Text className="mr-3 w-28 text-xs">{item.ownerCompany || 'N/A'}</Text>
+                    <Text className="mr-3 w-28 text-xs">{item.hiredCompany || 'N/A'}</Text>
+                    <Text className="mr-3 w-28 text-xs">{item.workflow || 'WorkflowA'}</Text>
+                    <View
+                      className={`mr-3 w-28 rounded border px-1 py-0.5 ${
+                        item.status === 'Completed' ? 'border-green-600' : 'border-yellow-600'
                       }`}
                     >
-                      {item.status}
+                      <Text
+                        className={`text-center text-[10px] font-semibold ${
+                          item.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'
+                        }`}
+                      >
+                        {item.status}
+                      </Text>
+                    </View>
+                    <Text className="mr-3 w-28 text-xs">
+                      {item.isRequest ? 'Requester' : 'Executor'} – {item.ptype || 'Internal'}
                     </Text>
                   </View>
-                  <Text className="mr-3 w-28 text-xs">{item.ptype || 'Internal'}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </ScrollView>
       )}
 
       {/* Kanban View */}
       {viewMode === 'kanban' && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-1">
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 80 }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="flex-1"
+        >
           {statusColumns.map((status) => (
             <View key={status} className="m-2 w-64 rounded-lg bg-gray-100 p-2">
               <Text className="mb-2 text-sm font-bold">{status}</Text>
 
               {projects
                 .filter((p) => p.status === status)
-                .map((p) => (
-                  <TouchableOpacity
-                    key={p.id}
-                    onPress={() => router.push(`${ROUTES.PROJECT.DETAIL}/${p.id}` as any)}
-                  >
-                    <View key={p.id} className="mb-2 rounded bg-white p-3 shadow">
-                      <View className="flex-row items-start justify-between">
-                        <Text className="text-xs font-semibold">{p.name}</Text>
-                        <View className="rounded bg-blue-100 px-2 py-0.5">
-                          <Text className="text-[10px] font-semibold text-blue-600">
-                            {p.ptype || 'Internal'}
-                          </Text>
-                        </View>
-                      </View>
+                .map((p) => {
+                  const statusColor = getStatusStyle(p.status);
+                  const ptype = getPTypeStyle(p.isRequest);
+                  return (
+                    <TouchableOpacity
+                      key={p.id}
+                      onPress={() => {
+                        if (p.isRequest === true) {
+                          router.push({
+                            pathname: `${ROUTES.PROJECT.REQUEST}/${p.id}` as any,
+                            params: {
+                              projectId: p.id,
+                            },
+                          });
+                        } else {
+                          router.push(`${ROUTES.PROJECT.DETAIL}/${p.id}` as any);
+                        }
+                      }}
+                    >
+                      <View key={p.id} className="mb-3 rounded-xl bg-white p-4 shadow-md">
+                        {/* Name */}
+                        <Text className="mb-1 text-base font-semibold">{p.name}</Text>
 
-                      {/* Code */}
-                      <Text className="mt-1 text-[10px] text-gray-500">{p.code}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
+                        {/* Status + PType */}
+                        <View className="mb-2 flex-row space-x-2">
+                          <View className={`rounded-full px-3 py-1 ${statusColor.bg}`}>
+                            <Text className={`text-[10px] font-semibold ${statusColor.text}`}>
+                              {p.status}
+                            </Text>
+                          </View>
+
+                          <View className={`rounded-full px-3 py-1 ${ptype.bg}`}>
+                            <Text className={`text-[10px] font-semibold ${ptype.text}`}>
+                              {ptype.label}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Code + Workflow */}
+                        <Text className="text-xs text-gray-500">{p.code}</Text>
+                        <Text className="text-xs text-gray-400">{p.workflow || 'WorkflowA'}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
             </View>
           ))}
         </ScrollView>
