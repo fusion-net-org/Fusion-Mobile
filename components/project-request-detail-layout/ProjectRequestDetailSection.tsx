@@ -61,7 +61,7 @@ export default function ProjectRequestWithDetailSection({
       const projectRes = await GetProjectRequestById(projectRequestId);
       setProjectRequest(projectRes.data);
 
-      setContractId(projectRes.contractId || null);
+      setContractId(projectRes.data.contractId || null);
 
       const [reqRes, exeRes] = await Promise.all([
         GetCompanyById(projectRes.data.requesterCompanyId),
@@ -280,8 +280,8 @@ export default function ProjectRequestWithDetailSection({
             icon={<FileText size={16} color="#2563eb" />}
             onPress={() =>
               router.push({
-                pathname: ROUTES.COMPANY.DETAIL as any /* Chua co trang Contract */,
-                params: { id: contractId },
+                pathname: `${ROUTES.PROJECT_REQUEST.CONTRACT}/${contractId}` as any,
+                params: { id: contractId, projectRequestId: projectRequest?.id },
               })
             }
           />

@@ -441,7 +441,15 @@ const ProjectRequestPage = () => {
             {/* Contract Buttons */}
             <View className="mt-2 flex-row justify-end space-x-2">
               {item.contractId && (
-                <TouchableOpacity className="rounded-full bg-blue-100 px-3 py-1">
+                <TouchableOpacity
+                  onPress={() =>
+                    router.push({
+                      pathname: `${ROUTES.PROJECT_REQUEST.CONTRACT}/${item.contractId}` as any,
+                      params: { id: item.contractId, projectRequestId: item.id },
+                    })
+                  }
+                  className="rounded-full bg-blue-100 px-3 py-1"
+                >
                   <FileText className="h-4 w-4 text-blue-600" />
                 </TouchableOpacity>
               )}

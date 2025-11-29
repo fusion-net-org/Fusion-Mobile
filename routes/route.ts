@@ -11,6 +11,7 @@ export const ROUTES = {
   },
   PROJECT_REQUEST: {
     DETAIL: '/(tabs)/home/company_detail/project_requests/project_request_detail',
+    CONTRACT: '/(tabs)/home/company_detail/project_requests/project_request_detail/contract_detail',
   },
   HOME: {
     COMPANY: '/(tabs)/home',

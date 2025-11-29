@@ -81,7 +81,6 @@ export default function ProjectDetailRequestSection({
       </View>
     );
 
-  // FlatList ListHeaderComponent
   const renderHeader = () => (
     <>
       {/* HEADER */}

@@ -1,4 +1,4 @@
-import TicketDetailSection from '@/components/ticket-detail-layout/TicketDetilSection';
+import TicketDetailSection from '@/components/ticket-detail-layout/TicketDetailSection';
 import { ROUTES } from '@/routes/route';
 import { useLocalSearchParams } from 'expo-router';
 
