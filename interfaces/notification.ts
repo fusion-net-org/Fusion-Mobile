@@ -21,3 +21,20 @@ export interface SendTaskCommentNotificationRequest {
   body: string;
   event: string;
 }
+
+export type NotificationType =
+  | 'BUSINESS'
+  | 'SYSTEM'
+  | 'PROJECT'
+  | 'TASK'
+  | 'COMPANY'
+  | 'WARNING'
+  | 'PARTNER'
+  | 'PROJECT_REQUEST'
+  | 'INFO'
+  | 'ADMIN_NOTIFICATE';
+
+export interface ToggleNotificationRequest {
+  type: NotificationType;
+  isEnable: boolean;
+}

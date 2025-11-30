@@ -1,7 +1,9 @@
 import {
   SendNotificationRequest,
   SendTaskCommentNotificationRequest,
+  ToggleNotificationRequest,
 } from '@/interfaces/notification';
+
 import { apiInstance } from '../api/apiInstance';
 
 export const sendNotification = async (data: SendNotificationRequest): Promise<any> => {
@@ -113,4 +115,13 @@ export const DeleteNotificationsAll = async (): Promise<any> => {
       'Delete all notifications failed';
     throw new Error(message);
   }
+};
+
+export const toggleNotification = async (request: ToggleNotificationRequest) => {
+  const payload = {
+    type: request.type,
+    isEnable: request.isEnable,
+  };
+  const res = await apiInstance.post('/notifications/toggle', payload);
+  return res.data;
 };

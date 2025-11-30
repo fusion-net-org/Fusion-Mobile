@@ -97,6 +97,7 @@ const ProjectRequestPage = () => {
     else setLoadingMore(true);
 
     try {
+      console.log(viewModeParam);
       const res = await GetProjectRequestByCompanyId(
         companyId as string,
         searchTerm || null,
@@ -137,7 +138,7 @@ const ProjectRequestPage = () => {
 
   // Hàm load more
   const loadMore = () => {
-    if (data.length >= totalCount) return; // hết dữ liệu
+    if (data.length >= totalCount) return;
     fetchData(page + 1, true);
   };
 

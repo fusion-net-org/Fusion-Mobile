@@ -309,12 +309,6 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
         <View className="rounded-2xl bg-white p-4 shadow">
           {[
             {
-              icon: <Flag size={18} color="#3B82F6" />,
-              label: 'Status',
-              value: task.status,
-              color: getStatusColor(task.status),
-            },
-            {
               icon: <ClipboardList size={18} color="#3B82F6" />,
               label: 'Title',
               value: task.title,
@@ -328,6 +322,12 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
               icon: <Timer size={18} color="#3B82F6" />,
               label: 'Due Date',
               value: formatLocalDate(task.dueDate),
+            },
+            {
+              icon: <Flag size={18} color="#3B82F6" />,
+              label: 'Status',
+              value: task.status,
+              color: getStatusColor(task.status),
             },
             {
               icon: <Tag size={18} color="#3B82F6" />,

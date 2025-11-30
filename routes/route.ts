@@ -15,7 +15,7 @@ export const ROUTES = {
   },
   HOME: {
     COMPANY: '/(tabs)/home',
-    SCHEDULE: '/(tabs)/schedule',
+    WORKSPACE: '/(tabs)/workspace',
     CALENDAR: '/(tabs)/calendar',
     ANALYTICS: '/(tabs)/analytics',
     NOTIFICATION: '/(tabs)/notification',
@@ -50,6 +50,7 @@ export const ROUTES = {
   TASK: {
     CALENDAR_TASK: '/(tabs)/calendar/calendar_task_detail',
     ANALYTICS_TASK: '/(tabs)/analytics/analytic_task_detail',
+    WORKSPACE_TASK: '/(tabs)/workspace/workspace_task_detail',
     CALENDAR_TASK_LIST: '/(tabs)/calendar/calendar_list',
     TASK_DETAIL: '/(tabs)/home/company_detail/projects/project_detail/task_detail',
   },

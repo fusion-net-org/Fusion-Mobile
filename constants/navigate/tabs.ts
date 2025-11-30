@@ -2,7 +2,7 @@ import { ROUTES } from '@/routes/route'; // hoặc đường dẫn đúng đến
 
 export const HOMETABS = [
   { name: 'home', iconName: 'home', title: 'Company', href: ROUTES.HOME.COMPANY },
-  { name: 'schedule/index', iconName: 'clock', title: 'Schedule', href: ROUTES.HOME.SCHEDULE },
+  { name: 'workspace', iconName: 'laptop', title: 'Workspace', href: ROUTES.HOME.WORKSPACE },
   {
     name: 'calendar',
     iconName: 'calendar',

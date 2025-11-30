@@ -51,14 +51,6 @@ const Tickets: React.FC = () => {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [viewMode, setViewMode] = useState<'AsRequester' | 'AsExecutor'>('AsRequester');
 
-  useEffect(() => {
-    fetchProjects();
-  }, [companyId]);
-
-  useEffect(() => {
-    fetchTickets();
-  }, [debouncedSearch, selectedProjectId, filterStatus, pageNumber]);
-
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -71,24 +63,30 @@ const Tickets: React.FC = () => {
     }
   };
 
-  const viewModeParam: 'AsRequester' | 'AsExecutor' | null = viewMode || null;
-
   const fetchTickets = async () => {
     try {
       setLoading(true);
-      const res = await GetTicketPaged({
+
+      const params: any = {
         keyword: debouncedSearch || '',
         projectId: selectedProjectId || null,
-        companyRequestId: companyId as string,
-        companyExecutorId: companyId as string,
         status: filterStatus === 'All' ? null : filterStatus,
-        viewMode: null,
+        viewMode: viewMode,
         createdFrom: null,
         createdTo: null,
         isDeleted: null,
         pageNumber,
         pageSize: 10,
-      });
+      };
+
+      if (viewMode === 'AsRequester') {
+        params.companyRequestId = companyId;
+        params.companyExecutorId = null;
+      } else {
+        params.companyRequestId = null;
+        params.companyExecutorId = companyId;
+      }
+      const res = await GetTicketPaged(params);
       setTickets(res.pageData.items);
       setTotalCount(res.pageData.totalCount);
     } catch (err) {
@@ -112,6 +110,14 @@ const Tickets: React.FC = () => {
   const goToDetail = (ticket: TicketItem) => {
     router.push(`${ROUTES.TICKET.DETAIL}/${ticket.id}` as any);
   };
+
+  useEffect(() => {
+    fetchProjects();
+  }, [companyId]);
+
+  useEffect(() => {
+    fetchTickets();
+  }, [debouncedSearch, selectedProjectId, filterStatus, pageNumber, viewMode]);
 
   return (
     <View className="flex-1 bg-gray-50 p-4">

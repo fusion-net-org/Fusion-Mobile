@@ -1,4 +1,4 @@
-import { TicketFilterApi, TicketStatusMap, TicketViewModeMap } from '@/interfaces/ticket';
+import { TicketFilterApi, TicketStatusMap } from '@/interfaces/ticket';
 import { apiInstance } from '../api/apiInstance';
 
 export const GetTicketByProjectId = async (
@@ -67,7 +67,6 @@ export const GetTicketById = async (ticketId: string) => {
 
 export const GetTicketPaged = async (filter: TicketFilterApi) => {
   try {
-    console.log('ftech');
     const params = Object.fromEntries(
       Object.entries({
         Keyword: filter.keyword,
@@ -76,7 +75,7 @@ export const GetTicketPaged = async (filter: TicketFilterApi) => {
         CompanyExecutorId: filter.companyExecutorId,
 
         Status: filter.status ? TicketStatusMap[filter.status] : null,
-        ViewMode: filter.viewMode ? TicketViewModeMap[filter.viewMode] : null,
+        ViewMode: null,
 
         CreatedFrom: filter.createdFrom,
         CreatedTo: filter.createdTo,

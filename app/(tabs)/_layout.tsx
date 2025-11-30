@@ -9,7 +9,7 @@ import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import '../globals.css';
 
 export default function IconLayout() {
-  // 🧠 Lấy cache hiện tại của notifications (nếu có)
+  // Lấy cache hiện tại của notifications (nếu có)
   const pathname = usePathname();
 
   const { data: notifications = [] } = useQuery({

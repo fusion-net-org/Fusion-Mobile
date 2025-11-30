@@ -7,8 +7,6 @@ export const GetPagedCompanies = async (
   filter: CompanyFilterApi,
 ): Promise<PagedResult<Company>> => {
   try {
-    console.log('📤 Fetching paged companies with filter:', filter);
-
     const response = await apiInstance.get(`/company/paged`, {
       params: {
         keyword: filter.keyword,
@@ -22,7 +20,6 @@ export const GetPagedCompanies = async (
       },
     });
 
-    // ✅ Kiểm tra statusCode trả về
     if (response.data?.statusCode === 200) {
       return response.data.data as PagedResult<Company>;
     } else {

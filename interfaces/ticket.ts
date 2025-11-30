@@ -39,10 +39,7 @@ export const TicketStatusMap = {
   Finished: 3,
 };
 
-export const TicketViewModeMap = {
-  AsRequester: 0,
-  AsExecutor: 1,
-};
+export type TicketViewModeMap = 'AsRequester' | 'AsExecutor';
 
 export interface TicketFilterApi {
   keyword?: string;
@@ -50,7 +47,7 @@ export interface TicketFilterApi {
   companyRequestId?: string | null;
   companyExecutorId?: string | null;
   status?: keyof typeof TicketStatusMap | null;
-  viewMode?: keyof typeof TicketViewModeMap | null;
+  viewMode?: TicketViewModeMap | null;
   createdFrom?: string | null;
   createdTo?: string | null;
   isDeleted?: boolean | null;
