@@ -55,7 +55,7 @@ export default function IconLayout() {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>
+              <Text style={{ color: 'white', fontSize: 8, fontWeight: 'bold' }}>
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Text>
             </View>

@@ -84,7 +84,6 @@ export default function SprintSection({ projectId }: { projectId: string }) {
   };
 
   const loadAssignees = async (taskId: string, userIds: string[]) => {
-    console.log(userIds, 'List User');
     const names: string[] = [];
     for (const uid of userIds) {
       try {
@@ -152,21 +151,23 @@ export default function SprintSection({ projectId }: { projectId: string }) {
         className="flex-row gap-2 px-3 py-2"
       >
         {sprints.map((s) => (
-          <TouchableOpacity
-            key={s.id}
-            onPress={() => setSelectedSprint(s)}
-            className={`rounded-xl border px-4 py-2 ${
-              selectedSprint?.id === s.id
-                ? 'border-indigo-600 bg-indigo-500'
-                : 'border-gray-300 bg-white'
-            }`}
-          >
-            <Text
-              className={`font-semibold ${selectedSprint?.id === s.id ? 'text-white' : 'text-gray-700'}`}
+          <View key={s.id} className="mb-2 ml-2">
+            <TouchableOpacity
+              key={s.id}
+              onPress={() => setSelectedSprint(s)}
+              className={`rounded-xl border px-4 py-2 ${
+                selectedSprint?.id === s.id
+                  ? 'border-indigo-600 bg-indigo-500'
+                  : 'border-gray-300 bg-white'
+              }`}
             >
-              {s.name}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                className={`font-semibold ${selectedSprint?.id === s.id ? 'text-white' : 'text-gray-700'}`}
+              >
+                {s.name}
+              </Text>
+            </TouchableOpacity>
+          </View>
         ))}
       </ScrollView>
 

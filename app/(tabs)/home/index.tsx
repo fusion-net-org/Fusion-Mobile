@@ -83,9 +83,9 @@ const Home = () => {
         </View>
 
         <View className="mt-2 flex-row items-center">
-          {item.OwnerUserAvatar ? (
+          {item.ownerUserAvatar ? (
             <Image
-              source={{ uri: item.OwnerUserAvatar }}
+              source={{ uri: item.ownerUserAvatar }}
               className="h-6 w-6 rounded-full"
               resizeMode="cover"
             />
@@ -94,7 +94,9 @@ const Home = () => {
               <FontAwesome5 name="user" size={12} color="#555" />
             </View>
           )}
-          <Text className="ml-2 text-sm text-gray-700">Owner {item.owner}</Text>
+          <Text className="ml-2 text-sm text-gray-700">
+            {item.ownerUserName?.trim() ? item.ownerUserName : 'Owner'}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -106,7 +108,7 @@ const Home = () => {
       <AlertHeader />
 
       <View className="flex-1 bg-gray-50 pt-3">
-        {/* 🔍 Search Bar */}
+        {/* Search Bar */}
         <View className="mx-4 mb-4 flex-row items-center rounded-full border border-gray-100 bg-white px-4 py-2 shadow-sm">
           <FontAwesome5 name="search" size={16} color="#888" />
           <TextInput
@@ -118,7 +120,7 @@ const Home = () => {
           />
         </View>
 
-        {/* 🔧 Filter */}
+        {/* Filter */}
         <View className="mx-4 mb-2 flex-row items-center justify-between">
           <FilterSection
             onFilterChange={(newFilter) => {
@@ -129,7 +131,7 @@ const Home = () => {
           />
         </View>
 
-        {/* 📦 Danh sách công ty */}
+        {/* Danh sách công ty */}
         {loading && data.length === 0 ? (
           <ActivityIndicator size="large" color="#007bff" className="mt-10" />
         ) : data.length === 0 ? (

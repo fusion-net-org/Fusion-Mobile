@@ -32,7 +32,7 @@ const ContactSection = ({ company }: { company: Company }) => {
   ];
 
   return (
-    <View className="space-y-4">
+    <View className="space-y-4 pb-20">
       {infoItems.map((item, index) => (
         <View
           key={index}

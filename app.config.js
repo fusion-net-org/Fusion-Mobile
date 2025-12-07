@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 export default ({ config }) => ({
   ...config,
+  owner: 'mnkminh',
   name: 'FusionMobile',
   slug: 'fusion-mobile',
   version: '1.0.0',

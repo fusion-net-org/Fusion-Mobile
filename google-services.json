@@ -1,41 +1,33 @@
 {
   "project_info": {
-    "project_number": "130323105827",
-    "project_id": "fusion-18214",
-    "storage_bucket": "fusion-18214.firebasestorage.app"
+    "project_number": "109449510030",
+    "project_id": "fusion-f0915",
+    "storage_bucket": "fusion-f0915.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:130323105827:android:f5ac5023655403888f4996",
+        "mobilesdk_app_id": "1:109449510030:android:7f8a4c922d659ba4cc9ddf",
         "android_client_info": {
           "package_name": "com.fusion.mobile"
         }
       },
       "oauth_client": [
         {
-          "client_id": "130323105827-umcurb87ac7kpdubkluac30fe6vlupad.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.fusion.mobile",
-            "certificate_hash": "ecce1f9814a5284f45ac8f548f1e91d06efeb7bf"
-          }
-        },
-        {
-          "client_id": "130323105827-h9icfttsf8gdsjt6j63b05evijau72ii.apps.googleusercontent.com",
+          "client_id": "109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCEDN8ryNgdpDqupwn45LeD5rCka0m6SZo"
+          "current_key": "AIzaSyDWQpahwAXYJXccEY8Hkd5JRYdjz3f5aDk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "130323105827-h9icfttsf8gdsjt6j63b05evijau72ii.apps.googleusercontent.com",
+              "client_id": "109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

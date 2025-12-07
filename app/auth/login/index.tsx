@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { makeRedirectUri } from 'expo-auth-session';
+import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
-import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Image,
@@ -16,116 +16,105 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
+
+import { loginGoogle } from '@/src/services/authService';
 import { images } from '../../../constants/image/image';
 import { ROUTES } from '../../../routes/route';
 import { AppDispatch } from '../../../src/redux/store';
 import { registerUserDevice } from '../../../src/redux/userDeviceSlice';
 import { loginUser, loginUserThunk } from '../../../src/redux/userSlice';
 
-// Firebase
-import { loginGoogle } from '@/src/services/authService';
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
-
 WebBrowser.maybeCompleteAuthSession();
 
-// --- Firebase config ---
-const firebaseConfig = {
-  apiKey: 'AIzaSyA2GVoGiJL0S5DJvXVK4eUUb68kyPoB46Q',
-  authDomain: 'fusion-18214.firebaseapp.com',
-  projectId: 'fusion-18214',
-  storageBucket: 'fusion-18214.firebasestorage.app',
-  messagingSenderId: '130323105827',
-  appId: '1:130323105827:web:6f33d2ee07118f568f4996',
-  measurementId: 'G-L11L7NVK8Z',
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const WEB_CLIENT_ID = '109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com';
 
 export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
 
-  const redirectUri = makeRedirectUri({
+  const redirectUri = AuthSession.makeRedirectUri({
     scheme: 'fusion',
     useProxy: true,
   });
 
-  const clientId = '130323105827-h9icfttsf8gdsjt6j63b05evijau72ii.apps.googleusercontent.com';
-
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId,
+    webClientId: WEB_CLIENT_ID,
     scopes: ['profile', 'email'],
     redirectUri,
   });
 
+  // Google login
   useEffect(() => {
     if (response?.type === 'success') {
-      const { idToken, accessToken } = response.authentication!;
-      if (idToken) {
-        const credential = GoogleAuthProvider.credential(idToken, accessToken);
-        signInWithCredential(auth, credential)
-          .then(async (userCredential) => {
-            try {
-              const data = await loginGoogle({ token: idToken });
-              dispatch(loginUser(data));
-              router.replace(ROUTES.HOME.COMPANY as any);
-            } catch (err: any) {
-              Toast.show({
-                type: 'error',
-                text1: 'Login Fail',
-                text2: err.message || 'Cannot login with Google backend',
-              });
-            }
-          })
-          .catch((err) => {
-            Toast.show({
-              type: 'error',
-              text1: 'Login Fail',
-              text2: err.message || 'Cannot login with Firebase',
-            });
-          });
-      } else {
+      const idToken = response.authentication?.idToken;
+
+      if (!idToken) {
         Toast.show({
           type: 'error',
           text1: 'Login Fail',
-          text2: 'No token returned from Google',
+          text2: 'Google did not return ID Token',
         });
+        return;
       }
+
+      handleGoogleBackend(idToken);
     }
   }, [response]);
 
+  // Gửi token Google về backend Fusion
+  const handleGoogleBackend = async (idToken: string) => {
+    try {
+      const data = await loginGoogle({ token: idToken });
+
+      dispatch(loginUser(data));
+
+      try {
+        await dispatch(registerUserDevice()).unwrap();
+      } catch (err) {
+        console.warn('⚠️ Device register failed:', err);
+      }
+
+      router.replace(ROUTES.HOME.COMPANY as any);
+    } catch (err: any) {
+      Toast.show({
+        type: 'error',
+        text1: 'Login Fail',
+        text2: err.message || 'Backend Google login failed',
+      });
+    }
+  };
+
+  // Normal login
   const handleLogin = async () => {
     try {
       const res = await dispatch(loginUserThunk({ email, password }));
 
       if (loginUserThunk.fulfilled.match(res)) {
         const userData = res.payload.data;
-        const loginData = {
-          userName: userData.userName,
-          accessToken: userData.accessToken,
-          refreshToken: userData.refreshToken,
-        };
 
-        dispatch(loginUser(loginData));
-        try {
-          await dispatch(registerUserDevice()).unwrap();
-        } catch (deviceError) {
-          console.warn('⚠️ Device registration failed after login:', deviceError);
-        }
+        dispatch(
+          loginUser({
+            userName: userData.userName,
+            accessToken: userData.accessToken,
+            refreshToken: userData.refreshToken,
+          }),
+        );
+
+        await dispatch(registerUserDevice()).unwrap();
 
         router.replace(ROUTES.HOME.COMPANY as any);
       } else {
         Toast.show({
           type: 'error',
           text1: 'Login Fail',
-          text2: 'Invalid email or password. Please try again.',
+          text2: 'Invalid email or password.',
         });
       }
     } catch {

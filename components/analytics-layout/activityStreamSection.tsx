@@ -109,29 +109,39 @@ export default function ActivityStreamSection() {
 
   return (
     <View className="flex-1 bg-gray-100 p-4">
+      {/* Loading lần đầu */}
       {sectionList.length === 0 && loading ? (
         <ActivityIndicator className="mt-10" />
       ) : (
         <View className="flex-1 overflow-hidden rounded-2xl bg-white shadow-lg">
-          <FlatList
-            scrollEnabled={false}
-            data={sectionList}
-            keyExtractor={(item, index) => `${item.title}-${index}`}
-            renderItem={({ item }) => (
-              <View>
-                {/* Header date */}
-                <Text className="px-4 py-2 font-semibold text-gray-600">{item.title}</Text>
+          {/* EMPTY STATE */}
+          {sectionList.length === 0 && !loading ? (
+            <View className="flex-1 items-center justify-center py-20">
+              <Text className="mb-4 text-5xl">📭</Text>
+              <Text className="text-lg font-semibold text-gray-600">No Data Found</Text>
+              <Text className="mt-1 text-gray-400">There is nothing to display here.</Text>
+            </View>
+          ) : (
+            <FlatList
+              scrollEnabled={false}
+              data={sectionList}
+              keyExtractor={(item, index) => `${item.title}-${index}`}
+              renderItem={({ item }) => (
+                <View>
+                  {/* Header date */}
+                  <Text className="px-4 py-2 font-semibold text-gray-600">{item.title}</Text>
 
-                {item.data.map((log: any, index: number) => (
-                  <View key={`${log.id}-${index}`}>{renderItem({ item: log })}</View>
-                ))}
-              </View>
-            )}
-            onEndReached={loadMore}
-            onEndReachedThreshold={0.3}
-            ListFooterComponent={loading ? <ActivityIndicator className="my-4" /> : <View />}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
+                  {item.data.map((log: any, index: number) => (
+                    <View key={`${log.id}-${index}`}>{renderItem({ item: log })}</View>
+                  ))}
+                </View>
+              )}
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.3}
+              ListFooterComponent={loading ? <ActivityIndicator className="my-4" /> : <View />}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
+          )}
         </View>
       )}
     </View>

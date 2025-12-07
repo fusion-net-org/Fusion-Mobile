@@ -158,9 +158,10 @@ export default function CalendarScreen() {
     const today = dayjs().startOf('day');
 
     tasks.forEach((t) => {
-      if (!t.dueDate) return;
+      const baseDate = t.dueDate || t.createAt;
+      if (!baseDate) return;
 
-      const due = dayjs(t.dueDate).startOf('day');
+      const due = dayjs(baseDate).startOf('day');
       const dateStr = due.format('YYYY-MM-DD');
 
       let color = '#2563EB';
@@ -196,10 +197,13 @@ export default function CalendarScreen() {
 
   const tasksForDay = selectedDate
     ? tasks.filter((t) => {
-        if (!t.dueDate) return false;
+        const baseDate = t.dueDate || t.createAt;
+        if (!baseDate) return false;
+
         const sel = dayjs(selectedDate).startOf('day');
-        const dueDay = dayjs(t.dueDate).startOf('day');
-        return sel.isSame(dueDay, 'day');
+        const compareDay = dayjs(baseDate).startOf('day');
+
+        return sel.isSame(compareDay, 'day');
       })
     : [];
 

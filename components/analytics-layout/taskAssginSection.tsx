@@ -46,13 +46,24 @@ const TaskAssignedToMe = ({ assignToMe, onTaskPress }: AssignedToMeProps) => {
         <Text className="text-base font-bold text-gray-900">Assigned to Me</Text>
       </View>
 
-      {/* Task List */}
-      <FlatList
-        data={assignToMe}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        scrollEnabled={false}
-      />
+      {/* Empty State */}
+      {assignToMe.length === 0 ? (
+        <View className="items-center justify-center py-10">
+          <Text className="mb-2 text-6xl">📭</Text>
+          <Text className="font-semibold text-gray-700">No tasks assigned</Text>
+          <Text className="text-sm text-gray-400">You&apos;re all caught up!</Text>
+        </View>
+      ) : (
+        <>
+          {/* List tasks */}
+          <FlatList
+            data={assignToMe}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            scrollEnabled={false}
+          />
+        </>
+      )}
     </View>
   );
 };
