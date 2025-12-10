@@ -7,7 +7,7 @@ export default ({ config }) => ({
   slug: 'fusion-mobile',
   version: '1.0.0',
   orientation: 'portrait',
-  icon: './assets/images/icon.png',
+  icon: './assets/images/logo_fusion.png',
   scheme: 'fusion',
   userInterfaceStyle: 'automatic',
   newArchEnabled: true,

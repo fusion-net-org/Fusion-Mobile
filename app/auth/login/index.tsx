@@ -28,8 +28,9 @@ import { registerUserDevice } from '../../../src/redux/userDeviceSlice';
 import { loginUser, loginUserThunk } from '../../../src/redux/userSlice';
 
 WebBrowser.maybeCompleteAuthSession();
-
 const WEB_CLIENT_ID = '109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com';
+const ANDROID_CLIENT_ID =
+  '130323105827-umcurb87ac7kpdubkluac30fe6vlupad.apps.googleusercontent.com';
 
 export default function Login() {
   const router = useRouter();
@@ -40,12 +41,12 @@ export default function Login() {
   const [show, setShow] = useState(false);
 
   const redirectUri = AuthSession.makeRedirectUri({
-    scheme: 'fusion',
-    useProxy: true,
+    useProxy: false, // dev standalone APK không dùng proxy
+    scheme: 'fusion', // scheme trùng app.json
   });
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: WEB_CLIENT_ID,
+    androidClientId: ANDROID_CLIENT_ID, // dùng client vừa tạo
     scopes: ['profile', 'email'],
     redirectUri,
   });
