@@ -41,8 +41,9 @@ export default function Login() {
   const [show, setShow] = useState(false);
 
   const redirectUri = AuthSession.makeRedirectUri({
-    useProxy: false, // dev standalone APK không dùng proxy
-    scheme: 'fusion', // scheme trùng app.json
+    scheme: 'fusion',
+    useProxy: false,
+    native: 'fusion://oauthredirect',
   });
 
   const [request, response, promptAsync] = Google.useAuthRequest({
