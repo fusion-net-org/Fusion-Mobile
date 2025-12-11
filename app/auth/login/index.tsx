@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -28,10 +27,10 @@ import { registerUserDevice } from '../../../src/redux/userDeviceSlice';
 import { loginUser, loginUserThunk } from '../../../src/redux/userSlice';
 
 WebBrowser.maybeCompleteAuthSession();
-const WEB_CLIENT_ID = '109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com';
+// const WEB_CLIENT_ID = '109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com';
 const ANDROID_CLIENT_ID =
   '130323105827-umcurb87ac7kpdubkluac30fe6vlupad.apps.googleusercontent.com';
-
+const redirectUri = `com.googleusercontent.apps.130323105827-h9icfttsf8gdsjt6j63b05evijau72ii:/oauthredirect`;
 export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -40,11 +39,11 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
 
-  const redirectUri = AuthSession.makeRedirectUri({
-    scheme: 'fusion',
-    useProxy: false,
-    native: 'fusion://oauthredirect',
-  });
+  // const redirectUri = AuthSession.makeRedirectUri({
+  //   scheme: 'fusion',
+  //   useProxy: false,
+  //   native: 'fusion://oauthredirect',
+  // });
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: ANDROID_CLIENT_ID,
