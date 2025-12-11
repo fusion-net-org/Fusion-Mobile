@@ -2,9 +2,19 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import type { User } from 'firebase/auth';
+// @ts-ignore
 import {
+  browserLocalPersistence,
+  getReactNativePersistence,
+  GoogleAuthProvider,
+  initializeAuth,
+  OAuthCredential,
+  signInWithCredential,
+} from 'firebase/auth';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Button,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -15,22 +25,34 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
 
 import { loginGoogle } from '@/src/services/authService';
+import { androidClientId, app, webClientId } from '@/src/utils/firebaseConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { images } from '../../../constants/image/image';
 import { ROUTES } from '../../../routes/route';
 import { AppDispatch } from '../../../src/redux/store';
 import { registerUserDevice } from '../../../src/redux/userDeviceSlice';
 import { loginUser, loginUserThunk } from '../../../src/redux/userSlice';
 
+// Complete any pending auth sessions
 WebBrowser.maybeCompleteAuthSession();
-// const WEB_CLIENT_ID = '109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com';
-const ANDROID_CLIENT_ID =
-  '130323105827-umcurb87ac7kpdubkluac30fe6vlupad.apps.googleusercontent.com';
-const redirectUri = `com.googleusercontent.apps.130323105827-h9icfttsf8gdsjt6j63b05evijau72ii:/oauthredirect`;
+
+let persistence;
+if (Platform.OS === 'web') {
+  persistence = browserLocalPersistence;
+} else {
+  persistence = getReactNativePersistence(AsyncStorage);
+}
+
+// --- Firebase Auth Setup with persistence ---
+export const auth = initializeAuth(app, {
+  persistence,
+});
+
 export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -38,69 +60,59 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
-  // const redirectUri = AuthSession.makeRedirectUri({
-  //   scheme: 'fusion',
-  //   useProxy: false,
-  //   native: 'fusion://oauthredirect',
-  // });
+  // Listen Firebase user state
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user: any) => setUser(user));
+    return unsubscribe;
+  }, []);
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: ANDROID_CLIENT_ID,
+  // --- Google Login Setup ---
+  const [, googleResponse, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: webClientId, // web OAuth (Expo Go / Web)
+    androidClientId, // Android OAuth (Release)
     scopes: ['profile', 'email'],
-    responseType: 'id_token',
-    redirectUri,
   });
 
-  // Google login
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const idToken = response.authentication?.idToken;
-
-      if (!idToken) {
-        Toast.show({
-          type: 'error',
-          text1: 'Login Fail',
-          text2: 'Google did not return ID Token',
-        });
-        return;
-      }
-
-      handleGoogleBackend(idToken);
-    }
-  }, [response]);
-
-  // Gửi token Google về backend Fusion
-  const handleGoogleBackend = async (idToken: string) => {
-    try {
-      const data = await loginGoogle({ token: idToken });
-
-      dispatch(loginUser(data));
-
+  const loginToFirebase = useCallback(
+    async (credentials: OAuthCredential) => {
       try {
-        await dispatch(registerUserDevice()).unwrap();
-      } catch (err) {
-        console.warn('⚠️ Device register failed:', err);
-      }
+        const signInResponse = await signInWithCredential(auth, credentials);
+        const token = await signInResponse.user.getIdToken();
 
-      router.replace(ROUTES.HOME.COMPANY as any);
-    } catch (err: any) {
-      Toast.show({
-        type: 'error',
-        text1: 'Login Fail',
-        text2: err.message || 'Backend Google login failed',
-      });
+        // Call backend to login with Firebase token
+        const data = await loginGoogle({ token });
+        dispatch(loginUser(data));
+        await dispatch(registerUserDevice()).unwrap();
+
+        router.replace(ROUTES.HOME.COMPANY as any);
+      } catch (err: any) {
+        console.warn('Login failed:', err);
+        Toast.show({ type: 'error', text1: 'Login Fail', text2: 'Something went wrong.' });
+      }
+    },
+    [dispatch, router],
+  );
+
+  // Trigger Firebase login when Google auth response comes
+  useEffect(() => {
+    if (googleResponse?.type === 'success') {
+      const credential = GoogleAuthProvider.credential(googleResponse.params.id_token);
+      loginToFirebase(credential);
     }
+  }, [googleResponse, loginToFirebase]);
+
+  const handleGoogleLogin = () => {
+    promptAsync();
   };
 
-  // Normal login
+  // --- Email/Password login ---
   const handleLogin = async () => {
     try {
       const res = await dispatch(loginUserThunk({ email, password }));
-
       if (loginUserThunk.fulfilled.match(res)) {
         const userData = res.payload.data;
-
         dispatch(
           loginUser({
             userName: userData.userName,
@@ -108,29 +120,19 @@ export default function Login() {
             refreshToken: userData.refreshToken,
           }),
         );
-
         await dispatch(registerUserDevice()).unwrap();
-
         router.replace(ROUTES.HOME.COMPANY as any);
       } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Login Fail',
-          text2: 'Invalid email or password.',
-        });
+        Toast.show({ type: 'error', text1: 'Login Fail', text2: 'Invalid email or password.' });
       }
     } catch {
-      Toast.show({
-        type: 'error',
-        text1: 'Login Fail',
-        text2: 'Something went wrong.',
-      });
+      Toast.show({ type: 'error', text1: 'Login Fail', text2: 'Something went wrong.' });
     }
   };
 
-  const handleGoogleLogin = () => {
-    if (request) promptAsync();
-  };
+  const handleLogoutGoogle = useCallback(() => {
+    auth.signOut();
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-[#0B66FF]">
@@ -217,14 +219,18 @@ export default function Login() {
             </View>
 
             {/* Google Sign-in */}
-            <TouchableOpacity
-              disabled={!request}
-              onPress={handleGoogleLogin}
-              className="mb-2 flex-row items-center justify-center rounded-lg border border-gray-200 bg-white py-3 shadow-sm"
-            >
-              <Image className="mr-3 h-5 w-5" resizeMode="contain" source={images.google} />
-              <Text className="font-medium text-gray-700">Sign in with Google</Text>
-            </TouchableOpacity>
+            {user ? (
+              <Button title="Logout Google" onPress={handleLogoutGoogle} />
+            ) : (
+              <TouchableOpacity
+                disabled={!promptAsync}
+                onPress={handleGoogleLogin}
+                className="mb-2 flex-row items-center justify-center rounded-lg border border-gray-200 bg-white py-3 shadow-sm"
+              >
+                <Image className="mr-3 h-5 w-5" resizeMode="contain" source={images.google} />
+                <Text className="font-medium text-gray-700">Sign in with Google</Text>
+              </TouchableOpacity>
+            )}
 
             {/* Sign up link */}
             <View className="mt-3 items-center space-y-2">
