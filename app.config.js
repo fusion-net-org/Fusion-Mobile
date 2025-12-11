@@ -16,18 +16,30 @@ export default ({ config }) => ({
     supportsTablet: true,
   },
   android: {
-    adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
-      foregroundImage: './assets/images/android-icon-foreground.png',
-      backgroundImage: './assets/images/android-icon-background.png',
-      monochromeImage: './assets/images/android-icon-monochrome.png',
-    },
+    // adaptiveIcon: {
+    //   backgroundColor: '#E6F4FE',
+    //   foregroundImage: './assets/images/android-icon-foreground.png',
+    //   backgroundImage: './assets/images/android-icon-background.png',
+    //   monochromeImage: './assets/images/android-icon-monochrome.png',
+    // },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     googleServicesFile: './google-services.json',
     package: 'com.fusion.mobile',
     useNextNotificationsApi: true,
     softwareKeyboardLayoutMode: 'resize',
+    intentFilters: [
+      {
+        action: 'VIEW',
+        data: [
+          {
+            scheme: 'fusion',
+            host: 'oauthredirect',
+          },
+        ],
+        category: ['BROWSABLE', 'DEFAULT'],
+      },
+    ],
   },
   web: {
     output: 'static',

@@ -47,8 +47,9 @@ export default function Login() {
   });
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: ANDROID_CLIENT_ID, // dùng client vừa tạo
+    androidClientId: ANDROID_CLIENT_ID,
     scopes: ['profile', 'email'],
+    responseType: 'id_token',
     redirectUri,
   });
 
