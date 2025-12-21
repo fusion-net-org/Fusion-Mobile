@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "109449510030-qlmnktmprvkq2toaj1378klciar290mu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fusion.mobile",
+            "certificate_hash": "b23b1de7ac04a90d99fd3f36962ee9bc64c092f6"
+          }
+        },
+        {
           "client_id": "109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com",
           "client_type": 3
         }

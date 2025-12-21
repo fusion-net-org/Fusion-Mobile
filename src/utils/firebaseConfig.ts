@@ -1,15 +1,28 @@
-import { initializeApp } from 'firebase/app';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getApp, getApps, initializeApp } from 'firebase/app';
+import { browserLocalPersistence, getReactNativePersistence, initializeAuth } from 'firebase/auth';
+import { Platform } from 'react-native';
 
-export const app = initializeApp({
-  apiKey: 'AIzaSyA2GVoGiJL0S5DJvXVK4eUUb68kyPoB46Q',
-  authDomain: 'fusion-18214.firebaseapp.com',
-  projectId: 'fusion-18214',
-  storageBucket: 'fusion-18214.firebasestorage.app',
-  messagingSenderId: '130323105827',
-  appId: '1:130323105827:web:6f33d2ee07118f568f4996',
+const firebaseConfig = {
+  apiKey: 'AIzaSyAddlMr8lYzhO0IpeWFHrJWOSA1ne0VM7c',
+  authDomain: 'fusion-f0915.firebaseapp.com',
+  projectId: 'fusion-f0915',
+  storageBucket: 'fusion-f0915.firebasestorage.app',
+  messagingSenderId: '109449510030',
+  appId: '1:109449510030:web:53b806762e212a44cc9ddf',
+  measurementId: 'G-8GFJLWH709',
+};
+
+export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
+const persistence =
+  Platform.OS === 'web' ? browserLocalPersistence : getReactNativePersistence(AsyncStorage);
+
+export const auth = initializeAuth(app, {
+  persistence,
 });
 
 export const webClientId =
-  '130323105827-h9icfttsf8gdsjt6j63b05evijau72ii.apps.googleusercontent.com';
+  '109449510030-0no07rem23qsum7soganoqfa7uhelc3s.apps.googleusercontent.com';
 export const androidClientId =
-  '130323105827-umcurb87ac7kpdubkluac30fe6vlupad.apps.googleusercontent.com';
+  '109449510030-qlmnktmprvkq2toaj1378klciar290mu.apps.googleusercontent.com';

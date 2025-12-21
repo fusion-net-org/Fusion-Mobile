@@ -1,20 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
-
-import type { User } from 'firebase/auth';
-// @ts-ignore
-import {
-  browserLocalPersistence,
-  getReactNativePersistence,
-  GoogleAuthProvider,
-  initializeAuth,
-  OAuthCredential,
-  signInWithCredential,
-} from 'firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useRouter } from 'expo-router';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { useCallback, useEffect, useState } from 'react';
 import {
-  Button,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -28,226 +17,147 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
 
+import { images } from '@/constants/image/image';
+import { ROUTES } from '@/routes/route';
+import { AppDispatch } from '@/src/redux/store';
+import { registerUserDevice } from '@/src/redux/userDeviceSlice';
+import { loginUser, loginUserThunk } from '@/src/redux/userSlice';
 import { loginGoogle } from '@/src/services/authService';
-import { androidClientId, app, webClientId } from '@/src/utils/firebaseConfig';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
-import { images } from '../../../constants/image/image';
-import { ROUTES } from '../../../routes/route';
-import { AppDispatch } from '../../../src/redux/store';
-import { registerUserDevice } from '../../../src/redux/userDeviceSlice';
-import { loginUser, loginUserThunk } from '../../../src/redux/userSlice';
-
-// Complete any pending auth sessions
-WebBrowser.maybeCompleteAuthSession();
-
-let persistence;
-if (Platform.OS === 'web') {
-  persistence = browserLocalPersistence;
-} else {
-  persistence = getReactNativePersistence(AsyncStorage);
-}
-
-// --- Firebase Auth Setup with persistence ---
-export const auth = initializeAuth(app, {
-  persistence,
-});
+import { auth, webClientId } from '@/src/utils/firebaseConfig';
 
 export default function Login() {
-  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
 
-  // Listen Firebase user state
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user: any) => setUser(user));
-    return unsubscribe;
+    GoogleSignin.configure({
+      webClientId,
+      offlineAccess: false,
+    });
   }, []);
 
-  // --- Google Login Setup ---
-  const [, googleResponse, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: webClientId, // web OAuth (Expo Go / Web)
-    androidClientId, // Android OAuth (Release)
-    scopes: ['profile', 'email'],
-  });
+  const handleGoogleLogin = useCallback(async () => {
+    try {
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
 
-  const loginToFirebase = useCallback(
-    async (credentials: OAuthCredential) => {
-      try {
-        const signInResponse = await signInWithCredential(auth, credentials);
-        const token = await signInResponse.user.getIdToken();
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.idToken;
 
-        // Call backend to login with Firebase token
-        const data = await loginGoogle({ token });
-        dispatch(loginUser(data));
-        await dispatch(registerUserDevice()).unwrap();
-
-        router.replace(ROUTES.HOME.COMPANY as any);
-      } catch (err: any) {
-        console.warn('Login failed:', err);
-        Toast.show({ type: 'error', text1: 'Login Fail', text2: 'Something went wrong.' });
+      if (!idToken) {
+        throw new Error('Google ID token not found');
       }
-    },
-    [dispatch, router],
-  );
 
-  // Trigger Firebase login when Google auth response comes
-  useEffect(() => {
-    if (googleResponse?.type === 'success') {
-      const credential = GoogleAuthProvider.credential(googleResponse.params.id_token);
-      loginToFirebase(credential);
+      // Firebase login
+      const credential = GoogleAuthProvider.credential(idToken);
+      const result = await signInWithCredential(auth, credential);
+
+      const firebaseToken = await result.user.getIdToken();
+      const data = await loginGoogle({ token: firebaseToken });
+
+      dispatch(loginUser(data));
+      await dispatch(registerUserDevice()).unwrap();
+
+      router.replace(ROUTES.HOME.COMPANY as any);
+    } catch (err) {
+      console.error('Google login error:', err);
+      Toast.show({
+        type: 'error',
+        text1: 'Google Login Failed',
+        text2: 'Please try again',
+      });
     }
-  }, [googleResponse, loginToFirebase]);
+  }, [dispatch, router]);
 
-  const handleGoogleLogin = () => {
-    promptAsync();
-  };
-
-  // --- Email/Password login ---
   const handleLogin = async () => {
     try {
       const res = await dispatch(loginUserThunk({ email, password }));
-      if (loginUserThunk.fulfilled.match(res)) {
-        const userData = res.payload.data;
-        dispatch(
-          loginUser({
-            userName: userData.userName,
-            accessToken: userData.accessToken,
-            refreshToken: userData.refreshToken,
-          }),
-        );
-        await dispatch(registerUserDevice()).unwrap();
-        router.replace(ROUTES.HOME.COMPANY as any);
-      } else {
-        Toast.show({ type: 'error', text1: 'Login Fail', text2: 'Invalid email or password.' });
+
+      if (!loginUserThunk.fulfilled.match(res)) {
+        throw new Error('Invalid credentials');
       }
+
+      dispatch(loginUser(res.payload.data));
+      await dispatch(registerUserDevice()).unwrap();
+
+      router.replace(ROUTES.HOME.COMPANY as any);
     } catch {
-      Toast.show({ type: 'error', text1: 'Login Fail', text2: 'Something went wrong.' });
+      Toast.show({
+        type: 'error',
+        text1: 'Login Failed',
+        text2: 'Invalid email or password',
+      });
     }
   };
 
-  const handleLogoutGoogle = useCallback(() => {
-    auth.signOut();
-  }, []);
-
   return (
     <SafeAreaView className="flex-1 bg-[#0B66FF]">
-      <StatusBar barStyle="light-content" backgroundColor="#0B66FF" />
+      <StatusBar barStyle="light-content" />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1 px-6"
       >
         {/* Logo */}
         <View className="items-center pt-6">
-          <Image
-            source={images.logoFusion}
-            style={{ width: 120, height: 36, resizeMode: 'contain' }}
-          />
+          <Image source={images.logoFusion} style={{ width: 120, height: 36 }} />
         </View>
 
-        {/* Login Card */}
+        {/* Card */}
         <View className="flex-1 justify-center">
-          <View
-            className="rounded-3xl bg-gray-100 p-6 shadow-lg shadow-[#0B3ECC]/40"
-            style={{
-              elevation: 10,
-              shadowColor: '#0B3ECC',
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.25,
-              shadowRadius: 16,
-              transform: [{ translateY: -8 }],
-            }}
-          >
-            <Text className="mb-6 text-center text-2xl font-bold text-gray-900">Sign in</Text>
+          <View className="rounded-3xl bg-gray-100 p-6 shadow-lg">
+            <Text className="mb-6 text-center text-2xl font-bold">Sign in</Text>
 
             {/* Email */}
-            <Text className="mb-2 text-sm text-gray-500">Email Address</Text>
             <TextInput
               value={email}
               onChangeText={setEmail}
-              placeholder="you@example.com"
-              placeholderTextColor="#9AA8DB"
-              keyboardType="email-address"
+              placeholder="Email"
               autoCapitalize="none"
-              className="mb-4 rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 shadow-sm"
+              className="mb-4 rounded-xl border bg-white px-4 py-3"
             />
 
             {/* Password */}
             <View className="relative mb-4">
-              <Text className="mb-2 text-sm text-gray-500">Password</Text>
               <TextInput
                 value={password}
                 onChangeText={setPassword}
-                placeholder="••••••••"
-                placeholderTextColor="#9AA8DB"
+                placeholder="Password"
                 secureTextEntry={!show}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-12 text-gray-900 shadow-sm"
+                className="rounded-xl border bg-white px-4 py-3 pr-12"
               />
-              <TouchableOpacity
-                onPress={() => setShow((s) => !s)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 pt-7"
-              >
-                <Ionicons name={show ? 'eye-off' : 'eye'} size={20} color="#64748b" />
+              <TouchableOpacity onPress={() => setShow(!show)} className="absolute right-3 top-3">
+                <Ionicons name={show ? 'eye-off' : 'eye'} size={20} />
               </TouchableOpacity>
             </View>
 
-            {/* Forgot password */}
-            <View className="mb-4 items-end">
-              <TouchableOpacity onPress={() => router.push(ROUTES.AUTH.REQUIRE_EMAIL as any)}>
-                <Text className="text-sm font-medium text-[#0B66FF]">Forgot password?</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Login button */}
-            <TouchableOpacity
-              className="mb-5 rounded-full bg-[#0B66FF] py-3 shadow-md shadow-[#0B66FF]/40"
-              style={{ elevation: 6 }}
-              onPress={handleLogin}
-            >
-              <Text className="text-center text-base font-semibold text-white">Log In</Text>
+            {/* Login */}
+            <TouchableOpacity onPress={handleLogin} className="mb-4 rounded-full bg-[#0B66FF] py-3">
+              <Text className="text-center font-semibold text-white">Log In</Text>
             </TouchableOpacity>
 
             {/* OR */}
-            <View className="mb-4 flex-row items-center justify-center">
-              <View className="mr-3 h-px flex-1 bg-gray-200" />
-              <Text className="text-sm text-gray-400">Or</Text>
-              <View className="ml-3 h-px flex-1 bg-gray-200" />
+            <View className="my-3 flex-row items-center">
+              <View className="h-px flex-1 bg-gray-300" />
+              <Text className="mx-3 text-gray-400">OR</Text>
+              <View className="h-px flex-1 bg-gray-300" />
             </View>
 
-            {/* Google Sign-in */}
-            {user ? (
-              <Button title="Logout Google" onPress={handleLogoutGoogle} />
-            ) : (
-              <TouchableOpacity
-                disabled={!promptAsync}
-                onPress={handleGoogleLogin}
-                className="mb-2 flex-row items-center justify-center rounded-lg border border-gray-200 bg-white py-3 shadow-sm"
-              >
-                <Image className="mr-3 h-5 w-5" resizeMode="contain" source={images.google} />
-                <Text className="font-medium text-gray-700">Sign in with Google</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Sign up link */}
-            <View className="mt-3 items-center space-y-2">
-              <Text className="mt-3 text-sm text-gray-600">
-                Don&apos;t have account?{' '}
-                <Text
-                  className="font-semibold text-[#0B66FF]"
-                  onPress={() => router.push(ROUTES.AUTH.REGISTER as any)}
-                >
-                  Sign up
-                </Text>
-              </Text>
-            </View>
+            {/* Google */}
+            <TouchableOpacity
+              onPress={handleGoogleLogin}
+              className="flex-row items-center justify-center rounded-lg border bg-white py-3"
+            >
+              <Image source={images.google} className="mr-3 h-5 w-5" />
+              <Text className="font-medium text-gray-700">Sign in with Google</Text>
+            </TouchableOpacity>
           </View>
         </View>
-
-        <View className="h-6" />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

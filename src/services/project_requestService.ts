@@ -25,7 +25,6 @@ export const GetProjectRequestPartnerPaged = async (
     );
 
     if (filter.dateRange !== undefined) {
-      console.log('eneter');
       if (filter.dateRange?.from && filter.dateRange?.to) {
         params['dateRange.from'] = formatLocalDate(filter.dateRange.from).split('T')[0];
         params['dateRange.to'] = formatLocalDate(filter.dateRange.to).split('T')[0];

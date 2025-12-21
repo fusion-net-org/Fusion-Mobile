@@ -11,6 +11,7 @@ export interface MemberItem {
   numberProductJoin: number;
   numberCompanyJoin: number;
   status: string;
+  roleName: string;
   joinedAt: string;
   isOwner: string;
 }
