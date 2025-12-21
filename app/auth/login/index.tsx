@@ -45,6 +45,8 @@ export default function Login() {
         showPlayServicesUpdateDialog: true,
       });
 
+      await GoogleSignin.signOut();
+
       const userInfo = await GoogleSignin.signIn();
       console.log(userInfo);
       const idToken = userInfo.data?.idToken;
