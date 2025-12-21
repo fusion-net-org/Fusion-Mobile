@@ -111,6 +111,7 @@ export const loginGoogle = async (data: any) => {
   try {
     const token = data.token.trim();
     const response = await apiInstance.post('/Authen/login-google', { idToken: token });
+    console.log(response.data, 'User Repo GG');
     return response.data;
   } catch (error: any) {
     const message = error.response?.data?.message || 'Error!';

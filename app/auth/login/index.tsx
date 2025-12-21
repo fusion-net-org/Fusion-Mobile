@@ -53,6 +53,7 @@ export default function Login() {
         throw new Error('Google ID token not found');
       }
       const data = await loginGoogle({ token: idToken });
+      console.log(data, 'Data User');
       dispatch(loginUser(data.data));
       await dispatch(registerUserDevice()).unwrap();
 
