@@ -62,7 +62,7 @@ const RequireEmail = () => {
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -150} // 👈 tùy chỉnh khoảng cách
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -150}
         className="flex-1"
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

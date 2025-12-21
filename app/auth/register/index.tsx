@@ -1,9 +1,13 @@
 import { AppDispatch } from '@/src/redux/store';
-import { registerUserThunk } from '@/src/redux/userSlice';
+import { registerUserDevice } from '@/src/redux/userDeviceSlice';
+import { loginUser, registerUserThunk } from '@/src/redux/userSlice';
+import { loginGoogle } from '@/src/services/authService';
+import { webClientId } from '@/src/utils/firebaseConfig';
 import { Ionicons } from '@expo/vector-icons';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import Checkbox from 'expo-checkbox';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -15,6 +19,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
 import { images } from '../../../constants/image/image';
 import { ROUTES } from '../../../routes/route';
@@ -31,6 +36,40 @@ export default function Register() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId,
+      offlineAccess: false,
+    });
+  }, []);
+
+  const handleGoogleLogin = useCallback(async () => {
+    try {
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+
+      const userInfo = await GoogleSignin.signIn();
+      console.log(userInfo);
+      const idToken = userInfo.data?.idToken;
+
+      if (!idToken) {
+        throw new Error('Google ID token not found');
+      }
+      const data = await loginGoogle({ token: idToken });
+      dispatch(loginUser(data.data));
+      await dispatch(registerUserDevice()).unwrap();
+
+      router.replace(ROUTES.HOME.COMPANY as any);
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: 'Google Login Failed',
+        text2: 'Please try again',
+      });
+    }
+  }, [dispatch, router]);
 
   const handleRegister = async () => {
     setError('');
@@ -57,7 +96,7 @@ export default function Register() {
 
       if (registerUserThunk.fulfilled.match(resultAction)) {
         console.log('✅ Register success:', resultAction.payload);
-        router.replace(ROUTES.AUTH.LOGIN as any); // hoặc điều hướng sang trang login
+        router.replace(ROUTES.AUTH.LOGIN as any);
       } else {
         setError(resultAction.payload as string);
       }
@@ -74,11 +113,12 @@ export default function Register() {
         className="flex-1 px-6"
       >
         {/* Logo */}
-        <View className="items-center pt-6">
+        <View className="flex-row items-center justify-center pt-6">
           <Image
             source={images.logoFusion}
-            style={{ width: 120, height: 36, resizeMode: 'contain' }}
+            style={{ width: 32, height: 32, resizeMode: 'contain' }}
           />
+          <Text className="ml-0.5 text-xl font-bold tracking-widest text-white">FUSION</Text>
         </View>
 
         {/* Register Card */}
@@ -205,6 +245,7 @@ export default function Register() {
             {/* Google Sign-up */}
             <TouchableOpacity
               activeOpacity={0.85}
+              onPress={handleGoogleLogin}
               className="mb-2 flex-row items-center justify-center rounded-lg border border-gray-200 bg-white py-3 shadow-sm"
             >
               <Image className="mr-3 h-5 w-5" resizeMode="contain" source={images.google} />

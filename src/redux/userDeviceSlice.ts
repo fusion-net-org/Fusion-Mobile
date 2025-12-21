@@ -16,10 +16,11 @@ export const registerUserDevice = createAsyncThunk(
     try {
       const deviceInfo = await getDeviceInfo();
       const response = await registerDevice(deviceInfo);
+
       return response;
     } catch (error: any) {
       console.error(
-        '❌ Device registration failed:',
+        'Device registration failed:',
         JSON.stringify(error.response?.data || error.message, null, 2),
       );
       return rejectWithValue(error.message || 'Device registration failed');

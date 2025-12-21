@@ -87,7 +87,10 @@ const AlertHeader = () => {
               <Text className="text-lg font-semibold text-gray-800">{selectedCompany?.name}</Text>
             </>
           ) : (
-            <Image source={images.logoFusion} className="h-8 w-28" resizeMode="contain" />
+            <>
+              <Image source={images.logoFusion} className="h-8 w-8" resizeMode="contain" />
+              <Text className="ml-1 text-base font-bold tracking-widest text-gray-500">FUSION</Text>
+            </>
           )}
         </TouchableOpacity>
 

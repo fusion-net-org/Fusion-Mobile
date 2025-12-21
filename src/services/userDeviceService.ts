@@ -27,7 +27,7 @@ export const registerDevice = async (deviceInfo: RegisterUserDeviceRequest): Pro
 export const getDeviceInfo = async () => {
   try {
     if (!Device.isDevice) {
-      throw new Error('⚠️ Must use physical device for notifications');
+      throw new Error('Must use physical device for notifications');
     }
 
     // Request permission
@@ -38,7 +38,7 @@ export const getDeviceInfo = async () => {
       finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-      console.warn('⚠️ Notification permission not granted');
+      console.warn('Notification permission not granted');
     }
 
     // Get FCM token
@@ -47,7 +47,6 @@ export const getDeviceInfo = async () => {
       projectId: Constants.expoConfig?.extra?.eas.projectId,
     });
     const deviceToken = tokenData.data;
-    console.log('🔥 Device token:', deviceToken);
 
     // Device info
     return {

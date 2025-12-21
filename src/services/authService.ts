@@ -109,7 +109,8 @@ export const refreshToken = async (dispatch: AppDispatch): Promise<string | null
 
 export const loginGoogle = async (data: any) => {
   try {
-    const response = await apiInstance.post('/Authen/login-google', data);
+    const token = data.token.trim();
+    const response = await apiInstance.post('/Authen/login-google', { idToken: token });
     return response.data;
   } catch (error: any) {
     const message = error.response?.data?.message || 'Error!';

@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useRouter } from 'expo-router';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Image,
@@ -23,7 +22,7 @@ import { AppDispatch } from '@/src/redux/store';
 import { registerUserDevice } from '@/src/redux/userDeviceSlice';
 import { loginUser, loginUserThunk } from '@/src/redux/userSlice';
 import { loginGoogle } from '@/src/services/authService';
-import { auth, webClientId } from '@/src/utils/firebaseConfig';
+import { webClientId } from '@/src/utils/firebaseConfig';
 
 export default function Login() {
   const dispatch = useDispatch<AppDispatch>();
@@ -47,25 +46,18 @@ export default function Login() {
       });
 
       const userInfo = await GoogleSignin.signIn();
-      const idToken = userInfo.idToken;
+      console.log(userInfo);
+      const idToken = userInfo.data?.idToken;
 
       if (!idToken) {
         throw new Error('Google ID token not found');
       }
-
-      // Firebase login
-      const credential = GoogleAuthProvider.credential(idToken);
-      const result = await signInWithCredential(auth, credential);
-
-      const firebaseToken = await result.user.getIdToken();
-      const data = await loginGoogle({ token: firebaseToken });
-
-      dispatch(loginUser(data));
+      const data = await loginGoogle({ token: idToken });
+      dispatch(loginUser(data.data));
       await dispatch(registerUserDevice()).unwrap();
 
       router.replace(ROUTES.HOME.COMPANY as any);
     } catch (err) {
-      console.error('Google login error:', err);
       Toast.show({
         type: 'error',
         text1: 'Google Login Failed',
@@ -97,15 +89,18 @@ export default function Login() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#0B66FF]">
-      <StatusBar barStyle="light-content" />
-
+      <StatusBar barStyle="light-content" backgroundColor="#0B66FF" translucent={false} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1 px-6"
       >
-        {/* Logo */}
+        {/* LOGO*/}
         <View className="items-center pt-6">
-          <Image source={images.logoFusion} style={{ width: 120, height: 36 }} />
+          <Image
+            source={images.logoFusion}
+            style={{ width: 150, height: 70, resizeMode: 'contain' }}
+          />
+          <Text className="text-xl font-bold tracking-widest text-white">FUSION</Text>
         </View>
 
         {/* Card */}
@@ -119,20 +114,27 @@ export default function Login() {
               onChangeText={setEmail}
               placeholder="Email"
               autoCapitalize="none"
-              className="mb-4 rounded-xl border bg-white px-4 py-3"
+              className="mb-4 rounded-xl border border-gray-200 bg-white px-4 py-3"
             />
 
             {/* Password */}
-            <View className="relative mb-4">
+            <View className="relative mb-2">
               <TextInput
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Password"
                 secureTextEntry={!show}
-                className="rounded-xl border bg-white px-4 py-3 pr-12"
+                className="rounded-xl border border-gray-200 bg-white px-4 py-3 pr-12"
               />
               <TouchableOpacity onPress={() => setShow(!show)} className="absolute right-3 top-3">
                 <Ionicons name={show ? 'eye-off' : 'eye'} size={20} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Forgot password */}
+            <View className="mb-4 items-end">
+              <TouchableOpacity onPress={() => router.push(ROUTES.AUTH.REQUIRE_EMAIL as any)}>
+                <Text className="text-sm text-[#0B66FF]">Forgot password?</Text>
               </TouchableOpacity>
             </View>
 
@@ -151,11 +153,24 @@ export default function Login() {
             {/* Google */}
             <TouchableOpacity
               onPress={handleGoogleLogin}
-              className="flex-row items-center justify-center rounded-lg border bg-white py-3"
+              className="mb-4 flex-row items-center justify-center rounded-lg border border-gray-200 bg-white py-3"
             >
               <Image source={images.google} className="mr-3 h-5 w-5" />
               <Text className="font-medium text-gray-700">Sign in with Google</Text>
             </TouchableOpacity>
+
+            {/* Register */}
+            <View className="items-center">
+              <Text className="text-sm text-gray-600">
+                Don&apos;t have an account?{' '}
+                <Text
+                  className="font-semibold text-[#0B66FF]"
+                  onPress={() => router.push(ROUTES.AUTH.REGISTER as any)}
+                >
+                  Register
+                </Text>
+              </Text>
+            </View>
           </View>
         </View>
       </KeyboardAvoidingView>
