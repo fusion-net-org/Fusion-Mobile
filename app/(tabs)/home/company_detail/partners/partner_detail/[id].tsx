@@ -114,7 +114,7 @@ export default function PartnerSummary() {
           }
         }
       } catch (err) {
-        console.error('❌ Lỗi fetch partner:', err);
+        console.error('fetch partner error:', err);
       } finally {
         setLoading(false);
       }

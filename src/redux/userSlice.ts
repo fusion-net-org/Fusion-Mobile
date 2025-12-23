@@ -48,10 +48,7 @@ export const registerUserThunk = createAsyncThunk(
   },
 );
 
-/* =========================================================
-   FETCH USER DETAILS
-========================================================= */
-// Async thunk để lấy thông tin user chi tiết
+// Async thunk getUser Detail
 export const fetchUserDetails = createAsyncThunk(
   'user/fetchUserDetails',
   async (userId: string, { rejectWithValue }) => {
@@ -103,8 +100,8 @@ const userSlice = createSlice({
 
         state.user = user;
         AsyncStorage.setItem('user', JSON.stringify(user))
-          .then(() => console.log('✅ Saved user to storage:', user))
-          .catch((err) => console.error('❌ Failed to save user:', err));
+          .then(() => console.log('Saved user to storage:', user))
+          .catch((err) => console.error('Failed to save user:', err));
       }
     },
 
@@ -169,7 +166,6 @@ const userSlice = createSlice({
       .addCase(fetchUserDetails.fulfilled, (state, action) => {
         state.loading = false;
         if (state.user) {
-          // Cập nhật thông tin user chi tiết
           const updatedUser = {
             ...state.user,
             fullName: action.payload.fullName || action.payload.name,

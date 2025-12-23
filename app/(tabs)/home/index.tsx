@@ -1,7 +1,8 @@
 import FilterSection from '@/components/company-layout/filtersection';
 import AlertHeader from '@/components/layouts/alert-header';
 import { emptyImages } from '@/constants/image/image';
-import { ROUTES } from '@/routes/route'; // hoặc đường dẫn đúng đến file ROUTES.ts
+import { UserStore } from '@/interfaces/user';
+import { ROUTES } from '@/routes/route';
 import {
   fetchCompaniesThunk,
   resetCompanies,
@@ -29,6 +30,8 @@ const Home = () => {
   const dispatch = useAppDispatch();
   const { data, filter, loading, totalCount } = useAppSelector((state: RootState) => state.company);
   const [search, setSearch] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserStore>();
 
   useEffect(() => {
     dispatch(fetchCompaniesThunk(filter));
@@ -43,6 +46,18 @@ const Home = () => {
     return () => clearTimeout(delay);
   }, [search]);
 
+  useEffect(() => {
+    const loadUser = async () => {
+      const userString = await AsyncStorage.getItem('user');
+      if (userString) {
+        const user = JSON.parse(userString);
+        setCurrentUserId(user.userId);
+        setCurrentUser(user);
+      }
+    };
+    loadUser();
+  }, []);
+
   const handleLoadMore = () => {
     if (!loading && data.length < totalCount) {
       const nextPage = filter.pageNumber + 1;
@@ -56,15 +71,29 @@ const Home = () => {
       onPress={async () => {
         dispatch(setSelectedCompany(item));
         await AsyncStorage.setItem('selectedCompany', JSON.stringify(item));
-        router.push(`${ROUTES.COMPANY.DETAIL}/${item.id}` as any); //chuyển sang trang chi tiết
+        router.push(`${ROUTES.COMPANY.DETAIL}/${item.id}` as any);
       }}
     >
       <View className="mx-4 mb-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-        <Image
-          source={{ uri: item.imageCompany }}
-          className="mb-3 h-40 w-full rounded-xl"
-          resizeMode="cover"
-        />
+        <View className="relative mb-3">
+          <Image
+            source={{ uri: item.imageCompany }}
+            className="h-40 w-full rounded-xl"
+            resizeMode="cover"
+          />
+
+          {currentUser &&
+            (item.ownerUserId === currentUserId ? (
+              <View className="absolute right-2 top-2 rounded-full border border-green-300 bg-green-50 px-2 py-[2px]">
+                <Text className="text-[9px] font-semibold text-green-700">OWNER</Text>
+              </View>
+            ) : (
+              <View className="absolute right-2 top-2 rounded-full bg-purple-600 px-2 py-[2px]">
+                <Text className="text-[9px] font-semibold text-white">MEMBER</Text>
+              </View>
+            ))}
+        </View>
+
         <View className="mb-1 flex-row items-center">
           <Image source={{ uri: item.avatarCompany }} className="mr-2 h-8 w-8 rounded-full" />
           <Text className="text-lg font-semibold text-gray-800">{item.name}</Text>

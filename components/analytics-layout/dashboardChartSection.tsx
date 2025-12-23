@@ -15,7 +15,6 @@ interface DashboardChartsProps {
 const DashboardCharts = ({ dashboard }: DashboardChartsProps) => {
   const [activeTab, setActiveTab] = useState<'type' | 'status'>('type');
 
-  // Lọc dữ liệu cho 2 tab
   const taskTypeData = {
     labels: dashboard
       .filter((d) => ['Bug', 'Feature', 'Chore'].includes(d.label))

@@ -250,6 +250,7 @@ export default function SprintInfoSection() {
   // Board accordion
   function Board(sprintId: string) {
     const sprint = sprints.find((s) => s.id === sprintId);
+    console.log(sprint);
     const isExpanded = expandedSprints[sprintId];
 
     // 1. Hooks phải gọi ngay, không nằm trong if
@@ -260,13 +261,12 @@ export default function SprintInfoSection() {
 
       const fetchAndSort = async () => {
         const newById: { [stId: string]: TaskVm[] } = {};
-        const order = sprint.statusOrder ?? Object.keys(sprint.columns ?? {});
-        const byId = sprint.columns ?? {};
 
-        for (const stId of order) {
-          const tasks = byId[stId] || [];
+        for (const stId of sprint.statusOrder) {
+          const tasks = sprint.columns?.[stId] ?? [];
           newById[stId] = await fetchOrderAndSortTasks(sprintId, tasks);
         }
+
         setSortedTasksById(newById);
       };
 
@@ -276,16 +276,17 @@ export default function SprintInfoSection() {
     if (!sprint || !isExpanded) return null; // return component chỉ sau hook
 
     const order = sprint.statusOrder ?? Object.keys(sprint.columns ?? {});
+    console.log(order);
     // render sử dụng sortedTasksById, fallback về byId cũ nếu chưa load xong
     const byIdToRender = Object.keys(sortedTasksById).length
       ? sortedTasksById
-      : (sprint.columns ?? {});
+      : Object.fromEntries(sprint.statusOrder.map((id) => [id, sprint.columns?.[id] ?? []]));
 
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
         <View className="flex-row gap-4 px-4">
           {order.map((stId) => {
-            const items = byIdToRender[stId] || [];
+            const items = byIdToRender[stId] ?? [];
             const meta = sprint.statusMeta[stId];
             return (
               <View key={stId} className="w-72 rounded-2xl border bg-white p-3">

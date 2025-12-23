@@ -1,6 +1,4 @@
-// ================================
 // Dành cho Project Progress (Inreview, Inprogress, Todo...)
-// ================================
 export function projectProgressColorBorder(status?: string) {
   switch ((status || '').toLowerCase()) {
     case 'inreview':
@@ -35,9 +33,7 @@ export function projectProgressColorText(status?: string) {
   }
 }
 
-// ================================
-// 2Dành cho Filter Status (Pending, Accepted, Rejected, Finished, All)
-// ================================
+// Dành cho Filter Status (Pending, Accepted, Rejected, Finished, All)
 export function requestStatusColorBorder(status?: string) {
   switch ((status || '').toLowerCase()) {
     case 'pending':
@@ -68,9 +64,6 @@ export function requestStatusColorText(status?: string) {
   }
 }
 
-// ================================
-// 3️⃣ Optional: Gộp helper chung để dùng dễ hơn
-// ================================
 export function getStatusColors(
   type: 'progress' | 'request',
   status?: string,

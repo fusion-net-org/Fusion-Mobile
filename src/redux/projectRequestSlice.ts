@@ -19,7 +19,7 @@ const initialState: ProjectRequestState = {
   loading: false,
   error: null,
   filter: {
-    partnerId: '', // bắt buộc có
+    partnerId: '',
     keyword: '',
     sortColumn: '',
     sortOrder: 'DESC',
@@ -32,9 +32,7 @@ const initialState: ProjectRequestState = {
   },
 };
 
-// =====================
 // ASYNC THUNK
-// =====================
 export const fetchProjectRequestPaged = createAsyncThunk<
   PagedResult<ProjectRequest>,
   { filter: Partial<ProjectRequestFilter>; companyId: string },

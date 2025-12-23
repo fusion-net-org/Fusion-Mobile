@@ -10,7 +10,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { GetPagePartner, GetPartnerStatusSummary } from '../services/partnerService';
 import { mapSortOrderToBool } from '../utils/mapRelationshipCompany';
 
-// ⚙️ Initial state
+//Initial state
 const initialState: PartnerState = {
   data: [],
   totalCount: 0,
@@ -26,11 +26,11 @@ const initialState: PartnerState = {
     pageSize: 6,
   },
   selectedPartner: null,
-  statusSummary: null, // 👈 Thêm
+  statusSummary: null,
   statusLoading: false,
 };
 
-// ⚡ Thunk: fetch paged partners (có truyền companyId)
+//Thunk: fetch paged partners (có truyền companyId)
 export const fetchPartnersThunk = createAsyncThunk<
   PagedResult<PartnerItem>,
   { companyId: string; filter?: Partial<PartnerFilter> },
@@ -74,7 +74,7 @@ export const fetchPartnerStatusSummaryThunk = createAsyncThunk<
   }
 });
 
-// ⚡ Load cache
+//Load cache
 export const loadPartnerFromCache = createAsyncThunk('partner/loadFromCache', async () => {
   const saved = await AsyncStorage.getItem('selectedPartner');
   if (saved) return JSON.parse(saved);

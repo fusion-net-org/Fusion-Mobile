@@ -77,7 +77,6 @@ const companySlice = createSlice({
     setSelectedCompany: (state, action) => {
       state.selectedCompany = action.payload;
       AsyncStorage.setItem('selectedCompany', JSON.stringify(action.payload));
-      // 👈 thêm reducer này
     },
     clearSelectedCompany: (state) => {
       state.selectedCompany = null;
@@ -98,7 +97,6 @@ const companySlice = createSlice({
         if (newPage === 1) state.data = action.payload.items;
         else state.data = [...state.data, ...action.payload.items];
 
-        // ⚡ Đồng bộ filter pageNumber lại
         state.filter.pageNumber = newPage;
       })
       .addCase(fetchCompaniesThunk.rejected, (state, action) => {

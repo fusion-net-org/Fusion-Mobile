@@ -61,6 +61,16 @@ export const GetDetailTasksByUserId = async (taskId: string): Promise<TaskItem |
   }
 };
 
+export const getTaskById = async (id: string) => {
+  try {
+    const response = await apiInstance.get(`/tasks/${id}`);
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Error!';
+    throw new Error(message);
+  }
+};
+
 export const GetPageTasksByUserId = async (
   filter: TaskFilterApi,
 ): Promise<PagedResult<TaskItem>> => {

@@ -16,7 +16,9 @@ import { CreateComment, DeleteComment } from '@/src/services/taskCommentService'
 import {
   GetDetailTasksByUserId,
   GetSubTasksByTaskId,
+  getTaskById,
   markChecklistDone,
+  patchTaskStatusById,
 } from '@/src/services/taskService';
 import { downloadAndOpenFile } from '@/src/utils/dowloadFile';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
@@ -34,8 +36,10 @@ import {
   Tag,
   Timer,
   Trash2,
+  Workflow,
 } from 'lucide-react-native';
 import { Avatar } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
 
 interface TaskDetailSectionProps {
   taskId: string;
@@ -62,6 +66,17 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
   const [mentionSearch, setMentionSearch] = useState('');
   const [filteredMembers, setFilteredMembers] = useState<any[]>([]);
 
+  const [workflowItems, setWorkflowItems] = useState<any[]>([]);
+
+  const [currentStatusId, setCurrentStatusId] = useState<string | null>(null);
+  const [currentStatusName, setCurrentStatusName] = useState<string>('');
+
+  const [tempStatusId, setTempStatusId] = useState<string | null>(null);
+  const [tempStatusName, setTempStatusName] = useState('');
+
+  const [showWorkflow, setShowWorkflow] = useState(false);
+  const [changingStatus, setChangingStatus] = useState(false);
+
   interface CommentWithUser extends TaskComment {
     authorUserName?: string;
     authorUserAvatar?: string;
@@ -82,8 +97,25 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
     if (!taskId) return;
     const fetchTask = async () => {
       setLoading(true);
-      const data = await GetDetailTasksByUserId(taskId as string);
-      setTask(data);
+      const [taskRes, workflowRes] = await Promise.all([
+        GetDetailTasksByUserId(taskId),
+        getTaskById(taskId),
+      ]);
+
+      // task info
+      setTask(taskRes);
+
+      // workflow info
+      const items = workflowRes.data.workflowAssignments?.items ?? [];
+      const sortedItems = items.sort((a: any, b: any) => a.position - b.position);
+
+      setWorkflowItems(sortedItems);
+      setCurrentStatusId(workflowRes.data.currentStatusId);
+      setCurrentStatusName(workflowRes.data.status);
+
+      setTempStatusId(workflowRes.data.currentStatusId);
+      setTempStatusName(workflowRes.data.status);
+
       setLoading(false);
     };
 
@@ -125,6 +157,37 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
 
     setCommentsWithUser(newComments);
   }, [task?.comments, task?.members]);
+
+  const commitStatusChange = async () => {
+    if (!tempStatusId || tempStatusId === currentStatusId) return;
+
+    const prevStatusId = currentStatusId;
+    const prevStatusName = currentStatusName;
+
+    setCurrentStatusId(tempStatusId);
+    setCurrentStatusName(tempStatusName);
+    setChangingStatus(true);
+
+    try {
+      await patchTaskStatusById(taskId, tempStatusId);
+      setShowWorkflow(false);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Status updated',
+        text2: `Task status changed to "${currentStatusName}".`,
+        position: 'top',
+        visibilityTime: 3000,
+      });
+    } catch (err) {
+      console.error('[TaskDetail] change status failed', err);
+
+      setCurrentStatusId(prevStatusId);
+      setCurrentStatusName(prevStatusName);
+    } finally {
+      setChangingStatus(false);
+    }
+  };
 
   const getPriorityColor = (priority: TaskItem['priority']) => {
     switch (priority) {
@@ -189,6 +252,11 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
   const uniqueMembers = task?.members?.filter(
     (m, index, self) => index === self.findIndex((x) => x.memberId === m.memberId),
   );
+
+  const totalSteps = workflowItems.length;
+
+  const currentStepIndex =
+    workflowItems.findIndex((w) => w.workflowStatusId === currentStatusId) + 1;
 
   const handleDelete = async (id: number) => {
     try {
@@ -324,12 +392,6 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
               value: formatLocalDate(task.dueDate),
             },
             {
-              icon: <Flag size={18} color="#3B82F6" />,
-              label: 'Status',
-              value: task.status,
-              color: getStatusColor(task.status),
-            },
-            {
               icon: <Tag size={18} color="#3B82F6" />,
               label: 'Tag',
               value: (
@@ -383,6 +445,152 @@ const TaskDetailSection = ({ taskId, backRoute }: TaskDetailSectionProps) => {
             </View>
           ))}
         </View>
+      </View>
+
+      {/* WorkflowStatus */}
+      <View className="mb-5">
+        <View className="mb-2 flex-row items-center justify-between">
+          <View className="flex-row items-center">
+            <Workflow size={20} color="#3B82F6" />
+            <Text className="ml-2 text-lg font-semibold text-gray-800">Workflow</Text>
+          </View>
+
+          {totalSteps > 0 && currentStepIndex > 0 && (
+            <Text className="text-sm text-gray-500">
+              Step <Text className="font-semibold text-blue-600">{currentStepIndex}</Text> of{' '}
+              <Text className="font-semibold text-gray-700">{totalSteps}</Text>
+            </Text>
+          )}
+        </View>
+
+        <View className="flex-row items-center justify-between rounded-2xl bg-white p-4 shadow">
+          {/* Current Status */}
+          <View className="flex-row items-center gap-2">
+            <Text className="text-sm text-gray-500">Current Status</Text>
+
+            <View className="rounded-full bg-blue-100 px-3 py-1">
+              <Text className="text-sm font-semibold text-blue-700">{tempStatusName}</Text>
+            </View>
+          </View>
+
+          {/* Change button */}
+          <TouchableOpacity onPress={() => setShowWorkflow(!showWorkflow)}>
+            <Text className="text-sm font-semibold text-gray-500">
+              {showWorkflow ? 'Hide All Steps' : 'View All Steps'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* workflow step all */}
+        {showWorkflow && (
+          <View className="mt-4 gap-3">
+            {workflowItems.map((w, index) => {
+              const currentIndex = workflowItems.findIndex(
+                (x) => x.workflowStatusId === tempStatusId,
+              );
+
+              const isActive = index === currentIndex;
+              const isFirst = index === 0;
+              const isLast = index === workflowItems.length - 1;
+
+              return (
+                <TouchableOpacity
+                  key={w.workflowStatusId}
+                  onPress={() => {
+                    setTempStatusId(w.workflowStatusId);
+                    setTempStatusName(w.statusName);
+                  }}
+                  className={`flex-row items-center justify-between rounded-2xl px-4 py-4
+                    ${isActive ? 'bg-gray-900' : 'border border-slate-300 bg-slate-50'}
+                  `}
+                >
+                  {/* LEFT */}
+                  <View className="flex-row items-center gap-4">
+                    {/* STEP NUMBER */}
+                    <View
+                      className={`h-8 w-8 items-center justify-center rounded-full
+                        ${isActive ? 'bg-gray-400' : 'bg-gray-200'}
+                      `}
+                    >
+                      <Text
+                        className={`font-semibold ${isActive ? 'text-gray-700' : 'text-gray-700'}`}
+                      >
+                        {index + 1}
+                      </Text>
+                    </View>
+
+                    {/* TEXT */}
+                    <View>
+                      <View className="flex-row items-center gap-2">
+                        <Text
+                          className={`text-base font-semibold ${
+                            isActive ? 'text-blue-500' : 'text-gray-800'
+                          }`}
+                        >
+                          {w.statusName}
+                        </Text>
+
+                        {isActive && <Text className="text-xs text-gray-400">(current)</Text>}
+                      </View>
+
+                      {/* TAG */}
+                      <View className="mt-1">
+                        <View
+                          className={`items-center rounded-full border px-2 py-0.5
+                            ${isActive ? 'border-blue-500 bg-white text-lg' : isLast ? 'border-green-500' : 'border-gray-500'}
+                          `}
+                        >
+                          <Text
+                            className={`text-xs font-semibold
+                              ${isActive ? 'text-blue-600' : isLast ? 'text-green-600' : 'text-gray-600'}
+                            `}
+                          >
+                            {isFirst ? 'START' : isLast ? 'DONE' : w.statusName.toUpperCase()}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* RIGHT RADIO */}
+                  <View
+                    className={`h-5 w-5 rounded-full border-2
+                      ${isActive ? 'border-white bg-white' : 'border-gray-300'}
+                    `}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+            <View className="mt-4 flex-row gap-3">
+              {/* CANCEL */}
+              <TouchableOpacity
+                onPress={() => {
+                  setTempStatusId(currentStatusId);
+                  setTempStatusName(currentStatusName);
+                  setShowWorkflow(false);
+                }}
+                className="flex-1 rounded-xl bg-gray-200 py-3"
+              >
+                <Text className="text-center font-semibold text-gray-700">Cancel</Text>
+              </TouchableOpacity>
+
+              {/* SAVE */}
+              <TouchableOpacity
+                disabled={changingStatus}
+                onPress={commitStatusChange}
+                className={`flex-1 rounded-xl py-3 ${
+                  changingStatus ? 'bg-blue-300' : 'bg-blue-600'
+                }`}
+              >
+                {changingStatus ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-center font-semibold text-white">Save</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
 
       {/* Assignees */}

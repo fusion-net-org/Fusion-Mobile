@@ -16,7 +16,7 @@ export const sendNotification = async (data: SendNotificationRequest): Promise<a
       throw new Error(response.data?.message || 'Send notification failed');
     }
   } catch (error: any) {
-    console.error('❌ Send notification error:', error);
+    console.error('Send notification error:', error);
 
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Send notification failed';
@@ -35,7 +35,7 @@ export const MarkAsReadNotification = async (notificationId: string): Promise<an
       throw new Error(response.data?.message || 'Mark as read notification failed');
     }
   } catch (error: any) {
-    console.error('❌ Mark as read notification error:', error);
+    console.error('Mark as read notification error:', error);
 
     const message =
       error.response?.data?.message ||
@@ -54,7 +54,7 @@ export const GetNotifications = async (): Promise<any> => {
       throw new Error(response.data?.message || 'Fetch notifications failed');
     }
   } catch (error: any) {
-    console.error('❌ Fetch notifications error:', error);
+    console.error(' Fetch notifications error:', error);
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Fetch notifications failed';
     throw new Error(message);
@@ -92,7 +92,7 @@ export const DeleteNotificationById = async (notificationId: string): Promise<an
       throw new Error(response.data?.message || 'Delete notification failed');
     }
   } catch (error: any) {
-    console.error('❌ Delete notifications error:', error);
+    console.error(' Delete notifications error:', error);
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Delete notifications failed';
     throw new Error(message);
@@ -108,7 +108,7 @@ export const DeleteNotificationsAll = async (): Promise<any> => {
       throw new Error(response.data?.message || 'Delete all notification failed');
     }
   } catch (error: any) {
-    console.error('❌ Delete all notifications error:', error);
+    console.error(' Delete all notifications error:', error);
     const message =
       error.response?.data?.message ||
       error.response?.data?.error ||

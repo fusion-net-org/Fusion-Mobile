@@ -149,8 +149,8 @@ export interface TaskSubItem {
   createAt: string;
   updateAt: string;
   dueDate?: string;
-  createBy?: string; // optional
-  createByName?: string; // optional
+  createBy?: string;
+  createByName?: string;
 }
 
 export interface UserTaskDashBoard {

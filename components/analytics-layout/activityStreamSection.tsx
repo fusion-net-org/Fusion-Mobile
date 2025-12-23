@@ -53,7 +53,7 @@ export default function ActivityStreamSection() {
         });
       }
     } catch (err) {
-      console.log('❌ Fetch logs error:', err);
+      console.log('Fetch logs error:', err);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import { NotificationProvider } from '@/components/notification-layout/notfication-provider';
-import { queryClient } from '@/src/redux/queryClient'; // 👈 bạn tạo file này như ở bước trước
+import { queryClient } from '@/src/redux/queryClient';
 import { store } from '@/src/redux/store';
 import { QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
@@ -9,9 +9,9 @@ import Toast from 'react-native-toast-message';
 import { Provider } from 'react-redux';
 
 export default function RootLayout() {
-  console.log('🧩 RootLayout mounted');
+  console.log('RootLayout mounted');
 
-  // ⚙️ Cấu hình global: cách xử lý noti khi app đang mở
+  //Config global: handle noti
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldPlaySound: true,

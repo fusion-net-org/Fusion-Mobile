@@ -95,7 +95,7 @@ export default function Register() {
       );
 
       if (registerUserThunk.fulfilled.match(resultAction)) {
-        console.log('✅ Register success:', resultAction.payload);
+        console.log('Register success:', resultAction.payload);
         router.replace(ROUTES.AUTH.LOGIN as any);
       } else {
         setError(resultAction.payload as string);

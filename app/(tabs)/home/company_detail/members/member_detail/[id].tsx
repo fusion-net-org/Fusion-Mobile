@@ -320,11 +320,11 @@ export default function MemberDetail() {
               yAxisSuffix=""
               withInnerLines={false}
               chartConfig={{
-                backgroundGradientFrom: '#eff6ff', // xanh nhạt (gradient start)
-                backgroundGradientTo: '#ffffff', // gradient end
+                backgroundGradientFrom: '#eff6ff',
+                backgroundGradientTo: '#ffffff',
                 decimalPlaces: 0,
                 barPercentage: 0.6,
-                color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`, // blue-600
+                color: (opacity = 1) => `rgba(37, 99, 235, ${opacity})`,
                 labelColor: () => '#374151',
                 propsForBackgroundLines: {
                   strokeDasharray: '',

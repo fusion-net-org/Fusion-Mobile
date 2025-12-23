@@ -9,7 +9,7 @@ const initialState: NotificationState = {
   lastSentAt: null,
 };
 
-// ✅ Async thunk: gửi thông báo
+// Async thunk: gửi thông báo
 export const sendUserNotification = createAsyncThunk(
   'notification/send',
   async (payload: SendNotificationRequest, { rejectWithValue }) => {
@@ -50,13 +50,13 @@ const notificationSlice = createSlice({
         state.isSending = false;
         state.isSent = true;
         state.lastSentAt = new Date().toISOString();
-        console.log('✅ Notification sent successfully');
+        console.log('Notification sent successfully');
       })
       .addCase(sendUserNotification.rejected, (state, action) => {
         state.isSending = false;
         state.isSent = false;
         state.error = action.payload as string;
-        console.warn('⚠️ Notification sending failed:', action.payload);
+        console.warn(' Notification sending failed:', action.payload);
       });
   },
 });

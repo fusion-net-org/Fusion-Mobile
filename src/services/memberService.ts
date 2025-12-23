@@ -24,7 +24,7 @@ export const GetPageMemberInCompany = async (
       throw new Error(response.data?.message || 'Fetch list Members failed');
     }
   } catch (error: any) {
-    console.error('❌ Fetch list Members error:', error);
+    console.error('Fetch list Members error:', error);
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Fetch List Members failed';
     throw new Error(message);

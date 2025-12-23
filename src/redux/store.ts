@@ -42,23 +42,22 @@ export type AppDispatch = typeof store.dispatch;
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 
-// // ✅ Dùng RootState thay cho State thông thường
+// Dùng RootState thay cho State thông thường
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 // Hàm khởi tạo lại state khi app mở
 export const initializeUserState = async () => {
   const userData = await loadUserState();
-  console.log('🔹 initializeUserState -> userData:', userData);
+  console.log('initializeUserState -> userData:', userData);
 
   if (!userData) return null;
 
   if (isExpired(userData)) {
-    console.log('⚠️ Token expired, clearing user');
+    console.log('Token expired, clearing user');
     await AsyncStorage.removeItem('user');
     return null;
   }
 
-  // userData đã decode sẵn → KHÔNG decode lại
   store.dispatch(loginUser(userData));
   return userData;
 };

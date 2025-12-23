@@ -92,7 +92,7 @@ export const getAnalyticsUser = async (): Promise<AnalyticsUserResponse> => {
       throw new Error(response.data?.message || 'Fetch Analytics User failed');
     }
   } catch (error: any) {
-    console.error('❌ Fetch Analytics User error:', error);
+    console.error(' Fetch Analytics User error:', error);
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Fetch Analytics User failed';
     throw new Error(message);

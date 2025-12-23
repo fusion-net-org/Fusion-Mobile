@@ -147,7 +147,7 @@ export default function WorkspacePage() {
 
         {/* PROJECT TAB */}
         {activeTab === 'projects' && (
-          <ScrollView className="p-4">
+          <ScrollView contentContainerStyle={{ paddingBottom: 80 }} className="p-4">
             {projects.map((project, index) => {
               const bgColor = cardColors[index % cardColors.length];
               const statusStyle = getStatusStyle(project.status);
@@ -193,7 +193,7 @@ export default function WorkspacePage() {
 
         {/* TASK TAB */}
         {activeTab === 'tasks' && (
-          <ScrollView className="p-4">
+          <ScrollView contentContainerStyle={{ paddingBottom: 80 }} className="p-4">
             {selectedProject && (
               <View className="mb-3 flex-row items-center justify-between space-x-2">
                 <Text className="flex-1 text-base font-semibold">

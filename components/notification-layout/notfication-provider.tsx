@@ -39,12 +39,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       }
 
       if (finalStatus !== 'granted') {
-        console.log('🚨 Failed to get push token!');
+        console.log('Failed to get push token!');
         return;
       }
 
       const token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log('📨 Expo Push Token:', token);
+      console.log('Expo Push Token:', token);
       setExpoPushToken(token);
     };
 
@@ -82,10 +82,10 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         if (notificationId) {
           try {
             await MarkAsReadNotification(notificationId);
-            console.log('✅ Marked notification as read from click event');
+            console.log('Marked notification as read from click event');
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
           } catch (err) {
-            console.error('❌ Failed to mark as read:', err);
+            console.error('Failed to mark as read:', err);
           }
         }
 

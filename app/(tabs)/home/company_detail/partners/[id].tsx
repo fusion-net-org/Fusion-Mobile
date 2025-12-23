@@ -37,7 +37,6 @@ const Partners = () => {
   const handleFilterChange = (newFilter: any) => {
     const updatedFilter = { ...filter, ...newFilter, pageNumber: 1 };
 
-    // Reset danh sách trước khi load mới
     dispatch(resetPartners());
     dispatch(updatePartnerFilter(updatedFilter));
 

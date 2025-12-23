@@ -1,6 +1,5 @@
 import { apiInstance } from '../api/apiInstance';
 
-//https://localhost:7160/api/projectmember/DE562EA1-F67A-45CB-92A1-1199C1BC09E6/FA5AA664-0D66-4620-8FD1-4B42BFC18578
 export const getProjectMemberByCompanyIdAndUserId = async (
   companyId: string,
   memberId: string,

@@ -325,7 +325,7 @@ export default function CalendarScreen() {
               onSelectSprint={onSelectSprint}
               onSelectPriority={onSelectPriority}
               onSelectType={onSelectType}
-              onResetAll={resetAllFilters} // <-- truyền vào đây
+              onResetAll={resetAllFilters}
             />
 
             {/* CALENDAR */}

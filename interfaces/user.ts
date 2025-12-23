@@ -7,11 +7,11 @@ export interface UserStore {
   refreshToken: string;
   accessToken: string;
 
-  expired?: number; // từ JWT exp
-  userId?: string; // từ JWT sub
-  email?: string; // từ JWT email
-  avatar?: string; // URL avatar của user
-  fullName?: string; // Tên đầy đủ của user
+  expired?: number;
+  userId?: string;
+  email?: string;
+  avatar?: string;
+  fullName?: string;
 
   phone?: string;
   address?: string;

@@ -48,7 +48,7 @@ const AlertHeader = () => {
     loadUserDetail();
   }, [user?.userId]);
 
-  // 🔹 Khi app mở, load company cache 1 lần
+  //Khi app mở, load company cache 1 lần
   useEffect(() => {
     dispatch(loadCompanyFromCache() as any);
   }, []);

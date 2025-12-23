@@ -1,4 +1,3 @@
-// src/services/companyService.ts
 import { PagedResult } from '@/interfaces/base';
 import { Company, CompanyFilterApi } from '@/interfaces/company';
 import { apiInstance } from '../api/apiInstance';
@@ -36,7 +35,7 @@ export const GetPagedCompanies = async (
       } as PagedResult<Company>;
     }
 
-    console.error('❌ Fetch paged companies error:', error);
+    console.error('Fetch paged companies error:', error);
     const message =
       error.response?.data?.message ||
       error.response?.data?.error ||
@@ -54,7 +53,7 @@ export const GetCompanyById = async (companyId: string): Promise<Company> => {
       throw new Error(response.data?.message || 'Fetch company failed');
     }
   } catch (error: any) {
-    console.error('❌ Fetch company error:', error);
+    console.error('Fetch company error:', error);
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Fetch company failed';
     throw new Error(message);

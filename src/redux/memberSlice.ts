@@ -22,7 +22,7 @@ const initialState: MemberState = {
   statusLoading: false,
 };
 
-// ⚡ Thunk: fetch paged members
+//Thunk: fetch paged members
 export const fetchMembersThunk = createAsyncThunk<
   PagedResult<MemberItem>,
   { companyId: string; filter?: Partial<MemberFilter> },

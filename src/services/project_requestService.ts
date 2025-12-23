@@ -36,7 +36,6 @@ export const GetProjectRequestPartnerPaged = async (
       { params },
     );
 
-    //Kiểm tra statusCode trả về
     if (response.data?.statusCode === 200) {
       return response.data.data as PagedResult<ProjectRequest>;
     } else {
@@ -54,7 +53,7 @@ export const GetProjectRequestPartnerPaged = async (
       } as PagedResult<ProjectRequest>;
     }
 
-    console.error('❌ Fetch paged project request error:', error);
+    console.error(' Fetch paged project request error:', error);
     const message =
       error.response?.data?.message ||
       error.response?.data?.error ||

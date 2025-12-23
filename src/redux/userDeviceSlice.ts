@@ -53,13 +53,13 @@ const userDeviceSlice = createSlice({
         state.isRegistered = true;
         state.error = null;
         state.lastRegisteredAt = new Date().toISOString();
-        console.log('✅ Device registration completed in Redux');
+        console.log('Device registration completed in Redux');
       })
       .addCase(registerUserDevice.rejected, (state, action) => {
         state.isRegistering = false;
         state.isRegistered = false;
         state.error = action.payload as string;
-        console.warn('⚠️ Device registration failed in Redux:', action.payload);
+        console.warn('Device registration failed in Redux:', action.payload);
       });
   },
 });

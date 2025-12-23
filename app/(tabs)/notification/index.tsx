@@ -146,7 +146,7 @@ export default function Notification() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 90 }}
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center">
               <FontAwesome5 name="bell-slash" size={40} color="#ccc" />

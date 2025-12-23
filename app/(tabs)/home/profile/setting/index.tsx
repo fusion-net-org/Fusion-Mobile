@@ -1,4 +1,3 @@
-// screens/Setting.tsx
 import { toggleNotification } from '@/src/services/notificationService';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';

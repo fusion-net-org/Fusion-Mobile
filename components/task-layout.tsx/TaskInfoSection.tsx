@@ -2,7 +2,8 @@ import { MemberRef } from '@/interfaces/task';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
 import { useFlashTask } from '@/src/utils/useFlashTask';
 import { CalendarDays, Check, Clock, Flag, MoveDown, TimerReset } from 'lucide-react-native';
-import { Image, Pressable, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Image, Pressable, Text, View } from 'react-native';
 
 function Initials({ name }: { name: string }) {
   const parts = name.trim().split(/\s+/);
@@ -75,6 +76,29 @@ export default function TaskInfoSection({
   });
   const uniqueAssignees = Array.from(uniqueAssigneesMap.values());
 
+  const isUrgent = t.priority === 'Urgent';
+
+  const pulseAnim = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    if (!isUrgent) return;
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0.3,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, [isUrgent]);
+
   return (
     <Pressable
       onLongPress={onLongPress}
@@ -85,6 +109,8 @@ export default function TaskInfoSection({
           opacity: isActive ? 0.92 : 1,
           zIndex: isActive ? 999 : 1,
           elevation: isActive ? 8 : 2,
+          borderColor: isUrgent ? '#DC2626' : '#E5E7EB',
+          borderWidth: isUrgent ? 1.5 : 1,
         },
       ]}
       className="mb-2 rounded-lg border bg-white p-3 shadow"
@@ -179,6 +205,23 @@ export default function TaskInfoSection({
           <Text className="text-[9px] text-slate-600">Next</Text>
         </Pressable>
       </View>
+
+      {isUrgent && (
+        <Animated.View
+          style={{
+            position: 'absolute',
+            top: 4,
+            right: 4,
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: '#EF4444',
+            borderWidth: 2,
+            borderColor: '#fff',
+            opacity: pulseAnim,
+          }}
+        />
+      )}
     </Pressable>
   );
 }

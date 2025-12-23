@@ -47,11 +47,14 @@ export default function TicketDetailSection({ id, backRoute }: TicketDetailSecti
   const [project, setProject] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
+  const [textTooLong, setTextTooLong] = useState(false);
 
   const [newComment, setNewComment] = useState('');
   const [searchKey, setSearchKey] = useState('');
   const debounced = useDebounce(searchKey, 500);
+  const [showFull, setShowFull] = useState(false);
 
   const tabBarHeight = useBottomTabBarHeight();
 
@@ -286,24 +289,53 @@ export default function TicketDetailSection({ id, backRoute }: TicketDetailSecti
             },
           ]
             .filter(Boolean)
-            .map((item, i) => (
-              <View key={i} className="mb-3 flex-row items-center justify-between">
-                {/* Left: icon + label */}
-                <View className="flex-row items-center space-x-2">
-                  {item.icon}
-                  <Text className="ml-3 text-base font-semibold text-gray-700">{item.label}</Text>
-                </View>
+            .map((item, i) => {
+              const isExpandable = item.label === 'Description' || item.label === 'Name';
 
-                {/* Right: value / badge */}
-                {item.isBadge ? (
-                  <View className={`${item.badgeColor} rounded-full px-4 py-1`}>
-                    <Text className="text-base font-bold text-white">{item.value}</Text>
+              return (
+                <View key={i} className="mb-3 flex-row items-start">
+                  {/* Left: icon + label */}
+                  <View className="w-28 flex-row items-center space-x-2">
+                    {item.icon}
+                    <Text className="text-base font-semibold text-gray-700">{item.label}</Text>
                   </View>
-                ) : (
-                  <Text className="text-base font-bold text-gray-900">{item.value}</Text>
-                )}
-              </View>
-            ))}
+
+                  {/* Right: value */}
+                  {isExpandable ? (
+                    <View className="ml-4 flex-1">
+                      <Text
+                        className="ps-2 text-base font-bold text-gray-900"
+                        numberOfLines={showFull ? undefined : 3}
+                        ellipsizeMode="tail"
+                        onTextLayout={(e) => {
+                          if (e.nativeEvent.lines.length > 3 && !textTooLong) {
+                            setTextTooLong(true);
+                          }
+                        }}
+                      >
+                        {item.value}
+                      </Text>
+
+                      {textTooLong && (
+                        <TouchableOpacity onPress={() => setShowFull(!showFull)}>
+                          <Text className="mt-1 text-indigo-600">
+                            {showFull ? 'Show less' : 'Read more'}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  ) : item.isBadge ? (
+                    <View className={`${item.badgeColor} ml-4 rounded-full px-4 py-1`}>
+                      <Text className="text-base font-bold text-white">{item.value}</Text>
+                    </View>
+                  ) : (
+                    <Text className="ml-4 flex-1 text-base font-bold text-gray-900">
+                      {item.value}
+                    </Text>
+                  )}
+                </View>
+              );
+            })}
         </View>
       </View>
 

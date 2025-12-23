@@ -65,7 +65,6 @@ const ProfileInformation = () => {
 
   const handleSave = async () => {
     try {
-      // ⚙️ Tạo formData để gửi API
       const data = new FormData();
 
       if (avatar && avatar !== user.avatar && !avatar.startsWith('http')) {
@@ -127,7 +126,7 @@ const ProfileInformation = () => {
               style={{
                 width: 120,
                 height: 120,
-                borderRadius: 60, // ✅ hình tròn
+                borderRadius: 60,
                 borderWidth: 3,
                 borderColor: '#3B82F6',
               }}

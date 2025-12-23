@@ -7,10 +7,10 @@ export default function AuthGate() {
   const router = useRouter();
   const navReady = useRootNavigationState()?.key != null;
   const [loading, setLoading] = useState(true);
-  const didRedirect = useRef(false); // ⚡ flag chống lặp
+  const didRedirect = useRef(false);
   let executed = false;
 
-  console.log('🔐 AuthGate mounted');
+  console.log('AuthGate mounted');
 
   useEffect(() => {
     if (!navReady || didRedirect.current) return;
@@ -20,16 +20,16 @@ export default function AuthGate() {
     (async () => {
       try {
         const user = await initializeUserState();
-        console.log('✅ AuthGate user:', user);
+        console.log('AuthGate user:', user);
 
         if (user) {
           router.replace(ROUTES.HOME.COMPANY as any);
         } else {
           router.replace(ROUTES.AUTH.MAIN as any);
         }
-        didRedirect.current = true; // ✅ chỉ redirect 1 lần
+        didRedirect.current = true;
       } catch (error) {
-        console.error('❌ AuthGate error:', error);
+        console.error('AuthGate error:', error);
         router.replace(ROUTES.AUTH.MAIN as any);
         didRedirect.current = true;
       } finally {

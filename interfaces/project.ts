@@ -12,6 +12,7 @@ export interface Project {
   ownerCompany: string;
   hiredCompany: string;
   isRequest: boolean;
+  isClosed: boolean;
 }
 
 export interface ProjectInfo {

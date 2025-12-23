@@ -1,4 +1,3 @@
-// screens/ProjectBoardScreen.tsx
 import React from 'react';
 import { ActivityIndicator, Text } from 'react-native';
 
@@ -24,7 +23,12 @@ export default function ProjectBoardScreen() {
     (async () => {
       try {
         const res = await fetchSprintBoard(projectId as string);
-        const normalized = normalizeBoardInput(res ?? {});
+        console.log('Res rees', res);
+        const normalized = normalizeBoardInput({
+          workflow: res.workflow,
+          sprints: res.sprints,
+          tasks: res.tasks,
+        });
         if (!dead) setInit(normalized);
       } catch (err) {
         console.error('Failed to load sprint board', err);

@@ -24,7 +24,7 @@ export const GetUserLogByUserIdAsync = async (
       throw new Error(response.data?.message || 'Fetch list User Log failed');
     }
   } catch (error: any) {
-    console.error('❌ Fetch list User Log error:', error);
+    console.error('Fetch list User Log error:', error);
     const message =
       error.response?.data?.message || error.response?.data?.error || 'Fetch List User Log failed';
     throw new Error(message);

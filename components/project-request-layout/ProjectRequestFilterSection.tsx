@@ -21,7 +21,6 @@ export default function ProjectRequestFilterSection({ onFilterChange }: Props) {
 
   const toggleOpen = () => {
     if (isOpen) {
-      // 👉 Đang mở → đóng lại, reset filter về mặc định
       setIsOpen(false);
       height.value = withTiming(0, { duration: 250 });
 
@@ -37,7 +36,6 @@ export default function ProjectRequestFilterSection({ onFilterChange }: Props) {
         dateRange: undefined,
       });
     } else {
-      // 👉 Đang đóng → mở ra
       setIsOpen(true);
       height.value = withTiming(contentHeight.current, { duration: 250 });
 
@@ -83,7 +81,7 @@ export default function ProjectRequestFilterSection({ onFilterChange }: Props) {
             setStatus={setStatus}
             side={viewMode}
             setSide={setViewModel}
-            isOpen={isOpen} // ✅ truyền đúng ở đây
+            isOpen={isOpen}
             onFilterChange={onFilterChange}
           />
         </View>
@@ -95,7 +93,7 @@ export default function ProjectRequestFilterSection({ onFilterChange }: Props) {
           setStatus={setStatus}
           side={viewMode}
           setSide={setViewModel}
-          isOpen={isOpen} // ✅ truyền đúng ở đây
+          isOpen={isOpen}
           onFilterChange={onFilterChange}
         />
       </Animated.View>
@@ -110,7 +108,7 @@ function FilterContent({
   setStatus,
   side,
   setSide,
-  isOpen, // 👈 thêm dòng này
+  isOpen,
   onFilterChange,
 }: {
   keyword: string;
@@ -136,7 +134,7 @@ function FilterContent({
 
       {/* 🗓 Date Filter */}
       <DateFilterDropdownPartner
-        resetTrigger={!isOpen} // mỗi lần đóng sẽ reset dropdown
+        resetTrigger={!isOpen}
         onChange={(data) => {
           onFilterChange({
             dateFilterType: data.dateFilterType,

@@ -71,10 +71,7 @@ const Tickets: React.FC = () => {
         keyword: debouncedSearch || '',
         projectId: selectedProjectId || null,
         status: filterStatus === 'All' ? null : filterStatus,
-        viewMode: viewMode,
-        createdFrom: null,
-        createdTo: null,
-        isDeleted: null,
+        viewMode,
         pageNumber,
         pageSize: 10,
       };
@@ -86,8 +83,22 @@ const Tickets: React.FC = () => {
         params.companyRequestId = null;
         params.companyExecutorId = companyId;
       }
+
       const res = await GetTicketPaged(params);
-      setTickets(res.pageData.items);
+
+      setTickets((prev) => {
+        const map = new Map<string, TicketItem>();
+
+        // page 1 thì reset
+        const merged = pageNumber === 1 ? res.pageData.items : [...prev, ...res.pageData.items];
+
+        merged.forEach((item: any) => {
+          map.set(item.id, item); // key = id (không trùng)
+        });
+
+        return Array.from(map.values());
+      });
+
       setTotalCount(res.pageData.totalCount);
     } catch (err) {
       console.error(err);
@@ -230,7 +241,9 @@ const Tickets: React.FC = () => {
             );
           }}
           onEndReached={() => {
-            if (tickets.length < totalCount) setPageNumber((prev) => prev + 1);
+            if (loading) return;
+            if (tickets.length >= totalCount) return;
+            setPageNumber((prev) => prev + 1);
           }}
           onEndReachedThreshold={0.5}
         />

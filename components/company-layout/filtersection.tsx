@@ -30,7 +30,6 @@ export default function FilterSection({ onFilterChange }: Props) {
     overflow: 'hidden',
   }));
 
-  // 🧠 Hàm gọi search
   const triggerSearch = (order: 'ASC' | 'DESC' | undefined = sortOrder) => {
     onFilterChange({
       sortColumn,
@@ -45,7 +44,7 @@ export default function FilterSection({ onFilterChange }: Props) {
     if (order === sortOrder) {
       setSortOrder(undefined);
       triggerSearch(undefined);
-      return; // ⛔ Không gọi API nữa
+      return;
     }
     setSortOrder(order);
     triggerSearch(order);

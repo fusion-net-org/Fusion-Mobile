@@ -1,5 +1,3 @@
-// src/mappers/projectBoardMapper.ts
-
 import { SprintVm } from '@/interfaces/sprint';
 import { MemberRef, TaskVm } from '@/interfaces/task';
 
@@ -86,6 +84,8 @@ const getStartStatusId = (s: SprintVm): string => {
 };
 
 export function mapSprint(dto: Any): SprintVm {
+  console.log('SPRINT DTO:', dto);
+  console.log('WORKFLOW:', dto?.workflow);
   const ws: Any[] = dto?.workflow?.statuses ?? [];
   let statusOrder: string[] = [];
   let statusMeta: SprintVm['statusMeta'] = {};
@@ -150,9 +150,6 @@ export function mapSprint(dto: Any): SprintVm {
   };
 }
 
-/* ===========================================================
- * Task DTO -> TaskVm (dựa theo sprint.workflow)
- * =========================================================== */
 export function mapTask(dto: Any, sprint?: SprintVm): TaskVm {
   // Meta theo id (nếu có)
   const incomingId = String(dto?.workflowStatusId ?? dto?.statusId ?? '');
@@ -214,42 +211,27 @@ export function mapTask(dto: Any, sprint?: SprintVm): TaskVm {
   };
 }
 
-export function normalizeBoardInput(input: Any): { sprints: SprintVm[]; tasks: TaskVm[] } {
-  const rawSprints: Any[] = input?.sprints ?? input?.weeks ?? [];
+export function normalizeBoardInput(input: Any): {
+  sprints: SprintVm[];
+  tasks: TaskVm[];
+} {
+  const workflow = input?.workflow ?? null;
+  const rawSprints: Any[] = input?.sprints ?? [];
   const rawTasks: Any[] = input?.tasks ?? [];
 
-  const sprints: SprintVm[] = rawSprints.map(mapSprint);
+  const sprints: SprintVm[] = rawSprints.map((s) =>
+    mapSprint({
+      ...s,
+      workflow,
+    }),
+  );
+
   const sprintById = new Map<string, SprintVm>(sprints.map((s) => [s.id, s]));
 
-  const embedded: Any[] = [];
-  rawSprints.forEach((s) => {
-    if (Array.isArray(s?.tasks)) embedded.push(...s.tasks);
-  });
-
-  const allRawTasks = rawTasks.length ? rawTasks : embedded;
-
-  const tasks: TaskVm[] = allRawTasks.map((t: Any) => {
-    const sid = t?.sprintId ?? t?.weekId ?? null;
+  const tasks: TaskVm[] = rawTasks.map((t) => {
+    const sid = t?.sprintId ?? null;
     return mapTask(t, sid ? sprintById.get(String(sid)) : undefined);
   });
-
-  if (!sprints.length && tasks.some((t) => t.sprintId)) {
-    const fakeMap = new Map<string, SprintVm>();
-    for (const t of tasks) {
-      if (!t.sprintId) continue;
-      if (!fakeMap.has(t.sprintId)) {
-        const { statusOrder, statusMeta } = defaultStatuses();
-        fakeMap.set(t.sprintId, {
-          id: t.sprintId,
-          name: `Week ${t.sprintId}`,
-          statusOrder,
-          statusMeta,
-          columns: Object.fromEntries(statusOrder.map((id) => [id, [] as TaskVm[]])),
-        } as SprintVm);
-      }
-    }
-    return { sprints: [...fakeMap.values()], tasks };
-  }
 
   return { sprints, tasks };
 }

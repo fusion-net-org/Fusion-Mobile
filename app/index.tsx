@@ -1,5 +1,5 @@
 import AuthGate from '../components/auth-layout/auth-gate';
-console.log('RootIndex rendered'); // <- thêm dòng này
+console.log('RootIndex rendered');
 
 const RootIndex = () => {
   return <AuthGate />;
