@@ -118,7 +118,6 @@ export default function ListInfoSection({
         ),
       ) || 0;
     const isDone = t.statusCategory === 'DONE';
-    console.log('task:', t);
 
     return (
       <Pressable

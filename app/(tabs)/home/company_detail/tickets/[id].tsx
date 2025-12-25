@@ -6,7 +6,7 @@ import { formatLocalDate } from '@/src/utils/formatLocalDate';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { FilterIcon } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -33,15 +33,19 @@ const Tickets: React.FC = () => {
   >('All');
   const [searchKeyword, setSearchKeyword] = useState('');
   const debouncedSearch = useDebounce(searchKeyword, 500);
+
   const [pageNumber, setPageNumber] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+
   const [filterVisible, setFilterVisible] = useState(false);
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [viewMode, setViewMode] = useState<'AsRequester' | 'AsExecutor'>('AsRequester');
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       const res = await GetProjectsByCompany(companyId as string, '', '');
@@ -51,12 +55,13 @@ const Tickets: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [companyId]);
 
-  const fetchTickets = async () => {
+  const fetchTickets = async (pageNumber: number = 1, append: boolean = false) => {
+    if (pageNumber === 1) setLoading(true);
+    else setLoadingMore(true);
+
     try {
-      setLoading(true);
-
       const params: any = {
         keyword: debouncedSearch || '',
         projectId: selectedProjectId || null,
@@ -64,47 +69,43 @@ const Tickets: React.FC = () => {
         viewMode,
         pageNumber,
         pageSize: 10,
+        companyRequestId: viewMode === 'AsRequester' ? companyId : null,
+        companyExecutorId: viewMode === 'AsExecutor' ? companyId : null,
       };
-
-      if (viewMode === 'AsRequester') {
-        params.companyRequestId = companyId;
-        params.companyExecutorId = null;
-      } else {
-        params.companyRequestId = null;
-        params.companyExecutorId = companyId;
-      }
 
       const res = await GetTicketPaged(params);
 
-      setTickets((prev) => {
-        const map = new Map<string, TicketItem>();
+      const items = res.pageData.items || [];
+      setTotalCount(res.pageData.totalCount || 0);
 
-        const merged = pageNumber === 1 ? res.pageData.items : [...prev, ...res.pageData.items];
-
-        merged.forEach((item: any) => {
-          map.set(item.id, item);
-        });
-
-        return Array.from(map.values());
-      });
-
-      setTotalCount(res.pageData.totalCount);
+      if (append) {
+        setTickets((prev) => [...prev, ...items]);
+      } else {
+        setTickets(items);
+      }
+      setPage(pageNumber);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  };
-
-  const applyFilter = () => {
-    setPageNumber(1);
-    fetchTickets();
-    setFilterVisible(false);
   };
 
   const resetFilter = () => {
     setSelectedProjectId(null);
     setFilterStatus('All');
+    fetchTickets(1, false);
+  };
+
+  const applyFilter = () => {
+    fetchTickets(1, false);
+    setFilterVisible(false);
+  };
+
+  const handleLoadMore = () => {
+    if (loadingMore || tickets.length >= totalCount) return;
+    fetchTickets(page + 1, true);
   };
 
   const goToDetail = (ticket: TicketItem) => {
@@ -113,11 +114,11 @@ const Tickets: React.FC = () => {
 
   useEffect(() => {
     fetchProjects();
-  }, [companyId]);
+  }, [fetchProjects]);
 
   useEffect(() => {
-    fetchTickets();
-  }, [debouncedSearch, selectedProjectId, filterStatus, pageNumber, viewMode]);
+    fetchTickets(1, false);
+  }, [debouncedSearch, selectedProjectId, filterStatus, viewMode, companyId]);
 
   return (
     <View className="flex-1 bg-gray-50 p-4">
@@ -143,9 +144,7 @@ const Tickets: React.FC = () => {
       {/* View Mode Tabs */}
       <View className="mb-4 flex-row space-x-2">
         <TouchableOpacity
-          className={`flex-1 items-center rounded-full py-2 ${
-            viewMode === 'AsRequester' ? 'bg-blue-600' : 'bg-gray-200'
-          }`}
+          className={`flex-1 items-center rounded-full py-2 ${viewMode === 'AsRequester' ? 'bg-blue-600' : 'bg-gray-200'}`}
           onPress={() => setViewMode('AsRequester')}
         >
           <Text
@@ -155,9 +154,7 @@ const Tickets: React.FC = () => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 items-center rounded-full py-2 ${
-            viewMode === 'AsExecutor' ? 'bg-purple-600' : 'bg-gray-200'
-          }`}
+          className={`flex-1 items-center rounded-full py-2 ${viewMode === 'AsExecutor' ? 'bg-purple-600' : 'bg-gray-200'}`}
           onPress={() => setViewMode('AsExecutor')}
         >
           <Text
@@ -169,7 +166,7 @@ const Tickets: React.FC = () => {
       </View>
 
       {/* Tickets List */}
-      {loading ? (
+      {loading && pageNumber === 1 ? (
         <ActivityIndicator size="large" color="#3b82f6" />
       ) : (
         <FlatList
@@ -178,11 +175,15 @@ const Tickets: React.FC = () => {
           contentContainerStyle={{ paddingBottom: 80 }}
           renderItem={({ item }) => {
             const priorityColor =
-              item.priority === 'High'
-                ? 'text-red-500'
-                : item.priority === 'Medium'
-                  ? 'text-yellow-500'
-                  : 'text-green-500';
+              item.priority === 'Urgent'
+                ? 'text-red-600'
+                : item.priority === 'High'
+                  ? 'text-orange-500'
+                  : item.priority === 'Medium'
+                    ? 'text-yellow-500'
+                    : item.priority === 'Low'
+                      ? 'text-green-600'
+                      : 'text-gray-800';
 
             const statusColor =
               item.status === 'Pending'
@@ -198,43 +199,137 @@ const Tickets: React.FC = () => {
             return (
               <TouchableOpacity
                 onPress={() => goToDetail(item)}
-                className="mb-3 flex-row rounded-xl bg-white p-4 shadow"
+                className="mb-3 flex-row items-start rounded-2xl bg-white px-4 py-3 shadow-sm"
               >
-                {/* Icon */}
-                <Ionicons
-                  name={item.priority === 'High' ? 'alert-circle' : 'checkmark-circle'}
-                  size={24}
-                  className={`${priorityColor} mr-3`}
-                />
+                <View
+                  className={`mr-3 rounded-full p-2 ${
+                    item.priority === 'Urgent'
+                      ? 'bg-red-100'
+                      : item.priority === 'High'
+                        ? 'bg-orange-100'
+                        : item.priority === 'Medium'
+                          ? 'bg-yellow-100'
+                          : item.priority === 'Low'
+                            ? 'bg-green-100'
+                            : 'bg-gray-100'
+                  }`}
+                >
+                  <Ionicons
+                    name={
+                      item.priority === 'Urgent'
+                        ? 'alert-circle'
+                        : item.priority === 'High'
+                          ? 'alert-circle'
+                          : item.priority === 'Medium'
+                            ? 'checkmark-circle'
+                            : item.priority === 'Low'
+                              ? 'checkmark-circle'
+                              : 'help-circle'
+                    }
+                    size={20}
+                    className={
+                      item.priority === 'Urgent'
+                        ? 'text-red-600'
+                        : item.priority === 'High'
+                          ? 'text-orange-500'
+                          : item.priority === 'Medium'
+                            ? 'text-yellow-500'
+                            : item.priority === 'Low'
+                              ? 'text-green-600'
+                              : 'text-gray-800'
+                    }
+                  />
+                </View>
 
-                {/* Content */}
                 <View className="flex-1">
-                  {/* Ticket Title */}
-                  <Text className="mb-1 text-lg font-bold">{item.ticketName}</Text>
+                  <Text className="mb-1 text-base font-semibold text-gray-900" numberOfLines={1}>
+                    {item.ticketName}
+                  </Text>
 
-                  {/* Project Name */}
-                  <Text className="mb-1 text-gray-500">{item.projectName}</Text>
+                  <Text className="mb-2 text-sm text-gray-500" numberOfLines={1}>
+                    {item.projectName}
+                  </Text>
 
-                  {/* Bottom row: CreatedAt + Priority + Status */}
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-xs text-gray-400">{formatLocalDate(item.createdAt)}</Text>
-                    <Text className={`text-xs font-semibold ${priorityColor}`}>
-                      {item.priority}
+                  <View className="flex-row items-center justify-between gap-2">
+                    {/* Date */}
+                    <Text className="flex-1 text-xs text-gray-400">
+                      {item.createdAt
+                        ? `${formatLocalDate(item.createdAt)} → ${
+                            item.closedAt
+                              ? formatLocalDate(item.closedAt)
+                              : item.resolvedAt
+                                ? formatLocalDate(item.resolvedAt)
+                                : item.updatedAt
+                                  ? formatLocalDate(item.updatedAt)
+                                  : 'N/A'
+                          }`
+                        : 'N/A'}
                     </Text>
-                    <Text className={`text-xs font-semibold ${statusColor}`}>
-                      {item.status || 'Unknown'}
-                    </Text>
+
+                    {/* Priority + Status */}
+                    <View className="flex-row items-center gap-2">
+                      {/* Priority Badge */}
+                      <View
+                        className={`rounded-full px-2 py-1 ${
+                          item.priority === 'Urgent'
+                            ? 'bg-red-100'
+                            : item.priority === 'High'
+                              ? 'bg-orange-100'
+                              : item.priority === 'Medium'
+                                ? 'bg-yellow-100'
+                                : item.priority === 'Low'
+                                  ? 'bg-green-100'
+                                  : 'bg-gray-100'
+                        }`}
+                      >
+                        <Text
+                          className={`text-xs font-semibold ${
+                            item.priority === 'Urgent'
+                              ? 'text-red-600'
+                              : item.priority === 'High'
+                                ? 'text-orange-500'
+                                : item.priority === 'Medium'
+                                  ? 'text-yellow-500'
+                                  : item.priority === 'Low'
+                                    ? 'text-green-600'
+                                    : 'text-gray-800'
+                          }`}
+                        >
+                          {item.priority}
+                        </Text>
+                      </View>
+
+                      {/* Status */}
+                      <Text
+                        className={`text-xs font-semibold ${
+                          item.status === 'Pending'
+                            ? 'text-yellow-500'
+                            : item.status === 'Accepted'
+                              ? 'text-blue-500'
+                              : item.status === 'Rejected'
+                                ? 'text-red-500'
+                                : item.status === 'Finished'
+                                  ? 'text-green-500'
+                                  : 'text-gray-400'
+                        }`}
+                      >
+                        {item.status || 'Unknown'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="flex-row flex-wrap items-center gap-4 pt-1">
+                    <Text className="pt-1 text-xs text-gray-500">Budget: {item.budget ?? 0}$</Text>
                   </View>
                 </View>
               </TouchableOpacity>
             );
           }}
-          onEndReached={() => {
-            if (loading) return;
-            if (tickets.length >= totalCount) return;
-            setPageNumber((prev) => prev + 1);
-          }}
+          onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            loadingMore ? <ActivityIndicator size="small" color="#3b82f6" /> : null
+          }
         />
       )}
 

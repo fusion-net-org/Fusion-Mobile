@@ -1,4 +1,5 @@
 import { PagedResult } from './base';
+import { Company } from './company';
 import { TaskAssgin, UserTaskDashBoard } from './task';
 import { UserLogResponse } from './user_log';
 
@@ -16,6 +17,7 @@ export interface UserStore {
   phone?: string;
   address?: string;
   gender?: string;
+  companies?: Company[];
 }
 
 export interface RegisterUserDeviceRequest {

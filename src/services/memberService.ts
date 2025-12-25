@@ -43,3 +43,67 @@ export const GetCompanyMemberByCompanyIdAndUserId = async (
     throw new Error((error as any).response?.data?.message || 'Failed to invite member');
   }
 };
+
+export const AcceptJoinMemberById = async (memberId: number) => {
+  try {
+    const response = await apiInstance.put(`/companymember/${memberId}/accept`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error accepting member:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Failed to accept member');
+  }
+};
+
+export const RejectJoinMemberById = async (memberId: number) => {
+  try {
+    const response = await apiInstance.put(`/companymember/${memberId}/reject`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error rejecting member:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Failed to reject member');
+  }
+};
+
+export const GetCompanyMemberByUserId = async (
+  KeyWord = '',
+  status?: 'Pending' | 'Active' | 'Inactive' | null,
+  CreateAtFrom = null,
+  CreateAtTo = null,
+  JoinedAtFrom = null,
+  JoinedAtTo = null,
+  CompanyName = null,
+  MemberName = null,
+  PageNumber = 1,
+  PageSize = 10,
+  SortColumn: string | null = null,
+  SortDescending: boolean | null = null,
+) => {
+  try {
+    const response = await apiInstance.get(`/companymember/by-user`, {
+      params: {
+        KeyWord: KeyWord,
+        Status: status,
+
+        'CreateAtRange.From': CreateAtFrom,
+        'CreateAtRange.To': CreateAtTo,
+
+        'JoinedAtRange.From': JoinedAtFrom,
+        'JoinedAtRange.To': JoinedAtTo,
+
+        CompanyName: CompanyName,
+        MemberName: MemberName,
+
+        PageNumber: PageNumber,
+        PageSize: PageSize,
+
+        SortColumn: SortColumn,
+        SortDescending: SortDescending,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error in GetCompanyMemberByUserId:', error);
+    throw new Error(error.response?.data?.message || 'Fail!');
+  }
+};

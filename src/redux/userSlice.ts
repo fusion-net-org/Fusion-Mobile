@@ -1,3 +1,4 @@
+import { Company } from '@/interfaces/company';
 import { UserStore } from '@/interfaces/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
@@ -17,9 +18,7 @@ const initialState: UserState = {
   loading: false,
   error: null,
 };
-/* =========================================================
-   LOGIN THUNK
-========================================================= */
+//LOGIN THUNK
 export const loginUserThunk = createAsyncThunk(
   'user/loginUserThunk',
   async (data: LoginRequest, { rejectWithValue }) => {
@@ -33,9 +32,7 @@ export const loginUserThunk = createAsyncThunk(
   },
 );
 
-/* =========================================================
-   REGISTER THUNK
-========================================================= */
+//REGISTER THUNK
 export const registerUserThunk = createAsyncThunk(
   'user/registerUserThunk',
   async (data: RegisterRequest, { rejectWithValue }) => {
@@ -61,9 +58,7 @@ export const fetchUserDetails = createAsyncThunk(
   },
 );
 
-/* =========================================================
-   UPDATE SELF USER
-========================================================= */
+//UPDATE SELF USER
 export const updateUserThunk = createAsyncThunk(
   'user/updateUserThunk',
   async (formData: FormData, { rejectWithValue }) => {
@@ -117,14 +112,20 @@ const userSlice = createSlice({
       }
     },
 
+    setUserCompanies: (state, action: PayloadAction<Company[]>) => {
+      if (state.user) {
+        state.user.companies = action.payload;
+        AsyncStorage.setItem('user', JSON.stringify(state.user));
+      }
+    },
+
     clearError: (state) => {
       state.error = null;
     },
   },
   extraReducers: (builder) => {
-    /* =========================================================
-       REGISTER THUNK
-    ========================================================= */
+    // REGISTER THUNK
+
     builder
       .addCase(registerUserThunk.pending, (state) => {
         state.loading = true;
@@ -155,9 +156,8 @@ const userSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    /* =========================================================
-       FETCH USER DETAILS
-    ========================================================= */
+    //FETCH USER DETAILS
+
     builder
       .addCase(fetchUserDetails.pending, (state) => {
         state.loading = true;
@@ -182,9 +182,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       });
-    /* =========================================================
-       UPDATE SELF USER
-    ========================================================= */
+    //UPDATE SELF USER
     builder
       .addCase(updateUserThunk.pending, (state) => {
         state.loading = true;
@@ -213,5 +211,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { loginUser, logoutUser, updateUserRedux, clearError } = userSlice.actions;
+export const { loginUser, logoutUser, updateUserRedux, clearError, setUserCompanies } =
+  userSlice.actions;
 export default userSlice.reducer;

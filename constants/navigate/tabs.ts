@@ -58,4 +58,5 @@ export const ANALYTICSTABS = [
   { key: 'assign', label: 'Assigned To Me' },
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'activity', label: 'Activity Stream' },
+  { key: 'invitations', label: 'Invitations' },
 ];

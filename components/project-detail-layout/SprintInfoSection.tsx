@@ -250,7 +250,6 @@ export default function SprintInfoSection() {
   // Board accordion
   function Board(sprintId: string) {
     const sprint = sprints.find((s) => s.id === sprintId);
-    console.log(sprint);
     const isExpanded = expandedSprints[sprintId];
 
     // 1. Hooks phải gọi ngay, không nằm trong if

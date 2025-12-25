@@ -1,5 +1,6 @@
 import ActivityStreamSection from '@/components/analytics-layout/activityStreamSection';
 import DashboardCharts from '@/components/analytics-layout/dashboardChartSection';
+import Invitations from '@/components/analytics-layout/invitations';
 import TaskAssignedToMe from '@/components/analytics-layout/taskAssginSection';
 import AlertHeader from '@/components/layouts/alert-header';
 import { ANALYTICSTABS } from '@/constants/navigate/tabs';
@@ -158,7 +159,7 @@ const Analytics = () => {
 
       <ScrollView
         style={{ flex: 1, backgroundColor: '#fff' }}
-        contentContainerStyle={{ paddingBottom: 80 }}
+        contentContainerStyle={{ paddingBottom: 80, flexGrow: 1 }}
         nestedScrollEnabled
       >
         {/* Performance Overview */}
@@ -201,7 +202,7 @@ const Analytics = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 5, marginTop: 20 }}
         >
-          <View style={{ flexDirection: 'row', position: 'relative' }}>
+          <View className="relative flex-row justify-start">
             {ANALYTICSTABS.map((tab, index) => {
               const isActive = activeTab === tab.key;
 
@@ -215,7 +216,6 @@ const Analytics = () => {
                     const { x, width } = e.nativeEvent.layout;
                     tabLayouts.current[index] = { x, width };
 
-                    // Khi layout đo xong tab đầu tiên, set underline
                     if (index === 0 && activeTab === 'assign') {
                       underlineX.setValue(x);
                       underlineWidth.setValue(width);
@@ -225,11 +225,7 @@ const Analytics = () => {
                   style={{ paddingVertical: 12, paddingHorizontal: 20 }}
                 >
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontWeight: '600',
-                      color: isActive ? '#2563EB' : '#6B7280',
-                    }}
+                    className={`text-[16px] font-semibold ${isActive ? 'text-blue-600' : 'text-gray-500'}`}
                   >
                     {tab.label}
                   </Text>
@@ -237,16 +233,11 @@ const Analytics = () => {
               );
             })}
 
-            {/* Animated underline */}
             <Animated.View
+              className="absolute bottom-0 h-[3px] rounded-full bg-blue-600"
               style={{
-                position: 'absolute',
-                bottom: 0,
-                height: 3,
-                backgroundColor: '#2563EB',
                 width: underlineWidth,
                 transform: [{ translateX: underlineX }],
-                borderRadius: 10,
               }}
             />
           </View>
@@ -267,6 +258,7 @@ const Analytics = () => {
           )}
           {activeTab === 'dashboard' && <DashboardCharts dashboard={dashboard} />}
           {activeTab === 'activity' && <ActivityStreamSection />}
+          {activeTab === 'invitations' && <Invitations />}
         </View>
       </ScrollView>
     </>

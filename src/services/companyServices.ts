@@ -88,3 +88,43 @@ export const AllActivityLogCompanyById = async (
     throw error;
   }
 };
+
+export const getAllCompanies = async (
+  keyword = '',
+  ownerUserName = '',
+  relationShipEnums = '',
+  DayFrom: Date | null = null,
+  DayTo: Date | null = null,
+  pageNumber = 1,
+  pageSize = 25,
+  SortColumn = null,
+  SortDescending: boolean | null = null,
+  companyId = '',
+) => {
+  try {
+    const params = new URLSearchParams();
+
+    if (keyword && keyword.trim()) params.append('Keyword', encodeURIComponent(keyword.trim()));
+    if (ownerUserName && ownerUserName.trim())
+      params.append('OwnerUserName', encodeURIComponent(ownerUserName.trim()));
+    if (relationShipEnums && typeof relationShipEnums === 'string' && relationShipEnums.trim()) {
+      params.append('RelationShipEnums', relationShipEnums.trim());
+    }
+    if (DayFrom) params.append('DayFrom', DayFrom.toString());
+    if (DayTo) params.append('DayTo', DayTo.toString());
+    if (companyId && companyId.trim()) params.append('companyId', companyId);
+    if (SortColumn) params.append('SortColumn', SortColumn);
+    if (typeof SortDescending === 'boolean')
+      params.append('SortDescending', SortDescending.toString());
+    params.append('PageNumber', pageNumber.toString());
+    params.append('PageSize', pageSize.toString());
+
+    const queryString = params.toString().replace(/%25/g, '%');
+
+    const response = await apiInstance.get(`/company/all-companies?${queryString}`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching companies:', error);
+    throw new Error(error.response?.data?.message || 'Error fetching companies!');
+  }
+};

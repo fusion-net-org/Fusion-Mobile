@@ -193,7 +193,6 @@ export const GetSubTasksByTaskId = async (taskId: string): Promise<TaskSubItem[]
     const response = await apiInstance.get(`/tasks/${taskId}/subtasks`);
     const subTasks = response.data?.data || [];
 
-    console.log(subTasks, 'SubSDAATA');
     return subTasks || [];
   } catch (error: any) {
     const status = error.response?.status;

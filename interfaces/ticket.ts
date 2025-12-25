@@ -66,4 +66,8 @@ export interface TicketItem {
   status: string;
   budget?: number;
   isDeleted: boolean;
+  submittedByName: string;
+  closedAt: string;
+  updatedAt: string;
+  resolvedAt: string;
 }

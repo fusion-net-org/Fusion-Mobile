@@ -75,7 +75,7 @@ export const GetTicketPaged = async (filter: TicketFilterApi) => {
         CompanyExecutorId: filter.companyExecutorId,
 
         Status: filter.status ? TicketStatusMap[filter.status] : null,
-        ViewMode: null,
+        ViewMode: filter.viewMode,
 
         CreatedFrom: filter.createdFrom,
         CreatedTo: filter.createdTo,

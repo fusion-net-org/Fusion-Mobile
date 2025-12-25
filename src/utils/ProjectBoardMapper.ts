@@ -84,8 +84,6 @@ const getStartStatusId = (s: SprintVm): string => {
 };
 
 export function mapSprint(dto: Any): SprintVm {
-  console.log('SPRINT DTO:', dto);
-  console.log('WORKFLOW:', dto?.workflow);
   const ws: Any[] = dto?.workflow?.statuses ?? [];
   let statusOrder: string[] = [];
   let statusMeta: SprintVm['statusMeta'] = {};
@@ -172,8 +170,6 @@ export function mapTask(dto: Any, sprint?: SprintVm): TaskVm {
   const est = Number(dto?.estimateHours ?? dto?.estimate ?? 0) || 0;
   const rem = Number(dto?.remainingHours ?? dto?.remaining ?? est) || 0;
   const story = Number(dto?.storyPoints ?? dto?.points ?? 0) || 0;
-
-  console.log(dto.ticketName, 'DTO');
 
   return {
     id: String(dto?.id ?? dto?.taskId ?? rid()),

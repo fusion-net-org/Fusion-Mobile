@@ -20,7 +20,6 @@ export default function AuthGate() {
     (async () => {
       try {
         const user = await initializeUserState();
-        console.log('AuthGate user:', user);
 
         if (user) {
           router.replace(ROUTES.HOME.COMPANY as any);
