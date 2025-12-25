@@ -56,3 +56,14 @@ export interface TicketFilterApi {
   sortColumn?: string | null;
   sortDescending?: boolean | null;
 }
+
+export interface TicketItem {
+  id: string;
+  ticketName: string;
+  projectName: string;
+  createdAt: string;
+  priority: string;
+  status: string;
+  budget?: number;
+  isDeleted: boolean;
+}

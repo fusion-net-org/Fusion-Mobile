@@ -173,6 +173,8 @@ export function mapTask(dto: Any, sprint?: SprintVm): TaskVm {
   const rem = Number(dto?.remainingHours ?? dto?.remaining ?? est) || 0;
   const story = Number(dto?.storyPoints ?? dto?.points ?? 0) || 0;
 
+  console.log(dto.ticketName, 'DTO');
+
   return {
     id: String(dto?.id ?? dto?.taskId ?? rid()),
     code: String(dto?.code ?? dto?.key ?? dto?.number ?? 'T-UNKNOWN'),
@@ -208,6 +210,9 @@ export function mapTask(dto: Any, sprint?: SprintVm): TaskVm {
 
     sourceTicketId: dto?.sourceTicketId ?? null,
     sourceTicketCode: dto?.sourceTicketCode ?? null,
+
+    ticketId: dto?.ticketId ?? null,
+    ticketName: dto.ticketName ?? null,
   };
 }
 

@@ -198,12 +198,12 @@ export const GetSubTasksByTaskId = async (taskId: string): Promise<TaskSubItem[]
   } catch (error: any) {
     const status = error.response?.status;
     if (status === 404) {
-      Toast.show({
-        type: 'error',
-        text1: 'SubTask not exited',
-        position: 'top',
-        visibilityTime: 2000,
-      });
+      // Toast.show({
+      //   type: 'error',
+      //   text1: 'SubTask not exited',
+      //   position: 'top',
+      //   visibilityTime: 2000,
+      // });
     }
 
     return [];
@@ -215,4 +215,31 @@ export const markChecklistDone = async (taskId: string, checklistId: string) => 
     isDone: true,
   });
   return response.data;
+};
+
+export const getTicketTasks = async (
+  ticketId: string,
+  { pageNumber = 1, pageSize = 50, sortColumn = 'CreateAt', sortDescending = false } = {},
+) => {
+  try {
+    if (!ticketId) {
+      throw new Error('ticketId is required to load ticket tasks');
+    }
+
+    const params = {
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+      SortColumn: sortColumn,
+      SortDescending: sortDescending,
+    };
+
+    const res = await apiInstance.get(`/tickets/${ticketId}/tasks`, {
+      params,
+    });
+
+    return res?.data?.data ?? res?.data;
+  } catch (error: any) {
+    console.error('Error in getTicketTasks:', error);
+    throw new Error(error?.response?.data?.message || 'Error fetching ticket tasks');
+  }
 };

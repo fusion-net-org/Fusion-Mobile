@@ -53,5 +53,6 @@ export const ROUTES = {
     WORKSPACE_TASK: '/(tabs)/workspace/workspace_task_detail',
     CALENDAR_TASK_LIST: '/(tabs)/calendar/calendar_list',
     TASK_DETAIL: '/(tabs)/home/company_detail/projects/project_detail/task_detail',
+    TICKET_TASK_DETAIL: '/(tabs)/home/company_detail/tickets/ticket_task_detail',
   },
 };

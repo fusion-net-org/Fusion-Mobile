@@ -23,7 +23,6 @@ export default function ProjectBoardScreen() {
     (async () => {
       try {
         const res = await fetchSprintBoard(projectId as string);
-        console.log('Res rees', res);
         const normalized = normalizeBoardInput({
           workflow: res.workflow,
           sprints: res.sprints,

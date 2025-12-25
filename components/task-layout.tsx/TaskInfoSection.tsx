@@ -1,6 +1,9 @@
 import { MemberRef } from '@/interfaces/task';
+import { ROUTES } from '@/routes/route';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
 import { useFlashTask } from '@/src/utils/useFlashTask';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { CalendarDays, Check, Clock, Flag, MoveDown, TimerReset } from 'lucide-react-native';
 import { useEffect, useRef } from 'react';
 import { Animated, Image, Pressable, Text, View } from 'react-native';
@@ -80,6 +83,8 @@ export default function TaskInfoSection({
 
   const pulseAnim = useRef(new Animated.Value(0.3)).current;
 
+  const hasTicket = !!t.ticketId && !!t.ticketName;
+
   useEffect(() => {
     if (!isUrgent) return;
 
@@ -109,12 +114,38 @@ export default function TaskInfoSection({
           opacity: isActive ? 0.92 : 1,
           zIndex: isActive ? 999 : 1,
           elevation: isActive ? 8 : 2,
+
           borderColor: isUrgent ? '#DC2626' : '#E5E7EB',
           borderWidth: isUrgent ? 1.5 : 1,
+
+          backgroundColor: hasTicket ? 'rgba(37, 99, 235, 0.035)' : '#FFFFFF',
         },
       ]}
-      className="mb-2 rounded-lg border bg-white p-3 shadow"
+      className="mb-2 rounded-lg border p-3 shadow"
     >
+      {hasTicket && (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 12,
+            overflow: 'hidden',
+          }}
+        >
+          <LinearGradient
+            colors={['#F0F9FF', '#F8FAFC']}
+            locations={[0, 0.5]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{ flex: 1 }}
+          />
+        </View>
+      )}
+
       {/* Header */}
       <View className="mb-1 flex-row items-start justify-between">
         <Text className="text-[10px] text-slate-500">{t.code}</Text>
@@ -149,6 +180,20 @@ export default function TaskInfoSection({
       <Pressable onPress={() => onOpenTask?.(t.id)}>
         <Text className="mb-1 text-[13px] font-semibold text-blue-600">{t.title}</Text>
       </Pressable>
+
+      {hasTicket && (
+        <Pressable
+          onPress={() => {
+            router.push(`${ROUTES.TICKET.DETAIL}/${t.ticketId}` as any);
+          }}
+          className="mb-1 self-start rounded-md border border-sky-500 bg-transparent px-2 py-0.5"
+          style={{
+            borderRadius: 20,
+          }}
+        >
+          <Text className="text-[9px] text-sky-700">🔗 Ticket: {t.ticketName}</Text>
+        </Pressable>
+      )}
 
       {/* Meta */}
       <View className="mb-1 flex-row flex-wrap gap-2">

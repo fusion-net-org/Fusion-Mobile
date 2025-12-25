@@ -8,6 +8,7 @@ export async function fetchSprintBoard(projectId: string) {
     : payload.sprint
       ? [payload.sprint]
       : [];
+
   return {
     workflow: payload.workflow ?? null,
     sprints,

@@ -1,4 +1,5 @@
 import { useDebounce } from '@/hooks/Debounce';
+import { TicketItem } from '@/interfaces/ticket';
 import { ROUTES } from '@/routes/route';
 import { GetProjectsByCompany, GetTicketPaged } from '@/src/services/ticketService';
 import { formatLocalDate } from '@/src/utils/formatLocalDate';
@@ -16,17 +17,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-interface TicketItem {
-  id: string;
-  ticketName: string;
-  projectName: string;
-  createdAt: string;
-  priority: string;
-  status: string;
-  budget?: number;
-  isDeleted: boolean;
-}
 
 interface Project {
   id: string;
@@ -89,11 +79,10 @@ const Tickets: React.FC = () => {
       setTickets((prev) => {
         const map = new Map<string, TicketItem>();
 
-        // page 1 thì reset
         const merged = pageNumber === 1 ? res.pageData.items : [...prev, ...res.pageData.items];
 
         merged.forEach((item: any) => {
-          map.set(item.id, item); // key = id (không trùng)
+          map.set(item.id, item);
         });
 
         return Array.from(map.values());

@@ -190,6 +190,8 @@ export function useProjectBoardProviderLogic(
       parentTaskId: api.parentTaskId ?? null,
       carryOverCount: api.carryOverCount ?? 0,
       sourceTicketId: null,
+      ticketId: api.ticketId ?? null,
+      ticketName: api.ticketName ?? null,
       sourceTicketCode: '',
     };
 
@@ -341,6 +343,9 @@ export function useProjectBoardProviderLogic(
       parentTaskId: null,
       carryOverCount: 0,
       dueDate: draft.dueDate,
+
+      ticketId: '',
+      ticketName: '',
 
       sourceTicketId: null,
       sourceTicketCode: null,

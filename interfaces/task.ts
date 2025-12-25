@@ -36,6 +36,9 @@ export type TaskVm = {
   updatedAt: string;
   createdAt: string;
 
+  ticketId: string;
+  ticketName: string;
+
   sourceTicketId: string | null;
   sourceTicketCode: string | null;
 };
