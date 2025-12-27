@@ -19,7 +19,7 @@ export default function ProfileStack() {
 
   return (
     <View className="flex-1 bg-white">
-      {/* 🔹 Header cố định */}
+      {/* Header cố định */}
       <View className="w-full flex-row items-center justify-between border-b border-gray-100 px-5 pb-3 pt-12">
         <TouchableOpacity onPress={() => router.back()} className="p-2">
           <FontAwesome5 name="arrow-left" size={18} color="#333" />
@@ -32,7 +32,7 @@ export default function ProfileStack() {
         </TouchableOpacity>
       </View>
 
-      {/* 🔹 Nội dung từng màn */}
+      {/*Nội dung từng màn */}
       <Stack screenOptions={{ headerShown: false }} />
     </View>
   );

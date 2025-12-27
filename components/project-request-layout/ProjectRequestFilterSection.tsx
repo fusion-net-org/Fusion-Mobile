@@ -132,7 +132,7 @@ function FilterContent({
         className="mb-4 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
       />
 
-      {/* 🗓 Date Filter */}
+      {/* Date Filter */}
       <DateFilterDropdownPartner
         resetTrigger={!isOpen}
         onChange={(data) => {

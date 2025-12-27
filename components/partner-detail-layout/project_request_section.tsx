@@ -191,7 +191,7 @@ const ProjectRequestSection = ({ partnerId }: Props) => {
     <>
       <StatusBar hidden />
       <View className="flex-1 bg-gray-50 pt-3">
-        {/* 🏷 Header */}
+        {/* Header */}
         <View className="mb-2 px-4">
           <Text className="text-lg font-semibold text-gray-800">Project Request List</Text>
           <Text className="text-sm text-gray-400">Between you and partner</Text>

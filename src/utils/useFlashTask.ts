@@ -15,7 +15,7 @@ export const useFlashTask = (defaultColor: string = '#2e8bff') => {
 
   const backgroundColor = anim.interpolate({
     inputRange: [0, 1],
-    outputRange: [defaultColor + '33', 'transparent'], // alpha 0.2
+    outputRange: [defaultColor + '33', 'transparent'],
   });
 
   return { flash, backgroundColor };

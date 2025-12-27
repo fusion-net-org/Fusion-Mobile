@@ -325,7 +325,7 @@ export default function TicketDetailSection({ id, backRoute }: TicketDetailSecti
 
             return (
               <View key={i} className="mb-3 flex-row items-start">
-                {/* LEFT – fixed width */}
+                {/* LEFT*/}
                 <View className="w-32 flex-row items-center space-x-2">
                   {item.icon}
                   <Text className="ms-3 text-base font-semibold text-gray-700">{item.label}</Text>
@@ -339,7 +339,7 @@ export default function TicketDetailSection({ id, backRoute }: TicketDetailSecti
                   </View>
                 ) : (
                   <>
-                    {/* RIGHT – flexible */}
+                    {/* RIGHT */}
                     <View className="ms-9 flex-1 items-start ps-5">
                       {item.isBadge && item.badgeColor ? (
                         <View className={`${item.badgeColor} rounded-full px-4 py-1`}>

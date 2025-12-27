@@ -12,7 +12,7 @@ export default function OverviewSection({ partnerData }: OverviewSectionProps) {
 
   return (
     <View className="px-5 pb-10" style={{ paddingBottom: tabBarHeight + 25 }}>
-      {/* 🏢 Company Info */}
+      {/*Company Info */}
       <Text className="mb-4 text-xl font-semibold text-gray-900">Company Overview</Text>
 
       <View className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
@@ -30,7 +30,7 @@ export default function OverviewSection({ partnerData }: OverviewSectionProps) {
         </View>
       </View>
 
-      {/* 📄 Description */}
+      {/* Description */}
       {partnerData.detail && (
         <View className="mt-6">
           <Text className="mb-2 text-lg font-semibold text-gray-900">Description</Text>
